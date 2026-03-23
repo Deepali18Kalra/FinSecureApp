@@ -1,0 +1,33 @@
+package com.ds.app.entity;
+
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+public class AppUser {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Integer userId;
+	private String username;
+	private String password;
+	
+	private Integer failedLoginAttemptsCount = 0;
+	private Boolean isAccountLocked = false;
+	
+	@EqualsAndHashCode.Exclude
+	private UserRole role;
+}

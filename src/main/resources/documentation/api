@@ -1,0 +1,29 @@
+#
+     API                           Method           Who calls             What it does
+T1  /training/eligible-employees   GET                HR       Filter FRESHER + non-certified employees
+
+T2  /training/create              POST               HR      Create training program
+
+T3  /training/enroll              POST               HR      Enroll employees into training
+
+T4 /training/{id}/start           PUT               HR       Start training + send emails
+
+T5 /training/{id}/stop             PUT                HR     Complete training + send emails
+
+T6 /training/certification/{empId} PUT            Employee    Upload cert + update isCertified
+
+T7 /training/status/{empId}        GET             HR         Module Check if employee completed training
+
+T8 /training/all                   GET          HR / Admin    Get all trainings paginated
+
+T9  /training/{id}                 GET          HR / Admin    Get single training details
+
+T10 /training/certification        PUT
+    /{certId}/verify
+
+ 
+T10 /trainig/my-training            GET           Employee
+
+
+T12 /training/my-certifications     GET           Employee
+

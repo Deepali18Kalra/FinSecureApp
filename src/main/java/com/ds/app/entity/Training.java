@@ -50,6 +50,9 @@ public class Training  extends BaseEntity {
 	@Column(nullable = true)
 	private Long departmentId;
 	
+	@Column(nullable = false)
+	private boolean isDeleted = false;
+	
 	@OneToMany(mappedBy = "training",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
 	private List<EmployeeTraining>employeeTrainings = new ArrayList<>();
 	

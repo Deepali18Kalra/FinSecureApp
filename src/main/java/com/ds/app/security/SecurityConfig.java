@@ -41,6 +41,7 @@ public class SecurityConfig{
 	                .requestMatchers("/finsecure/finance/**").hasAuthority("Finance")
 	                .requestMatchers("/finsecure/system/**").hasAuthority("System")
 	                .requestMatchers("/finsecure/employee/**").hasAuthority("Employee")
+	               
 	        );
 
 	        http.sessionManagement(session ->

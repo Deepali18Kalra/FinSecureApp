@@ -1,5 +1,6 @@
 package com.ds.app.dto.response;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ public class CertificationResponseDTO {
 	private Long  trainingId;
 	private String trainingName;
 	private String certificationName;
-	private LocalDateTime issuedDate;
+	private LocalDate issuedDate;
 	private String certificateFileUrl;
 	private Boolean verifiedByHr;
 	private LocalDateTime updatedAt;

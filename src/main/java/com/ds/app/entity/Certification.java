@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Certification {
+public class Certification extends BaseEntity {
 	
 	
 	@Id

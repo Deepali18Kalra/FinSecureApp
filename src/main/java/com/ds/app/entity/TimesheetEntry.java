@@ -25,11 +25,12 @@ public class TimesheetEntry {
 	private Long timesheetEntryId;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "timesheet_id")
+	@JoinColumn(name = "timesheet_id", nullable = false)
 	private Timesheet timesheet;
 	
 	private LocalDate date;
 	private String taskDescription;
 	private Double hoursWorked;
-
+	private Long projectId;
+	private String projectName;
 }

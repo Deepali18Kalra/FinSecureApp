@@ -1,4 +1,4 @@
-package com.ds.app.entity;
+package com.ds.app.enums;
 
 public enum TimesheetStatus {
 	DRAFT,

@@ -14,17 +14,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LeaveResponse {
+public class LeaveStatusResponse {
     private Long leaveId;
-    private Long employeeId;
-    private String employeeName;
     private LocalDate startDate;
     private LocalDate endDate;
-    private Integer totalDays;
     private LeaveType leaveType;
-    private String reason;
     private LeaveStatus status;
-    private String approvedByName;
     private LocalDate approvalDate;
     private String rejectionReason;
 }

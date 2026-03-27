@@ -1,9 +1,10 @@
 package com.ds.app.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.ds.app.entity.TimesheetStatus;
+import com.ds.app.enums.TimesheetStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,5 +23,9 @@ public class TimesheetResponse {
 	private Integer year;
 	private TimesheetStatus status;
 	private LocalDateTime submittedAt;
+	private String approvedByName;
+	private LocalDate approvalDate;
+	private String rejectionReason;
+	private Integer totalMonthlyHours;
 	private List<TimesheetEntryResponse> entries;
 }

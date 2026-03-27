@@ -6,7 +6,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,13 +19,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(
+		name = "leave_balance",
+		uniqueConstraints = @UniqueConstraint(
+				columnNames = {"employee_id", "year"})
+		
+		)
 public class LeaveBalance {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long balanceId;
 	
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "employee_id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "employee_id", nullable = false)
 	private Employee employee;
 	
 	private Integer year;
@@ -36,4 +44,7 @@ public class LeaveBalance {
 	
 	@Builder.Default
 	private Integer earnedLeaveBalance = 12;
+	
+	@Builder.Default
+	private Integer carriedForwardEarnedDays = 0;
 }

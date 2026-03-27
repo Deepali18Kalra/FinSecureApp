@@ -3,7 +3,11 @@ package com.ds.app.entity;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import com.ds.app.enums.RegularizationRequestStatus;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,7 +30,7 @@ public class RegularizationRequest {
 	private Long requestId;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "employee_id")
+	@JoinColumn(name = "employee_id", nullable = false)
 	private Employee employee;
 	
 	private LocalDate date;
@@ -34,10 +38,13 @@ public class RegularizationRequest {
 	private LocalTime punchInTime;
 	private LocalTime punchOutTime;
 	
+	@Enumerated(EnumType.STRING)
 	@Builder.Default
 	private RegularizationRequestStatus status = RegularizationRequestStatus.PENDING;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "approved_by")
 	private Employee approvedBy;
+	
+	private LocalDate approvalDate;
 }

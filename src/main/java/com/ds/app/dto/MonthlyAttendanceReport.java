@@ -9,12 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LeaveBalanceResponse {
-	private Long employeeId;
+public class MonthlyAttendanceReport {
+	private Long empployeeId;
 	private String employeeName;
+	private Integer month;
 	private Integer year;
-	private Integer sickLeaveBalance;
-	private Integer casualLeaveBalance;
-	private Integer earnedLeaveBalace;
-	private Integer carriedForwardEarnedDays;
+	private Integer presentCount;
+	private Integer absentCount;
+	private Integer lateCount;
+	private Integer halfDayCount;
+	private Double totalMonthlyHours;
 }

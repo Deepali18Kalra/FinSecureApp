@@ -1,5 +1,7 @@
 package com.ds.app.dto;
 
+import com.ds.app.enums.ApprovalStatus;
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class ApprovalRequest {
 
     @NotBlank(message = "Status is required")
-    private String status;
+    private ApprovalStatus status;
 
-    private String remarks;
+    private String rejectionReason;
 }

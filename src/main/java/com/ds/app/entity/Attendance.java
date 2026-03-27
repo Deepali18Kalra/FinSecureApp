@@ -3,7 +3,11 @@ package com.ds.app.entity;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import com.ds.app.enums.AttendanceStatus;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,10 +36,12 @@ public class Attendance {
 	private LocalDate date;
 	private LocalTime punchInTime;
 	private LocalTime punchOutTime;
+	
+	@Builder.Default
+	@Enumerated(EnumType.STRING)
+	private AttendanceStatus status = AttendanceStatus.MISS_SWIPE;
 
-	private AttendanceStatus status;
-
-	private double hoursWorked;
+	private Double hoursWorked;
 
 	@Builder.Default
 	private Boolean isRegularized = false;

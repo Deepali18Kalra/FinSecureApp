@@ -1,0 +1,56 @@
+package com.ds.app.mapper;
+
+import com.ds.app.dto.LeaveRequest;
+import com.ds.app.dto.LeaveResponse;
+import com.ds.app.dto.LeaveStatusResponse;
+import com.ds.app.entity.Employee;
+import com.ds.app.entity.Leave;
+import com.ds.app.enums.LeaveStatus;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class LeaveMapper {
+
+    public Leave mapToEntity(LeaveRequest leaveRequest, Employee employee) {
+        return Leave.builder()
+                .employee(employee)
+                .startDate(leaveRequest.getStartDate())
+                .endDate(leaveRequest.getEndDate())
+                .leaveType(leaveRequest.getLeaveType())
+                .reason(leaveRequest.getReason())
+                .build();
+    }
+
+    public LeaveResponse mapToResponse(Leave leave) {
+        return LeaveResponse.builder()
+                .leaveId(leave.getLeaveId())
+                .employeeId(leave.getEmployee().getUserId())
+                .employeeName(leave.getEmployee().getFirstName() + " " + leave.getEmployee().getLastName())
+                .startDate(leave.getStartDate())
+                .endDate(leave.getEndDate())
+                .totalDays(leave.getTotalDays())
+                .leaveType(leave.getLeaveType())
+                .reason(leave.getReason())
+                .status(leave.getStatus())
+                .approvedByName(leave.getApprovedBy() != null ?
+                		leave.getApprovedBy().getFirstName() : null + " " + 
+                		leave.getApprovedBy() != null ?
+                		leave.getApprovedBy().getLastName() : null)
+                .approvalDate(leave.getApprovalDate())
+                .rejectionReason(leave.getRejectionReason())
+                .build();
+    }
+
+    public LeaveStatusResponse mapToStatusResponse(Leave leave) {
+        return LeaveStatusResponse.builder()
+                .leaveId(leave.getLeaveId())
+                .startDate(leave.getStartDate())
+                .endDate(leave.getEndDate())
+                .leaveType(leave.getLeaveType())
+                .status(leave.getStatus())
+                .approvalDate(leave.getApprovalDate())
+                .rejectionReason(leave.getRejectionReason())
+                .build();
+    }
+}

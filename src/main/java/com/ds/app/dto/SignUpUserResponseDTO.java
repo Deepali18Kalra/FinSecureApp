@@ -1,6 +1,6 @@
 package com.ds.app.dto;
 
-import com.ds.app.entity.UserRole;
+import com.ds.app.enums.UserRole;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

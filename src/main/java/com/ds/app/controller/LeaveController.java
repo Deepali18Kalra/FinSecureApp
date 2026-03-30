@@ -4,6 +4,7 @@ import com.ds.app.dto.ApprovalRequest;
 import com.ds.app.dto.LeaveRequest;
 import com.ds.app.dto.LeaveResponse;
 import com.ds.app.dto.LeaveStatusResponse;
+import com.ds.app.enums.LeaveStatus;
 import com.ds.app.service.ILeaveService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class LeaveController {
 
+    private final AdminController adminController;
+
     private final ILeaveService leaveService;
 
     // Employee endpoints
@@ -30,11 +33,15 @@ public class LeaveController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
-    @GetMapping("/{leaveId}/status")
-    public ResponseEntity<LeaveStatusResponse> getLeaveStatus(@PathVariable Long leaveId) {
-        LeaveStatusResponse response = leaveService.getLeaveStatus(leaveId);
-        return ResponseEntity.ok(response);
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE', 'HR')")
+    @GetMapping
+    public ResponseEntity<Page<LeaveStatusResponse>> getMyLeaves(
+    		@RequestParam(required = false) LeaveStatus status,
+    		@RequestParam(required = false) Integer year,
+    		@RequestParam(required = false) Integer month,
+    		Pageable pageable) {
+        Page<LeaveStatusResponse> pageResponse = leaveService.getMyLeaves(status, year, month, pageable);
+        return ResponseEntity.ok(pageResponse);
     }
 
     // HR endpoints

@@ -18,7 +18,7 @@ public class LeaveMapper {
                 .startDate(leaveRequest.getStartDate())
                 .endDate(leaveRequest.getEndDate())
                 .leaveType(leaveRequest.getLeaveType())
-                .reasonForLeave(leaveRequest.getReason())
+                .reasonForLeave(leaveRequest.getReasonForLeave())
                 .build();
     }
 

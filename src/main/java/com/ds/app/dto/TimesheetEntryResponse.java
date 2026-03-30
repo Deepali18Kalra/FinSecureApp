@@ -8,14 +8,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class TimesheetEntryResponse {
-	private Long entryId;
-	private LocalDate date;
-	private String taskDesdription;
-	private Double hoursWorked;
-	private Long projectId;
-	private String projectName;
+    private Long timesheetEntryId;
+    private Long timesheetId;
+    private LocalDate date;
+    private String taskDescription;
+    private Double hoursWorked;
+    private Long projectId;
+    private String projectName;
 }

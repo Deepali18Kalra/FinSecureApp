@@ -9,6 +9,7 @@ import com.ds.app.entity.Leave;
 import com.ds.app.enums.ApprovalStatus;
 import com.ds.app.enums.LeaveStatus;
 import com.ds.app.exception.ResourceNotFoundException;
+import com.ds.app.exception.UnAuthorizedException;
 import com.ds.app.mapper.LeaveMapper;
 import com.ds.app.repository.IHolidayRepository;
 import com.ds.app.repository.ILeaveRepository;
@@ -56,10 +57,23 @@ public class LeaveServiceImpl implements ILeaveService {
         return leaveRepository.searchLeaveByEmployee(employee.getUserId(),status,year,month,pageable);
     }
 
+//    @Override
+//	public LeaveStatusResponse cancelOrWithdrawLeave(Long leaveId) {
+//    	Employee employee = securityUtils.getLoggedInEmployee();
+//		Leave existingLeave = leaveRepository.findByLeaveIdAndEmployeeUserId(leaveId, employee.getUserId())
+//				.orElseThrow( () -> new UnAuthorizedException("Leave not found or you are unauthorized to perform this action"));
+//		
+//		if(existingLeave.getStatus().equals(LeaveStatus.PENDING)) {
+//			
+//		}
+//		
+//		
+//	}
+    
     // HR related methods
     @Override
     @Transactional
-    public LeaveResponse reviewLeave(Long leaveId, ApprovalRequest approvalRequest) {
+    public LeaveResponse processLeaveRequest(Long leaveId, ApprovalRequest approvalRequest) {
         Employee loggedInHR = securityUtils.getLoggedInEmployee();
         Leave existingLeave = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new ResourceNotFoundException("Leave not found with id: " + leaveId));

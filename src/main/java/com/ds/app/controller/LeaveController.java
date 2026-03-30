@@ -51,7 +51,7 @@ public class LeaveController {
             @PathVariable Long leaveId,
             @RequestBody ApprovalRequest approvalRequest
     ) {
-        LeaveResponse response = leaveService.reviewLeave(leaveId, approvalRequest);
+        LeaveResponse response = leaveService.processLeaveRequest(leaveId, approvalRequest);
         return ResponseEntity.ok(response);
     }
 

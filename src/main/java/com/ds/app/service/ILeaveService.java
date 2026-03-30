@@ -12,9 +12,10 @@ public interface ILeaveService {
     // Employee related methods
     LeaveResponse applyLeave(LeaveRequest leaveRequest);
 
-
     Page<LeaveStatusResponse> getMyLeaves(LeaveStatus status, Integer year, Integer month, Pageable pageable);
+    
+//    LeaveStatusResponse cancleLeaveRequest(Long leaveId);
     // HR related methods
-    LeaveResponse reviewLeave(Long leaveId, ApprovalRequest approvalRequest);
+    LeaveResponse processLeaveRequest(Long leaveId, ApprovalRequest approvalRequest);
     Page<LeaveResponse> getPendingRequest(Pageable pageable);
 }

@@ -3,6 +3,9 @@ package com.ds.app.repository;
 import com.ds.app.dto.LeaveStatusResponse;
 import com.ds.app.entity.Leave;
 import com.ds.app.enums.LeaveStatus;
+
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -40,4 +43,6 @@ public interface ILeaveRepository extends JpaRepository<Leave, Long> {
     );
 
     Page<Leave> findByEmployee_Hr_UserIdAndStatus(Long hrId, LeaveStatus status, Pageable pageable);
+    
+    Optional<Leave> findByLeaveIdAndEmployeeUserId(Long leaveId, Long employeeId);
 }

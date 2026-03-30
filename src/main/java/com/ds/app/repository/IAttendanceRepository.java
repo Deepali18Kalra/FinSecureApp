@@ -16,6 +16,8 @@ import com.ds.app.entity.Attendance;
 public interface IAttendanceRepository extends JpaRepository<Attendance, Long>{
 	Optional<Attendance> findByEmployeeUserIdAndDate(Long employeeId, LocalDate date);
 	Page<Attendance> findByEmployeeUserId(Long employeeId, Pageable pageable);
+
+    Boolean existsByDate(LocalDate date);
 	
 	@Query("""
 			select a 

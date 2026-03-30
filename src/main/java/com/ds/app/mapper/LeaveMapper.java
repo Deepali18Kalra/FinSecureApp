@@ -18,7 +18,7 @@ public class LeaveMapper {
                 .startDate(leaveRequest.getStartDate())
                 .endDate(leaveRequest.getEndDate())
                 .leaveType(leaveRequest.getLeaveType())
-                .reason(leaveRequest.getReason())
+                .reasonForLeave(leaveRequest.getReason())
                 .build();
     }
 
@@ -31,10 +31,10 @@ public class LeaveMapper {
                 .endDate(leave.getEndDate())
                 .totalDays(leave.getTotalDays())
                 .leaveType(leave.getLeaveType())
-                .reason(leave.getReason())
+                .reasonForLeave(leave.getReasonForLeave())
                 .status(leave.getStatus())
                 .approvedByName(leave.getApprovedBy() != null ?
-                		leave.getApprovedBy().getFirstName() : null + " " + 
+                		leave.getApprovedBy().getFirstName() : null + " " +
                 		leave.getApprovedBy() != null ?
                 		leave.getApprovedBy().getLastName() : null)
                 .approvalDate(leave.getApprovalDate())

@@ -2,6 +2,7 @@ package com.ds.app.repository;
 
 import com.ds.app.dto.LeaveStatusResponse;
 import com.ds.app.entity.Leave;
+import com.ds.app.enums.LeaveStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,17 +15,29 @@ public interface ILeaveRepository extends JpaRepository<Leave, Long> {
     Page<Leave> findByEmployeeHrUserId(Long hrId, Pageable pageable);
 
     @Query("""
-            select new com.ds.app.dto.LeaveStatusResponse(
-                            l.leaveId,
-                            l.startDate,
-                            l.endDate,
-                            l.leaveType,
-                            l.status,
-                            l.approvalDate,
-                            l.rejectionReason
-                        )
-            from Leave l
-            where l.leaveId =:leaveId
-            """)
-    LeaveStatusResponse findByLeaveId(@Param("leaveId") Long leaveId);
+    select new com.ds.app.dto.LeaveStatusResponse(
+        l.leaveId,
+        l.startDate,
+        l.endDate,
+        l.totalDays,
+        l.leaveType,
+        l.status,
+        l.approvalDate,
+        l.rejectionReason
+    )
+    from Leave l
+    where l.employee.userId = :employeeId
+    and (:status is null or l.status = :status)
+    and (:year is null or year(l.startDate) = :year)
+    and (:month is null or month(l.startDate) = :month)
+    """)
+    Page<LeaveStatusResponse> searchLeaveByEmployee(
+            @Param("employeeId") Long employeeId,
+            @Param("status") LeaveStatus status,
+            @Param("year") Integer year,
+            @Param("month") Integer month,
+            Pageable pageable
+    );
+
+    Page<Leave> findByEmployee_Hr_UserIdAndStatus(Long hrId, LeaveStatus status, Pageable pageable);
 }

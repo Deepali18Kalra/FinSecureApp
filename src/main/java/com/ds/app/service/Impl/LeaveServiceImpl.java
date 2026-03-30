@@ -51,8 +51,9 @@ public class LeaveServiceImpl implements ILeaveService {
     }
 
     @Override
-    public LeaveStatusResponse getLeaveStatus(Long leaveId) {
-        return leaveRepository.findByLeaveId(leaveId);
+    public Page<LeaveStatusResponse> getMyLeaves(LeaveStatus status, Integer year, Integer month, Pageable pageable) {
+        Employee employee = securityUtils.getLoggedInEmployee();
+        return leaveRepository.searchLeaveByEmployee(employee.getUserId(),status,year,month,pageable);
     }
 
     // HR related methods
@@ -63,14 +64,14 @@ public class LeaveServiceImpl implements ILeaveService {
         Leave existingLeave = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new ResourceNotFoundException("Leave not found with id: " + leaveId));
 
-        if(existingLeave.getStatus().equals(LeaveStatus.REJECTED)) {
+        if(existingLeave.getStatus().equals(LeaveStatus.PENDING)) {
             existingLeave.setStatus(toLeaveStatus(approvalRequest.getStatus()));
             existingLeave.setApprovedBy(loggedInHR);
             existingLeave.setApprovalDate(LocalDate.now());
         }
 
         if(approvalRequest.getStatus().equals(ApprovalStatus.REJECTED)) {
-            existingLeave.setReason(approvalRequest.getRejectionReason());
+            existingLeave.setRejectionReason(approvalRequest.getRejectionReason());
         }
 
         return  leaveMapper.mapToResponse(existingLeave);
@@ -79,7 +80,10 @@ public class LeaveServiceImpl implements ILeaveService {
     @Override
     public Page<LeaveResponse> getPendingRequest(Pageable pageable) {
         Employee loggedInHR = securityUtils.getLoggedInEmployee();
-        Page<Leave> pendingLeaves = leaveRepository.findByEmployeeHrUserId(loggedInHR.getUserId(), pageable);
+        Page<Leave> pendingLeaves = leaveRepository.findByEmployee_Hr_UserIdAndStatus(
+                loggedInHR.getUserId(),
+                LeaveStatus.PENDING,
+                pageable);
         return pendingLeaves.map(leave -> leaveMapper.mapToResponse(leave));
     }
 

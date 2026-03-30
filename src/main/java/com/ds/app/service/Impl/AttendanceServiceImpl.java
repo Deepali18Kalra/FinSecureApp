@@ -42,7 +42,8 @@ public class AttendanceServiceImpl implements IAttendanceService{
 				.punchInTime(LocalTime.now())
 				.build();
 		
-		Attendance savedAttendance = attendanceRepo.save(todayAttendance);
+		Attendance savedAttendance = attendanceRepo.findByEmployeeUserIdAndDate(loggedInEmp.getUserId(),LocalDate.now())
+                .orElseGet(() -> attendanceRepo.save(todayAttendance));
 	
 		return attendanceMapper.mapToResponse(savedAttendance);
 	}
@@ -51,7 +52,7 @@ public class AttendanceServiceImpl implements IAttendanceService{
 	@Transactional
 	public AttendanceResponse punchOut() {
 		Employee loggedInEmp = securityUtil.getLoggedInEmployee();
-		Attendance TodayAttendance = attendanceRepo.findByEmployeeUserIdAndDate(loggedInEmp.getUserId(), LocalDate.now())
+		Attendance todayAttendance = attendanceRepo.findByEmployeeUserIdAndDate(loggedInEmp.getUserId(), LocalDate.now())
 				.orElseGet( () -> {
 					Attendance newTodayAttendance = Attendance.builder()
 							.employee(loggedInEmp)
@@ -59,13 +60,16 @@ public class AttendanceServiceImpl implements IAttendanceService{
 							.build();
 					return attendanceRepo.save(newTodayAttendance);
 				});
+        if (todayAttendance.getPunchOutTime() != null) {
+            return attendanceMapper.mapToResponse(todayAttendance);
+        }
+
+        todayAttendance.setPunchOutTime(LocalTime.now());
 		
-		TodayAttendance.setPunchOutTime(LocalTime.now());
-		
-		if(TodayAttendance.getPunchInTime() != null) {
-			Duration duration = Duration.between(TodayAttendance.getPunchInTime(), TodayAttendance.getPunchOutTime());
-			Double hoursWorked = (double) duration.toHours();
-			TodayAttendance.setHoursWorked(hoursWorked);
+		if(todayAttendance.getPunchInTime() != null) {
+			Duration duration = Duration.between(todayAttendance.getPunchInTime(), todayAttendance.getPunchOutTime());
+            double hoursWorked = duration.toMillis() / 3600000.0;
+            todayAttendance.setHoursWorked(hoursWorked);
 			
 			AttendanceStatus todayStatus;
 			if(hoursWorked >= 4) {
@@ -73,10 +77,10 @@ public class AttendanceServiceImpl implements IAttendanceService{
 			}else {
 				todayStatus = AttendanceStatus.HALF_DAY_PRESENT;
 			}
-			TodayAttendance.setStatus(todayStatus);
+            todayAttendance.setStatus(todayStatus);
 		}
 		
-		return attendanceMapper.mapToResponse(TodayAttendance);
+		return attendanceMapper.mapToResponse(todayAttendance);
 	}
 
 	@Override

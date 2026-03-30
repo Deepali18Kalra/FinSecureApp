@@ -22,7 +22,7 @@ public class LeaveResponse {
     private LocalDate endDate;
     private Integer totalDays;
     private LeaveType leaveType;
-    private String reason;
+    private String reasonForLeave;
     private LeaveStatus status;
     private String approvedByName;
     private LocalDate approvalDate;

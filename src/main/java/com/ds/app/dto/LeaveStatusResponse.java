@@ -18,6 +18,7 @@ public class LeaveStatusResponse {
     private Long leaveId;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Integer totalDays;
     private LeaveType leaveType;
     private LeaveStatus status;
     private LocalDate approvalDate;

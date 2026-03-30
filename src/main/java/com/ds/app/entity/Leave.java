@@ -38,7 +38,7 @@ public class Leave {
 	private LocalDate startDate;
 	private LocalDate endDate;
 	private Integer totalDays;
-	private String reason;
+	private String reasonForLeave;
 	
 	@Enumerated(EnumType.STRING)
 	private LeaveType leaveType;

@@ -29,5 +29,5 @@ public class LeaveRequest {
 	private LeaveType leaveType;
 	
 	@NotBlank(message = "Reason is required")
-	private String reason;
+	private String reasonForLeave;
 }

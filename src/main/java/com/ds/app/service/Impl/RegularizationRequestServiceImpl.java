@@ -1,0 +1,113 @@
+package com.ds.app.service.Impl;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import com.ds.app.mapper.RegularizationRequestMapper;
+import com.ds.app.service.IRegularizationRequestService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.ds.app.dto.ApprovalRequest;
+import com.ds.app.dto.RegularizationRequestdto;
+import com.ds.app.dto.RegularizationResponse;
+import com.ds.app.entity.Employee;
+import com.ds.app.entity.RegularizationRequest;
+import com.ds.app.enums.ApprovalStatus;
+import com.ds.app.enums.RegularizationRequestStatus;
+import com.ds.app.exception.ResourceNotFoundException;
+import com.ds.app.repository.IRegularizationRequestRepository;
+import com.ds.app.utils.SecurityUtils;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class RegularizationRequestServiceImpl implements IRegularizationRequestService {
+
+    private final IRegularizationRequestRepository regularizationRepository;
+    private final RegularizationRequestMapper regularizationMapper;
+    private final SecurityUtils securityUtils;
+
+    @Override
+    @Transactional
+    public RegularizationResponse applyRegularization(RegularizationRequestdto request) {
+        Employee me = securityUtils.getLoggedInEmployee();
+
+        if (request.getDate().isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Regularization cannot be applied for future date.");
+        }
+
+        boolean alreadyPending = regularizationRepository.existsByEmployeeUserIdAndDateAndStatus(
+                me.getUserId(), request.getDate(), RegularizationRequestStatus.PENDING);
+
+        if (alreadyPending) {
+            throw new IllegalStateException("Pending regularization already exists for this date.");
+        }
+
+        RegularizationRequest rr = RegularizationRequest.builder()
+                .employee(me)
+                .date(request.getDate())
+                .reason(request.getReason())
+                .punchInTime(request.getPunchInTime())
+                .punchOutTime(request.getPunchOutTime())
+                .status(RegularizationRequestStatus.PENDING)
+                .build();
+
+        return regularizationMapper.mapToResponse(regularizationRepository.save(rr));
+    }
+
+    @Override
+    public List<RegularizationResponse> getMyRegularizationRequests(String status) {
+        Employee me = securityUtils.getLoggedInEmployee();
+
+        List<RegularizationRequest> list;
+        if (status == null || status.isBlank()) {
+            list = regularizationRepository.findByEmployeeUserIdOrderByDateDesc(me.getUserId());
+        } else {
+            RegularizationRequestStatus parsed = RegularizationRequestStatus.valueOf(status.toUpperCase());
+            list = regularizationRepository.findByEmployeeUserIdAndStatusOrderByDateDesc(me.getUserId(), parsed);
+        }
+
+        return list.stream().map(regularizationMapper::mapToResponse).toList();
+    }
+
+    @Override
+    public List<RegularizationResponse> getPendingRegularizationsForHr() {
+        Employee hr = securityUtils.getLoggedInEmployee();
+
+        return regularizationRepository
+                .findByEmployeeHrUserIdAndStatusOrderByDateDesc(hr.getUserId(), RegularizationRequestStatus.PENDING)
+                .stream()
+                .map(regularizationMapper::mapToResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public RegularizationResponse reviewRegularization(Long requestId, ApprovalRequest request) {
+        Employee hr = securityUtils.getLoggedInEmployee();
+
+        RegularizationRequest rr = regularizationRepository.findById(requestId)
+                .orElseThrow(() -> new ResourceNotFoundException("Regularization request not found with id: " + requestId));
+
+        if (rr.getEmployee().getHr() == null || !rr.getEmployee().getHr().getUserId().equals(hr.getUserId())) {
+            throw new ResourceNotFoundException("Regularization request not found with id: " + requestId);
+        }
+
+        if (rr.getStatus() != RegularizationRequestStatus.PENDING) {
+            throw new IllegalStateException("Only PENDING request can be reviewed.");
+        }
+
+        if (request.getStatus() == ApprovalStatus.APPROVED) {
+            rr.setStatus(RegularizationRequestStatus.APPROVED);
+        } else {
+            rr.setStatus(RegularizationRequestStatus.REJECTED);
+        }
+
+        rr.setApprovedBy(hr);
+        rr.setApprovalDate(LocalDate.now());
+
+        return regularizationMapper.mapToResponse(rr);
+    }
+}

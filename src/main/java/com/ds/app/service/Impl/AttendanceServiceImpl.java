@@ -35,15 +35,16 @@ public class AttendanceServiceImpl implements IAttendanceService{
 	@Override
 	public AttendanceResponse punchIn() {
 		Employee loggedInEmp = securityUtil.getLoggedInEmployee();
-		
-		Attendance todayAttendance = Attendance.builder()
-				.employee(loggedInEmp)
-				.date(LocalDate.now())
-				.punchInTime(LocalTime.now())
-				.build();
-		
+
 		Attendance savedAttendance = attendanceRepo.findByEmployeeUserIdAndDate(loggedInEmp.getUserId(),LocalDate.now())
-                .orElseGet(() -> attendanceRepo.save(todayAttendance));
+                .orElseGet(() -> {
+                    Attendance todayAttendance = Attendance.builder()
+                            .employee(loggedInEmp)
+                            .date(LocalDate.now())
+                            .punchInTime(LocalTime.now())
+                            .build();
+                    return attendanceRepo.save(todayAttendance);
+                });
 	
 		return attendanceMapper.mapToResponse(savedAttendance);
 	}
@@ -106,7 +107,7 @@ public class AttendanceServiceImpl implements IAttendanceService{
 	@Override
 	public Page<AttendanceResponse> getEmployeeAttendance(Long employeeId, Integer month, Integer year, Pageable pageable) {
 		Page<Attendance> attendancePage = attendanceRepo.findAttendanceByEmployeeUserIdAndMonthAndYear(employeeId, month, year, pageable);
-		return attendancePage.map(attendace -> attendanceMapper.mapToResponse(attendace));
+		return attendancePage.map(attendance -> attendanceMapper.mapToResponse(attendance));
 	}
 
 	@Override

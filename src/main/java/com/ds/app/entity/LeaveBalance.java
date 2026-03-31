@@ -14,6 +14,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -43,8 +45,8 @@ public class LeaveBalance {
 	private Integer casualLeaveBalance = 8;
 	
 	@Builder.Default
-	private Integer earnedLeaveBalance = 12;
+	private BigDecimal earnedLeaveBalance = BigDecimal.valueOf(0);
 	
 	@Builder.Default
-	private Integer carriedForwardEarnedDays = 0;
+	private BigDecimal carriedForwardEarnedDays = BigDecimal.valueOf(0);
 }

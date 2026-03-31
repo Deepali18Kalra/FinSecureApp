@@ -21,8 +21,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class LeaveController {
 
-    private final AdminController adminController;
-
     private final ILeaveService leaveService;
 
     // Employee endpoints

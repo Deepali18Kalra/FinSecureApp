@@ -1,27 +1,19 @@
 package com.ds.app.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.ds.app.dto.AttendanceResponse;
 import com.ds.app.service.IAttendanceService;
-
 import lombok.RequiredArgsConstructor;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 
 @RestController
@@ -82,7 +74,7 @@ public class AttendanceController {
 	@GetMapping("/all")
 	public ResponseEntity<Page<AttendanceResponse>> getAllAttendanceByDate(
 			@RequestParam LocalDate date,
-			@PageableDefault(size = 10, page = 0, sort = "userId", direction = Sort.Direction.DESC)
+			@PageableDefault(size = 10, page = 0, sort = "attendanceId", direction = Sort.Direction.DESC)
 			Pageable pageable
 			) {
 		Page<AttendanceResponse> pageResponse = attendanceService.getAllAttendanceByDate(date, pageable);

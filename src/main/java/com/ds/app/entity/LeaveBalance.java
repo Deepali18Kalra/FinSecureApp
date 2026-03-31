@@ -1,14 +1,6 @@
 package com.ds.app.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,6 +38,24 @@ public class LeaveBalance {
 	
 	@Builder.Default
 	private BigDecimal earnedLeaveBalance = BigDecimal.valueOf(0);
+
+    @Builder.Default
+    private Integer reservedSickLeaves = 0;
+
+    @Builder.Default
+    private Integer reservedCasualLeaves = 0;
+
+    @Builder.Default
+    private Integer reservedEarnedLeaves = 0;
+
+    @Builder.Default
+    private Integer sickLeavesConsumed = 0;
+
+    @Builder.Default
+    private Integer casualLeavesConsumed = 0;
+
+    @Builder.Default
+    private Integer earnedLeavesConsumed = 0;
 	
 	@Builder.Default
 	private BigDecimal carriedForwardEarnedDays = BigDecimal.valueOf(0);

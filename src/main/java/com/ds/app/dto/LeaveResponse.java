@@ -2,7 +2,6 @@ package com.ds.app.dto;
 
 import com.ds.app.enums.LeaveStatus;
 import com.ds.app.enums.LeaveType;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

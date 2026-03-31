@@ -3,15 +3,17 @@ package com.ds.app.repository;
 import com.ds.app.dto.LeaveStatusResponse;
 import com.ds.app.entity.Leave;
 import com.ds.app.enums.LeaveStatus;
-
-import java.util.Optional;
-
+import com.ds.app.enums.LeaveType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ILeaveRepository extends JpaRepository<Leave, Long> {
@@ -45,4 +47,21 @@ public interface ILeaveRepository extends JpaRepository<Leave, Long> {
     Page<Leave> findByEmployee_Hr_UserIdAndStatus(Long hrId, LeaveStatus status, Pageable pageable);
     
     Optional<Leave> findByLeaveIdAndEmployeeUserId(Long leaveId, Long employeeId);
+
+    @Query("""
+        SELECT l
+        FROM Leave l
+        WHERE l.employee.userId = :userId
+          AND l.status = :status
+          AND l.leaveType <> :unpaidType
+          AND l.startDate <= :toDate
+          AND l.endDate >= :fromDate
+    """)
+    List<Leave> findApprovedPaidLeavesOverlappingRange(
+            @Param("userId") Long userId,
+            @Param("status") LeaveStatus status,
+            @Param("unpaidType") LeaveType unpaidType,
+            @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate
+    );
 }

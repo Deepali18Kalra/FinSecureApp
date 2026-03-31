@@ -13,9 +13,13 @@ public interface ILeaveService {
     LeaveResponse applyLeave(LeaveRequest leaveRequest);
 
     Page<LeaveStatusResponse> getMyLeaves(LeaveStatus status, Integer year, Integer month, Pageable pageable);
+
+    LeaveResponse cancelOrWithdrawLeave(Long leaveId);
     
-//    LeaveStatusResponse cancleLeaveRequest(Long leaveId);
     // HR related methods
     LeaveResponse processLeaveRequest(Long leaveId, ApprovalRequest approvalRequest);
+
+    LeaveResponse processCancellationRequest(Long leaveId, ApprovalRequest approvalRequest);
+
     Page<LeaveResponse> getPendingRequest(Pageable pageable);
 }

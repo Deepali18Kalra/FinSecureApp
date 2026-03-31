@@ -1,12 +1,11 @@
 package com.ds.app.repository;
 
-import java.util.Optional;
-
+import com.ds.app.entity.Employee;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.ds.app.entity.Employee;
+import java.util.Optional;
 
-public interface IEmployeeRepository extends JpaRepository<Employee, Integer>{
-	Optional<Employee> findByUserId(Integer userId);
+public interface IEmployeeRepository extends JpaRepository<Employee, Long>{
+	Optional<Employee> findByUserId(Long userId);
 	Optional<Employee> findByUsername(String username);
 }

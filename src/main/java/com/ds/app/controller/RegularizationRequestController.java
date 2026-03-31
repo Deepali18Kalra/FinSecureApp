@@ -1,19 +1,17 @@
 package com.ds.app.controller;
 
-import java.util.List;
-
+import com.ds.app.dto.ApprovalRequest;
+import com.ds.app.dto.RegularizationRequestdto;
+import com.ds.app.dto.RegularizationResponse;
 import com.ds.app.service.IRegularizationRequestService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import com.ds.app.dto.ApprovalRequest;
-import com.ds.app.dto.RegularizationRequestdto;
-import com.ds.app.dto.RegularizationResponse;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/regularizations")

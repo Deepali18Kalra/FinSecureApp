@@ -1,14 +1,13 @@
 package com.ds.app.repository;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
+import com.ds.app.entity.RegularizationRequest;
+import com.ds.app.enums.RegularizationRequestStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.ds.app.entity.RegularizationRequest;
-import com.ds.app.enums.RegularizationRequestStatus;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IRegularizationRequestRepository extends JpaRepository<RegularizationRequest, Long> {

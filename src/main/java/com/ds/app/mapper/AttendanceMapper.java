@@ -1,9 +1,8 @@
 package com.ds.app.mapper;
 
-import org.springframework.stereotype.Component;
-
 import com.ds.app.dto.AttendanceResponse;
 import com.ds.app.entity.Attendance;
+import org.springframework.stereotype.Component;
 
 @Component
 public class AttendanceMapper {

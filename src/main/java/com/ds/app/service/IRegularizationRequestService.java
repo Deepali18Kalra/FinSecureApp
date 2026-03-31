@@ -1,10 +1,10 @@
 package com.ds.app.service;
 
-import java.util.List;
-
 import com.ds.app.dto.ApprovalRequest;
 import com.ds.app.dto.RegularizationRequestdto;
 import com.ds.app.dto.RegularizationResponse;
+
+import java.util.List;
 
 public interface IRegularizationRequestService {
 

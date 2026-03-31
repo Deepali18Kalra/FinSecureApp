@@ -1,13 +1,12 @@
 package com.ds.app.dto;
 
+import com.ds.app.enums.HolidayType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-
-import com.ds.app.enums.HolidayType;
 
 @Data
 @NoArgsConstructor

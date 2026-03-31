@@ -1,5 +1,6 @@
 package com.ds.app.dto;
 
+import com.ds.app.enums.AttendanceStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,8 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-
-import com.ds.app.enums.AttendanceStatus;
 
 @Data
 @NoArgsConstructor

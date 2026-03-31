@@ -1,9 +1,8 @@
 package com.ds.app.mapper;
 
-import org.springframework.stereotype.Component;
-
 import com.ds.app.dto.TimesheetEntryResponse;
 import com.ds.app.entity.TimesheetEntry;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TimesheetEntryMapper {

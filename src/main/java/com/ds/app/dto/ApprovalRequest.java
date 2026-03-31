@@ -1,8 +1,6 @@
 package com.ds.app.dto;
 
 import com.ds.app.enums.ApprovalStatus;
-
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

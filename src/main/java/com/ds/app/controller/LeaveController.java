@@ -37,7 +37,8 @@ public class LeaveController {
     		@RequestParam(required = false) LeaveStatus status,
     		@RequestParam(required = false) Integer year,
     		@RequestParam(required = false) Integer month,
-    		Pageable pageable) {
+            @PageableDefault(size = 10, page = 0, sort = "leaveId", direction = Sort.Direction.DESC)
+            Pageable pageable) {
         Page<LeaveStatusResponse> pageResponse = leaveService.getMyLeaves(status, year, month, pageable);
         return ResponseEntity.ok(pageResponse);
     }

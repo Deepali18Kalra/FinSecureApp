@@ -5,5 +5,6 @@ public enum AttendanceStatus {
 	MISS_SWIPE,
 	HALF_DAY_PRESENT,
 	PRESENT,
-	MANUAL_PUNCH, LATE,
+	MANUAL_PUNCH,
+    LATE,
 }

@@ -5,8 +5,6 @@ import com.ds.app.dto.LeaveResponse;
 import com.ds.app.dto.LeaveStatusResponse;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.Leave;
-import com.ds.app.enums.LeaveStatus;
-
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,9 +32,8 @@ public class LeaveMapper {
                 .reasonForLeave(leave.getReasonForLeave())
                 .status(leave.getStatus())
                 .approvedByName(leave.getApprovedBy() != null ?
-                		leave.getApprovedBy().getFirstName() : null + " " +
-                		leave.getApprovedBy() != null ?
-                		leave.getApprovedBy().getLastName() : null)
+                    leave.getApprovedBy().getFirstName() + " " + leave.getApprovedBy().getLastName() :
+                    null)
                 .approvalDate(leave.getApprovalDate())
                 .rejectionReason(leave.getRejectionReason())
                 .build();

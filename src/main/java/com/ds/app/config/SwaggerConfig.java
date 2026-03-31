@@ -15,9 +15,9 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Cricket Booking API")
+                        .title("FinSecure Attendance & Timesheet Module API")
                         .version("1.0")
-                        .description("Cricket Match Ticket Booking REST API"))
+                        .description("FinSecure Timesheet Module REST API"))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",

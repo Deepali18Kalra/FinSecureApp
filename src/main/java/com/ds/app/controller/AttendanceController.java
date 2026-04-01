@@ -61,8 +61,8 @@ public class AttendanceController {
 	@GetMapping("/employee/{employeeId}")
 	public ResponseEntity<Page<AttendanceResponse>> getEmployeeAttendance(
 			@PathVariable Long employeeId,
-			@RequestParam(required = true) Integer month,
-			@RequestParam(required = true) Integer year,
+			@RequestParam(required = false) Integer month,
+			@RequestParam(required = false) Integer year,
 			@PageableDefault(size = 10, page = 0, sort = "date", direction = Sort.Direction.DESC)
 			Pageable pageable
 			) {

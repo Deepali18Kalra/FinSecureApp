@@ -44,7 +44,7 @@ public interface ILeaveRepository extends JpaRepository<Leave, Long> {
             Pageable pageable
     );
 
-    Page<Leave> findByEmployee_Hr_UserIdAndStatus(Long hrId, LeaveStatus status, Pageable pageable);
+    Page<Leave> findByEmployee_Hr_UserIdAndStatusIn(Long hrId, List<LeaveStatus> status, Pageable pageable);
     
     Optional<Leave> findByLeaveIdAndEmployeeUserId(Long leaveId, Long employeeId);
 

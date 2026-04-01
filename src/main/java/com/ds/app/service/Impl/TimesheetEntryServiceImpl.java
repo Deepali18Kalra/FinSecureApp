@@ -156,7 +156,6 @@ public class TimesheetEntryServiceImpl implements ITimesheetEntryService {
                 .filter(h -> h != null)
                 .reduce(0.0, Double::sum);
 
-        // Your TimesheetResponse has Integer totalMonthlyHours, so store rounded int at entity level too
         timesheet.setTotalMonthlyHours(total);
         timesheetRepository.save(timesheet);
     }

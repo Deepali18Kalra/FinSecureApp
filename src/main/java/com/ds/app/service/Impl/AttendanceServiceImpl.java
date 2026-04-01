@@ -5,8 +5,10 @@ import com.ds.app.entity.Attendance;
 import com.ds.app.entity.Employee;
 import com.ds.app.enums.AttendanceStatus;
 import com.ds.app.exception.ResourceNotFoundException;
+import com.ds.app.exception.UnAuthorizedException;
 import com.ds.app.mapper.AttendanceMapper;
 import com.ds.app.repository.IAttendanceRepository;
+import com.ds.app.repository.IEmployeeRepository;
 import com.ds.app.service.IAttendanceService;
 import com.ds.app.utils.SecurityUtils;
 import jakarta.transaction.Transactional;
@@ -26,6 +28,7 @@ public class AttendanceServiceImpl implements IAttendanceService{
 	
 	private final SecurityUtils securityUtil;
 	private final IAttendanceRepository attendanceRepo;
+	private final IEmployeeRepository employeeRepo;
 	private final AttendanceMapper attendanceMapper;
 	
 	// Employee related methods
@@ -104,13 +107,22 @@ public class AttendanceServiceImpl implements IAttendanceService{
 
 	@Override
 	public Page<AttendanceResponse> getEmployeeAttendance(Long employeeId, Integer month, Integer year, Pageable pageable) {
+		Employee emp = employeeRepo.findById(employeeId)
+				.orElseThrow(() ->new ResourceNotFoundException("Employee not found with id: " + employeeId));
+		
+		Employee loggedEmployee = securityUtil.getLoggedInEmployee();
+		
+		if(emp.getHr().getUserId() != loggedEmployee.getUserId()) {
+			throw new UnAuthorizedException("Unauthorized for employee with id: " + employeeId);
+		}
 		Page<Attendance> attendancePage = attendanceRepo.findAttendanceByEmployeeUserIdAndMonthAndYear(employeeId, month, year, pageable);
 		return attendancePage.map(attendance -> attendanceMapper.mapToResponse(attendance));
 	}
 
 	@Override
 	public Page<AttendanceResponse> getAllAttendanceByDate(LocalDate date, Pageable pageable) {
-		Page<Attendance> attendanceByDatePage = attendanceRepo.findByDate(date, pageable);
+		Employee loggedInHr = securityUtil.getLoggedInEmployee();
+		Page<Attendance> attendanceByDatePage = attendanceRepo.findByEmployee_Hr_UserIdAndDate(loggedInHr.getUserId(),date, pageable);
 		return attendanceByDatePage.map(attendance -> attendanceMapper.mapToResponse(attendance));
 	}
 

@@ -104,7 +104,6 @@ public class LeaveBalanceScheduler {
         }
         paidDays.addAll(holidayRepository.findDatesBetween(start, end));
 
-        // 2) Approved paid leaves (exclude UNPAID)
         List<Leave> approvedLeaves = leaveRepository.findApprovedPaidLeavesOverlappingRange(
                 employee.getUserId(),
                 LeaveStatus.APPROVED,
@@ -125,7 +124,6 @@ public class LeaveBalanceScheduler {
             }
         }
 
-        // 3) Timesheet-based paid days (>=4 => 1, <4 => 0.5)
         double timesheetPaid = 0.0;
         Timesheet ts = timesheetRepository
                 .findByEmployeeUserIdAndMonthAndYear(employee.getUserId(), month.getMonthValue(), month.getYear())
@@ -140,8 +138,6 @@ public class LeaveBalanceScheduler {
                     .sum();
         }
 
-        // Use union-set full paid days + timesheet contribution for days not already covered.
-        // Simpler practical approach: cap final paid days to month length.
         double total = paidDays.size() + timesheetPaid;
         return Math.min(total, month.lengthOfMonth());
     }

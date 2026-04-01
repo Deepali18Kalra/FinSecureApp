@@ -36,6 +36,8 @@ public class RegularizationRequestController {
         return ResponseEntity.ok(regularizationService.getMyRegularizationRequests(status));
     }
 
+    // HR endpoints
+    
     @PreAuthorize("hasAuthority('HR')")
     @GetMapping("/pending")
     public ResponseEntity<List<RegularizationResponse>> getPendingRegularizationsForHr() {

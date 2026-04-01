@@ -27,6 +27,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -104,11 +106,9 @@ public class LeaveServiceImpl implements ILeaveService {
 
         LeaveStatus currentStatus = existingLeave.getStatus();
 
-        // Case 1: Pending leave -> direct withdraw
         if (currentStatus == LeaveStatus.PENDING) {
             existingLeave.setStatus(LeaveStatus.WITHDRAWN);
 
-            // release reserved balance for paid leaves
             if (existingLeave.getLeaveType() != LeaveType.UNPAID) {
                 int year = existingLeave.getStartDate().getYear();
                 int days = existingLeave.getTotalDays();
@@ -128,7 +128,6 @@ public class LeaveServiceImpl implements ILeaveService {
             return leaveMapper.mapToResponse(existingLeave);
         }
 
-        // Case 2: Approved leave -> request cancellation, HR must act
         if (currentStatus == LeaveStatus.APPROVED) {
             existingLeave.setStatus(LeaveStatus.CANCELLATION_PENDING);
             return leaveMapper.mapToResponse(existingLeave);
@@ -216,7 +215,6 @@ public class LeaveServiceImpl implements ILeaveService {
             throw new IllegalStateException("Only cancellation pending leaves can be processed");
         }
 
-        // HR metadata
         existingLeave.setApprovedBy(loggedInHR);
         existingLeave.setApprovalDate(LocalDate.now());
 
@@ -224,11 +222,9 @@ public class LeaveServiceImpl implements ILeaveService {
         int days = existingLeave.getTotalDays();
 
         if (ApprovalStatus.APPROVED.equals(approvalRequest.getStatus())) {
-            // cancellation approved -> leave cancelled
             existingLeave.setStatus(LeaveStatus.CANCELLED);
             existingLeave.setRejectionReason(null);
 
-            // restore balances for paid leaves (because previously approved leave had deducted them)
             if (leaveType != LeaveType.UNPAID) {
                 int year = existingLeave.getStartDate().getYear();
                 Long empUserId = existingLeave.getEmployee().getUserId();
@@ -254,7 +250,6 @@ public class LeaveServiceImpl implements ILeaveService {
             }
 
         } else if (ApprovalStatus.REJECTED.equals(approvalRequest.getStatus())) {
-            // cancellation rejected -> original leave remains approved
             existingLeave.setStatus(LeaveStatus.APPROVED);
             existingLeave.setRejectionReason(approvalRequest.getRejectionReason());
         } else {
@@ -267,9 +262,10 @@ public class LeaveServiceImpl implements ILeaveService {
     @Override
     public Page<LeaveResponse> getPendingRequest(Pageable pageable) {
         Employee loggedInHR = securityUtils.getLoggedInEmployee();
-        Page<Leave> pendingLeaves = leaveRepository.findByEmployee_Hr_UserIdAndStatus(
+        List<LeaveStatus> status = List.of(LeaveStatus.PENDING, LeaveStatus.CANCELLATION_PENDING);
+        Page<Leave> pendingLeaves = leaveRepository.findByEmployee_Hr_UserIdAndStatusIn(
                 loggedInHR.getUserId(),
-                LeaveStatus.PENDING,
+                status,
                 pageable);
         return pendingLeaves.map(leave -> leaveMapper.mapToResponse(leave));
     }

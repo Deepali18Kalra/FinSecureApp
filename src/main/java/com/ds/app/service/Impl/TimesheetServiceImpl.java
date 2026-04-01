@@ -85,7 +85,6 @@ public class TimesheetServiceImpl implements ITimesheetService {
         Timesheet ts = timesheetRepository.findById(timesheetId)
                 .orElseThrow(() -> new ResourceNotFoundException("Timesheet not found with id: " + timesheetId));
 
-        // hide existence if not under this HR
         if (ts.getEmployee().getHr() == null || !ts.getEmployee().getHr().getUserId().equals(hr.getUserId())) {
             throw new ResourceNotFoundException("Timesheet not found with id: " + timesheetId);
         }

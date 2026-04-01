@@ -31,12 +31,12 @@ public interface IAttendanceRepository extends JpaRepository<Attendance, Long>{
 			select a 
 			from Attendance a 
 			where a.employee.userId =:employeeId
-			and MONTH(a.date) =:month
-			and YEAR(a.date) =:year
+			and (:month is null or MONTH(a.date) =:month)
+			and (:year is null or YEAR(a.date) =:year)
 			""")
 	Page<Attendance> findAttendanceByEmployeeUserIdAndMonthAndYear(Long employeeId, Integer month, Integer year, Pageable pageable);
 	
-	Page<Attendance> findByDate(LocalDate date, Pageable pageable);
+	Page<Attendance> findByEmployee_Hr_UserIdAndDate(Long hrId, LocalDate date, Pageable pageable);
 	
 //	@Query("""
 //			select new com.ds.app.dto.MonthlyAttendanceReport(

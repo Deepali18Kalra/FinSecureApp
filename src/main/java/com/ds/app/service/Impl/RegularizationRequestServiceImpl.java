@@ -3,12 +3,15 @@ package com.ds.app.service.Impl;
 import com.ds.app.dto.ApprovalRequest;
 import com.ds.app.dto.RegularizationRequestdto;
 import com.ds.app.dto.RegularizationResponse;
+import com.ds.app.entity.Attendance;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.RegularizationRequest;
 import com.ds.app.enums.ApprovalStatus;
+import com.ds.app.enums.AttendanceStatus;
 import com.ds.app.enums.RegularizationRequestStatus;
 import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.mapper.RegularizationRequestMapper;
+import com.ds.app.repository.IAttendanceRepository;
 import com.ds.app.repository.IRegularizationRequestRepository;
 import com.ds.app.service.IRegularizationRequestService;
 import com.ds.app.utils.SecurityUtils;
@@ -24,6 +27,7 @@ import java.util.List;
 public class RegularizationRequestServiceImpl implements IRegularizationRequestService {
 
     private final IRegularizationRequestRepository regularizationRepository;
+    private final IAttendanceRepository attendanceRepo;
     private final RegularizationRequestMapper regularizationMapper;
     private final SecurityUtils securityUtils;
 
@@ -105,6 +109,21 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
 
         rr.setApprovedBy(hr);
         rr.setApprovalDate(LocalDate.now());
+        
+        Attendance attendance = attendanceRepo.findByEmployeeUserIdAndDate(rr.getEmployee().getUserId(), rr.getDate())
+        		.orElseThrow( () -> new ResourceNotFoundException("Attendance not found with id: "));
+        
+        if(rr.getPunchInTime() != null) {
+        	attendance.setPunchInTime(rr.getPunchInTime());
+        }
+        
+        if(rr.getPunchOutTime() != null) {
+        	attendance.setPunchOutTime(rr.getPunchOutTime());
+        }
+        
+        attendance.setIsRegularized(true);
+        
+        attendance.setStatus(AttendanceStatus.MANUAL_PUNCH);
 
         return regularizationMapper.mapToResponse(rr);
     }

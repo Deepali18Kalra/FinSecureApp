@@ -42,16 +42,35 @@ public class LeaveController {
         Page<LeaveStatusResponse> pageResponse = leaveService.getMyLeaves(status, year, month, pageable);
         return ResponseEntity.ok(pageResponse);
     }
+    
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE', 'HR')")
+    @PatchMapping("/{leaveId}/cancel")
+    public ResponseEntity<LeaveResponse> cancelOrWithdraw(
+    		@PathVariable Long leaveId
+    		) {
+    	LeaveResponse response = leaveService.cancelOrWithdrawLeave(leaveId);
+    	return ResponseEntity.ok(response);
+    }
 
     // HR endpoints
     @PreAuthorize("hasAuthority('HR')")
     @PatchMapping("/{leaveId}/decision")
-    public ResponseEntity<LeaveResponse> reviewLeave(
+    public ResponseEntity<LeaveResponse> processLeaveRequest(
             @PathVariable Long leaveId,
             @RequestBody ApprovalRequest approvalRequest
     ) {
         LeaveResponse response = leaveService.processLeaveRequest(leaveId, approvalRequest);
         return ResponseEntity.ok(response);
+    }
+    
+    @PreAuthorize("hasAuthority('HR')")
+    @PatchMapping("/{leaveId}/cancel-request")
+    public ResponseEntity<LeaveResponse> processCancellationRequest(
+    		@PathVariable Long leaveId,
+    		@RequestBody ApprovalRequest approvalRequest
+    		) {
+    	LeaveResponse response = leaveService.processCancellationRequest(leaveId, approvalRequest);
+    	return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAuthority('HR')")

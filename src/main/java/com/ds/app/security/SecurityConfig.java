@@ -36,11 +36,24 @@ public class SecurityConfig{
 		 
 	        http.authorizeHttpRequests(auth -> auth
 	                .requestMatchers("/finsecure/public/**").permitAll()
-	                .requestMatchers("/finsecure/admin/**").hasAuthority("Admin")
+	                .requestMatchers("/finsecure/admin/**").hasAuthority("ADMIN")
 	                .requestMatchers("/finsecure/hr/**").hasAuthority("HR")
-	                .requestMatchers("/finsecure/finance/**").hasAuthority("Finance")
-	                .requestMatchers("/finsecure/system/**").hasAuthority("System")
-	                .requestMatchers("/finsecure/employee/**").hasAuthority("Employee")
+	                .requestMatchers("/finsecure/finance/**").hasAuthority("FINANCE")
+	                .requestMatchers("/finsecure/system/**").hasAuthority("SYSTEM")
+	                .requestMatchers("/finsecure/employee/**").hasAuthority("EMPLOYEE")
+	                .requestMatchers("/finsecure/training/**").authenticated()
+	                .requestMatchers("/finsecure/certification/**").authenticated()
+	                
+	                // Swagger / OpenAPI endpoints
+	                .requestMatchers(
+	                        "/v3/api-docs/**",
+	                        "/swagger-ui/**",
+	                        "/swagger-ui.html",
+	                        "/swagger-resources/**",
+	                        "/webjars/**"
+	                ).permitAll()
+	 
+	                
 	               
 	        );
 

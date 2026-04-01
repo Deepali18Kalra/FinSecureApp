@@ -3,6 +3,10 @@ package com.ds.app.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ds.app.enums.CertificationStatus;
+import com.ds.app.enums.EmployeeExperience;
+import com.ds.app.enums.SkillStatus;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

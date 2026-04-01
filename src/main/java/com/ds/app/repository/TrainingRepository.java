@@ -12,7 +12,7 @@ import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Repository;
 
 import com.ds.app.entity.Training;
-import com.ds.app.entity.TrainingStatus;
+import com.ds.app.enums.TrainingStatus;
 
 @Repository
 public interface TrainingRepository  extends JpaRepository<Training, Long>  {

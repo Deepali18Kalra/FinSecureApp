@@ -3,7 +3,7 @@ package com.ds.app.dto.response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import com.ds.app.entity.TrainingStatus;
+import com.ds.app.enums.TrainingStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

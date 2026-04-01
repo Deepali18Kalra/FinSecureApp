@@ -13,7 +13,7 @@ import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Repository;
 
 import com.ds.app.entity.EmployeeTraining;
-import com.ds.app.entity.EnrollmentStatus;
+import com.ds.app.enums.EnrollmentStatus;
 
 
 @Repository
@@ -42,7 +42,11 @@ public interface EmployeeTrainingRepository extends JpaRepository<EmployeeTraini
 
 
 
-	boolean existsByEmployee_UserIdAndStatus(Long employeeId, EnrollmentStatus completed);
+   Boolean existsByEmployee_UserIdAndTraining_TrainingIdAndStatus(Long employeeId, Long trainingId,
+			EnrollmentStatus status);
+
+
+  
 	
 
 }

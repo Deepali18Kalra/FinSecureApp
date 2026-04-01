@@ -1,6 +1,6 @@
 package com.ds.app.dto.response;
 
-import com.ds.app.entity.EnrollmentStatus;
+import com.ds.app.enums.EnrollmentStatus;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

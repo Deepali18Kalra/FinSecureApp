@@ -2,6 +2,8 @@ package com.ds.app.entity;
 
 import java.time.LocalDate;
 
+import com.ds.app.enums.EnrollmentStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

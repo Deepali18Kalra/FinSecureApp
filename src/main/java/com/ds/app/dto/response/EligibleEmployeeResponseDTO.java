@@ -1,8 +1,8 @@
 package com.ds.app.dto.response;
 
-import com.ds.app.entity.CertificationStatus;
-import com.ds.app.entity.EmployeeExperience;
-import com.ds.app.entity.SkillStatus;
+import com.ds.app.enums.CertificationStatus;
+import com.ds.app.enums.EmployeeExperience;
+import com.ds.app.enums.SkillStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

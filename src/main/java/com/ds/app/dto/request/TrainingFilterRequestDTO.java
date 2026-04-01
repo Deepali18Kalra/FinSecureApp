@@ -2,7 +2,7 @@ package com.ds.app.dto.request;
 
 import java.time.LocalDate;
 
-import com.ds.app.entity.TrainingStatus;
+import com.ds.app.enums.TrainingStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

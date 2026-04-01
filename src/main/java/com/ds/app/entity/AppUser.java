@@ -1,7 +1,11 @@
 package com.ds.app.entity;
 
+import com.ds.app.enums.UserRole;
+
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,6 +32,8 @@ public class AppUser {
 	private Integer failedLoginAttemptsCount = 0;
 	private Boolean isAccountLocked = false;
 	
+	@Enumerated(EnumType.STRING)
 	@EqualsAndHashCode.Exclude
 	private UserRole role;
+	
 }

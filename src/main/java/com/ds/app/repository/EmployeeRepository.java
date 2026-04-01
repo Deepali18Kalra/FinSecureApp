@@ -19,16 +19,17 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer>{
 	boolean existsByUsername(String string);
 	
 	  // eligible employees — FRESHER or NON_CERTIFIED or NON_SKILLED
-    @Query("SELECT e FROM Employee e WHERE " +
+	@Query("SELECT e FROM Employee e WHERE " +
            "e.certificationStatus = 'NON_CERTIFIED' OR " +
            "e.skillStatus = 'NON_SKILLED' OR " +
            "e.employeeExperience = 'FRESHER'")
     Page<Employee> findEligibleForTraining(Pageable pageable);
 
     // eligible filtered by department
-    @Query("SELECT e FROM Employee e WHERE " +
+
+  @Query("SELECT e FROM Employee e WHERE " +
            "(e.certificationStatus = 'NON_CERTIFIED' OR " +
-           "e.skillStatus = 'NON_SKILLED' OR " +
+          "e.skillStatus = 'NON_SKILLED' OR " +
            "e.employeeExperience = 'FRESHER') " +
            "AND e.departmentId = :deptId")
      Page<Employee> findEligibleByDepartment(  @Param("deptId") Long deptId,

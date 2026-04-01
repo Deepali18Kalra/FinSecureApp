@@ -3,7 +3,7 @@ package com.ds.app.dto.response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import com.ds.app.entity.EnrollmentStatus;
+import com.ds.app.enums.EnrollmentStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

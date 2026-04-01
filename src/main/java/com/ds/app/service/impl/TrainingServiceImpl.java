@@ -21,17 +21,21 @@ import com.ds.app.dto.response.EmployeeTrainingResponseDTO;
 import com.ds.app.dto.response.TrainingResponseDTO;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.EmployeeTraining;
-import com.ds.app.entity.EnrollmentStatus;
 import com.ds.app.entity.Training;
-import com.ds.app.entity.TrainingStatus;
+import com.ds.app.enums.EnrollmentStatus;
+import com.ds.app.enums.TrainingStatus;
+import com.ds.app.exception.CustomException;
 import com.ds.app.repository.EmployeeRepository;
 import com.ds.app.repository.EmployeeTrainingRepository;
 import com.ds.app.repository.TrainingRepository;
+import com.ds.app.service.IEmailService;
 import com.ds.app.service.TrainingService;
 import com.ds.app.utils.SecurityUtils;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class TrainingServiceImpl implements TrainingService{
 	
@@ -46,20 +50,27 @@ public class TrainingServiceImpl implements TrainingService{
 
 	@Autowired
 	private SecurityUtils securityUtils;
+	
+	@Autowired
+	private IEmailService emailService;
 
 	
 	@Override
 	public TrainingResponseDTO createTraining(TrainingRequestDTO request) {
 		
+		log.info("START:createTraining | Name:{}",request.getTrainingName());
+		
 		Employee hr = securityUtils.getLoggedInEmployee();
 		
 		
 		if(request.getStartDate().isBefore(LocalDate.now())) {
-			throw new RuntimeException("Start date cannot be in the past");
+			log.warn("Invalid start date :{}",request.getStartDate());
+			throw new CustomException("Start date cannot be in the past");
 		}
 		
 		if(request.getEndDate() != null && request.getEndDate().isBefore(request.getStartDate())) {
-			throw new RuntimeException("End date cannot be before start date");
+			log.warn("Invalid end date:{}",request.getEndDate());
+			throw new CustomException("End date cannot be before start date");
 		}
 
 		//Prevent duplicate training
@@ -68,7 +79,9 @@ public class TrainingServiceImpl implements TrainingService{
                 request.getStartDate());
 		
         if (existingTraining.isPresent()) {
-            throw new RuntimeException("Training with the same name already exists in this department");
+        	
+        	log.warn("Duplicate training found :{}",request.getTrainingName());
+            throw new CustomException("Training with the same name already exists in this department");
         }
 		
 		Training training = new Training();
@@ -81,171 +94,218 @@ public class TrainingServiceImpl implements TrainingService{
 		training.setEndDate(request.getEndDate());
 		
 		Training saved = trainingRepo.save(training);
+		
+		log.info("Training created successfully | ID:{}",saved.getTrainingId());
 		return mapToResponseDTO(saved);
 	}
 
-	@Transactional
 	@Override
+	@Transactional
 	public String enrollEmployee(EnrollRequestDTO request) {
 
-        Training training = trainingRepo.findById(
-                request.getTrainingId())
-                .orElseThrow(() -> new RuntimeException(
-                        "Training not found"));
-        
-        if(training.getStatus()==TrainingStatus.COMPLETED) {
-            throw new RuntimeException("Cannot enroll employees in a completed training");
-        }
-        
-        if(request.getEmployeeIds() == null || request.getEmployeeIds().isEmpty()) {
-            throw new RuntimeException("No employees specified for enrollment");
-        }
 
-        //Prepare list for batch save
-        List<EmployeeTraining> enrollments = new ArrayList<>();
-        
-        int enrollmentCount = 0;
-        int skippedCount = 0;
-        
-        for (Long empId : request.getEmployeeIds()) {
+	    log.info("START: enrollEmployee | TrainingId: {}", request.getTrainingId());
 
-            Employee emp = employeeRepo.findById(empId.intValue())
-                    .orElseThrow(() -> new RuntimeException(
-                            "Employee not found: " + empId));
-            
 
-            // check duplicate enrollment
-            boolean alreadyEnrolled = empTrainingRepo
-                    .existsByEmployee_UserIdAndTraining_TrainingId(
-                            emp.getUserId(),
-                            training.getTrainingId());
-            
-            if (alreadyEnrolled) {
-            	skippedCount++;
-            	continue; // skip already enrolled
-            }
-            
-            
-            EmployeeTraining empTraining = new EmployeeTraining();
-            empTraining.setEmployee(emp);
-            empTraining.setTraining(training);
-            empTraining.setStatus(EnrollmentStatus.ENROLLED);
-            empTraining.setEnrollmentDate(LocalDate.now());
-            empTraining.setEmailSent(false);
-            enrollments.add(empTraining);
-            enrollmentCount++;
-            
+	    Training training = trainingRepo.findById(request.getTrainingId())
+	            .orElseThrow(() -> {
+	                log.error("Training not found: {}", request.getTrainingId());
+	                return new CustomException("Training not found");
+	            });
 
-            // send enrollment email
-//            emailService.sendEnrollmentEmail(
-//                    emp.getEmail(),
-//                    emp.getName(),
-//                    training.getTrainingName());
-//
-//            et.setEmailSent(true);
-//            empTrainingRepo.save(et);
-        }
-        //Batch save - performance optimized
-        if(!enrollments.isEmpty()) {
-            empTrainingRepo.saveAll(enrollments);
-        }
 
-        return "Employees enrolled successfully: " + enrollmentCount + ", skipped: " + skippedCount;
-      }
-	
+	    if (training.getStatus() != TrainingStatus.NOT_STARTED) {
+	        log.warn("Training not eligible for enrollment: {}", training.getTrainingId());
+	        throw new CustomException("Cannot enroll employees");
+	    }
 
-	@Transactional
-	@Override
-	public String startTraining(Long trainingId) {
-		   Training training = trainingRepo.findById(trainingId)
-	                .orElseThrow(() -> new RuntimeException(
-	                        "Training not found"));
-		   
-		   if(training.getStatus()==TrainingStatus.IN_PROGRESS) {
-               throw new RuntimeException("Training is already in progress");
-           }
 
-		   if(training.getStatus()==TrainingStatus.COMPLETED) {
-               throw new RuntimeException("Cannot start a completed training");
-           }
-		   
-		   //fetch enrollments
-		   List<EmployeeTraining> enrollments = empTrainingRepo.findByTraining_TrainingId(trainingId);
-		   
-		   if(enrollments.isEmpty()) {
-               throw new RuntimeException("No enrollments found for this training");
-           }
+	    if (request.getEmployeeIds() == null || request.getEmployeeIds().isEmpty()) {
+	        log.warn("No employee IDs provided");
+	        throw new CustomException("No employees specified");
+	    }
 
-		   //update training status
-	        training.setStatus(TrainingStatus.IN_PROGRESS);
-	        trainingRepo.save(training);
-            
 
-	        // update all enrollments status + send emails
-	          for (EmployeeTraining et : enrollments) {
-	            et.setStatus(EnrollmentStatus.IN_PROGRESS);
-	           
-//
-//	            emailService.sendTrainingStartEmail(
-//	                    et.getEmployee().getEmail(),
-//	                    et.getEmployee().getName(),
-//	                    training.getTrainingName(),
-//	                    training.getStartDate());
+	    List<EmployeeTraining> enrollments = new ArrayList<>();
+	    int enrolled = 0, skipped = 0;
+
+
+	    for (Long empId : request.getEmployeeIds()) {
+
+
+	        Employee emp = employeeRepo.findById(empId.intValue())
+	                .orElseThrow(() -> {
+	                    log.error("Employee not found: {}", empId);
+	                    return new CustomException("Employee not found");
+	                });
+
+
+	        boolean alreadyEnrolled = empTrainingRepo
+	                .existsByEmployee_UserIdAndTraining_TrainingId(
+	                        emp.getUserId(),
+	                        training.getTrainingId());
+
+
+	        if (alreadyEnrolled) {
+	            skipped++;
+	            log.warn("Employee already enrolled: {}", empId);
+	            continue;
 	        }
-	          
-	          //batch save
-	          empTrainingRepo.saveAll(enrollments);
-	          
-	        return  "Training started successfully "+ enrollments.size() +" employees";
 
+
+	        EmployeeTraining et = new EmployeeTraining();
+	        et.setEmployee(emp);
+	        et.setTraining(training);
+	        et.setStatus(EnrollmentStatus.ENROLLED);
+	        et.setEnrollmentDate(LocalDate.now());
+	        et.setEmailSent(false);
+
+
+	        enrollments.add(et);
+	        enrolled++;
+	    }
+
+
+	    if (!enrollments.isEmpty()) {
+	        empTrainingRepo.saveAll(enrollments);
+	    }
+	    
+	  
+
+	        // Send enrollment emails
+	        for (EmployeeTraining et : enrollments) {
+	            emailService.sendEnrollmentEmail(
+	                et.getEmployee().getEmail(),
+	                et.getEmployee().getFirstName() + " " + et.getEmployee().getLastName(),
+	                training.getTrainingName()
+	            );
+	            et.setEmailSent(true);
+	        }
+	        empTrainingRepo.saveAll(enrollments);
+	    
+
+
+	    log.info("Enrollment completed | Enrolled: {} Skipped: {}", enrolled, skipped);
+
+
+	    return "Employees enrolled successfully: " + enrolled + ", skipped: " + skipped;
 	}
 
-	@Transactional
-	@Override
-	public String stopTraining(Long trainingId) {
+
+
+
 	
-		Training training = trainingRepo.findById(trainingId)
-				.orElseThrow(() -> new RuntimeException(
-                        "Training not found"));
-		
-		if(training.getStatus() == TrainingStatus.NOT_STARTED) {
-			throw new RuntimeException("Cannot stop a training that has not started");
-		}
-			
-		if(training.getStatus() == TrainingStatus.COMPLETED) {
-			throw new RuntimeException("Training is already completed");
-		}
-		
-		List<EmployeeTraining>enrollments = empTrainingRepo.findByTraining_TrainingId(trainingId);
-		
-		if(enrollments.isEmpty()) {
-            throw new RuntimeException("No enrollments found for this training");
-        }
-		
-		
-	    //update training status
-		training.setStatus(TrainingStatus.COMPLETED);
-		trainingRepo.save(training);
-		
-		
-		//update all enrollments status + send emails
-		for(EmployeeTraining et : enrollments) {
-			et.setStatus(EnrollmentStatus.COMPLETED);
-			et.setCompletionDate(LocalDate.now());
-			
 
-//            emailService.sendTrainingCompleteEmail(
-//                    et.getEmployee().getEmail(),
-//                    et.getEmployee().getName(),
-//                    training.getTrainingName());
+	@Override
+	@Transactional
+	public String startTraining(Long trainingId) {
 
-		}
-		
-		//Batch save
-		empTrainingRepo.saveAll(enrollments);
-		
-		return "Training stopped successfully for " + enrollments.size() + " employees";
+
+	    log.info("START: startTraining | TrainingId: {}", trainingId);
+
+
+	    Training training = trainingRepo.findById(trainingId)
+	            .orElseThrow(() -> {
+	                log.error("Training not found: {}", trainingId);
+	                return new CustomException("Training not found");
+	            });
+
+
+	    if (training.getStatus() == TrainingStatus.IN_PROGRESS) {
+	        log.warn("Training already in progress: {}", trainingId);
+	        throw new CustomException("Already in progress");
+	    }
+
+
+	    List<EmployeeTraining> enrollments =
+	            empTrainingRepo.findByTraining_TrainingId(trainingId);
+
+
+	    if (enrollments.isEmpty()) {
+	        log.warn("No enrollments found for training: {}", trainingId);
+	        throw new CustomException("No enrollments found");
+	    }
+
+
+	    training.setStatus(TrainingStatus.IN_PROGRESS);
+	    trainingRepo.save(training);
+
+
+	    enrollments.forEach(et ->{ et.setStatus(EnrollmentStatus.IN_PROGRESS);
+	    
+	 
+	    emailService.sendTrainingStartEmail(
+	        et.getEmployee().getEmail(),
+	        et.getEmployee().getFirstName() + " " + et.getEmployee().getLastName(),
+	        training.getTrainingName(),
+	        training.getStartDate().toString()
+	    );
+	    et.setEmailSent(true);
+	});
+	    empTrainingRepo.saveAll(enrollments);
+
+
+	    log.info("Training started | Employees affected: {}", enrollments.size());
+
+
+	    return "Training started successfully";
 	}
+
+
+
+	@Override
+	@Transactional
+	public String stopTraining(Long trainingId) {
+
+
+	    log.info("START: stopTraining | TrainingId: {}", trainingId);
+
+
+	    Training training = trainingRepo.findById(trainingId)
+	            .orElseThrow(() -> {
+	                log.error("Training not found: {}", trainingId);
+	                return new CustomException("Training not found");
+	            });
+
+
+	    if (training.getStatus() == TrainingStatus.NOT_STARTED) {
+	        log.warn("Cannot stop not-started training: {}", trainingId);
+	        throw new CustomException("Cannot stop");
+	    }
+
+
+	    List<EmployeeTraining> enrollments =
+	            empTrainingRepo.findByTraining_TrainingId(trainingId);
+
+
+	    training.setStatus(TrainingStatus.COMPLETED);
+	    trainingRepo.save(training);
+
+
+	    enrollments.forEach(et -> {
+	        et.setStatus(EnrollmentStatus.COMPLETED);
+	        et.setCompletionDate(LocalDate.now());
+	        emailService.sendTrainingCompleteEmail(
+	                et.getEmployee().getEmail(),
+	                et.getEmployee().getFirstName() + " " + et.getEmployee().getLastName(),
+	                training.getTrainingName()
+	            );
+	            et.setEmailSent(true);
+	    });
+
+
+	    empTrainingRepo.saveAll(enrollments);
+
+
+	    log.info("Training stopped | Employees affected: {}", enrollments.size());
+
+
+	    return "Training stopped successfully";
+	}
+
+
+
+
 
 	@Override
 	public Page<EligibleEmployeeResponseDTO> getEligibleEmployees(Long departmentId, int page, int size) {
@@ -280,10 +340,10 @@ public class TrainingServiceImpl implements TrainingService{
 	@Override
 	public TrainingResponseDTO getTrainingById(Long trainingId) {
 		Training training = trainingRepo.findById(trainingId)
-				.orElseThrow(() -> new RuntimeException("Training not found"));
+				.orElseThrow(() -> new CustomException("Training not found"));
 		
 		if(Boolean.TRUE.equals(training.isDeleted())) {
-			throw new RuntimeException("Training not found");
+			throw new CustomException("Training not found");
 		}
 		
 		return mapToResponseDTO(training);
@@ -295,10 +355,10 @@ public class TrainingServiceImpl implements TrainingService{
                 Sort.by("createdAt").descending());
 		
 		Training training = trainingRepo.findById(trainingId)
-				.orElseThrow(() -> new RuntimeException("Training not found"));
+				.orElseThrow(() -> new CustomException("Training not found"));
 		
 		if(Boolean.TRUE.equals(training.isDeleted())) {
-			throw new RuntimeException("Training not availabel");
+			throw new CustomException("Training not availabel");
 		} 
 
 		Page<EmployeeTraining> enrollments = empTrainingRepo.findByTraining_TrainingId(trainingId, pageable);
@@ -318,22 +378,33 @@ public class TrainingServiceImpl implements TrainingService{
 	}
 
 	@Override
-	public Boolean isTrainingCompleted(Long employeeId) {
+	public Boolean isTrainingCompleted(Long employeeId,Long trainingId) {
 		  Employee emp = employeeRepo.findByUserId(employeeId)
-				  .orElseThrow(()->new RuntimeException("Employee not found"));
+				  .orElseThrow(()->new CustomException("Employee not found"));
 
-	        boolean isCompleted = empTrainingRepo
-	        		.existsByEmployee_UserIdAndStatus(employeeId, EnrollmentStatus.COMPLETED);
+	  Training training = trainingRepo.findById(trainingId)
+			  .orElseThrow(() -> new CustomException("Training not found"));
 
-	        return isCompleted;
+	  boolean isCompleted = empTrainingRepo
+			  .existsByEmployee_UserIdAndTraining_TrainingIdAndStatus(emp.getUserId(), training.getTrainingId(), EnrollmentStatus.COMPLETED);
+
+	        return isCompleted; 
 	}
 
+	@Transactional
 	@Override
 	public String deleteTraining(Long trainingId) {
 		 Training training = trainingRepo.findById(trainingId)
-	                .orElseThrow(() -> new RuntimeException(
+	                .orElseThrow(() -> new CustomException(
 	                        "Training not found"));
 
+		 if(Boolean.TRUE.equals(training.isDeleted())) {
+	            throw new CustomException("Training not found");
+	        }
+		 if(training.getStatus() == TrainingStatus.IN_PROGRESS) {
+	            throw new CustomException("Cannot delete training in progress");
+	        }
+		 
 	        training.setDeleted(true);
 	        trainingRepo.save(training);
 	        return "Training deleted successfully";

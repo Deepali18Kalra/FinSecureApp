@@ -22,5 +22,6 @@ public class CertificationRequestDTO {
 	@NotNull(message = "Issued date is required")
 	private LocalDate issuedDate;
 	
+	@NotBlank(message = "Certification file URL is required")
 	private String certificateFileUrl;
 }

@@ -38,7 +38,7 @@ public interface TrainingService {
 	Page<EmployeeTrainingResponseDTO> getMyTraining(int page,int size);
 	
 	//Hr check if employee complete training
-	Boolean isTrainingCompleted(Long employeeId);
+	Boolean isTrainingCompleted(Long employeeId,Long trainingId);
 	
 	// delete training
 	String deleteTraining(Long trainingId);

@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.ds.app.entity.Employee;
+import com.ds.app.exception.CustomException;
 import com.ds.app.repository.EmployeeRepository;
 
 @Component
@@ -26,7 +27,7 @@ public class SecurityUtils {
 		
 		//safety check
 		if(!(principal instanceof UserDetails)) {
-			throw new RuntimeException("User not authenticated as Employee");
+			throw new CustomException("User not authenticated as Employee");
 		}
 		
 		UserDetails userDetails = (UserDetails) principal;
@@ -38,7 +39,7 @@ public class SecurityUtils {
 	
 		//find and return full Employee object
 		return employeeRepo.findByUsername(username)
-				.orElseThrow(() -> new RuntimeException("Employee not found with username: " + username));
+				.orElseThrow(() -> new CustomException("Employee not found with username: " + username));
 	}
 	
 	//helper - get just the username

@@ -17,4 +17,5 @@ public class InvestmentReviewRequestDTO {
 
     @Size(max = 500)
     private String reviewNote;
+    
 }

@@ -1,0 +1,165 @@
+{
+  "info": {
+    "name": "FinSecure API - Auth Testing",
+    "description": "Complete authentication testing collection for FinSecure App",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "1. Signup New User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"signup_username\", jsonData.username);",
+                  "    pm.environment.set(\"signup_role\", jsonData.role);",
+                  "    console.log(\"User created: \" + jsonData.username);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"TestPassword123\",\n  \"role\": \"EMPLOYEE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/finsecure/public/signup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "finsecure",
+                "public",
+                "signup"
+              ]
+            },
+            "description": "Create a new user account. Role options: ADMIN, EMPLOYEE, FINANCE, HR, SYSTEM"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"jwt_token\", jsonData.token);",
+                  "    pm.environment.set(\"login_username\", jsonData.username);",
+                  "    console.log(\"Login successful. Token stored.\");",
+                  "    console.log(\"Token: \" + jsonData.token.substring(0, 50) + \"...\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"TestPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/finsecure/public/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "finsecure",
+                "public",
+                "login"
+              ]
+            },
+            "description": "Login with existing credentials and receive JWT token"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Endpoints (Protected)",
+      "item": [
+        {
+          "name": "Sample Admin Request",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/finsecure/admin/someendpoint",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "finsecure",
+                "admin",
+                "someendpoint"
+              ]
+            },
+            "description": "Template for testing admin endpoints with JWT token in Authorization header"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8085",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "signup_username",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "login_username",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "signup_role",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
+

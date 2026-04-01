@@ -17,9 +17,9 @@ public class SalaryRecordResponseDTO {
     private Long employeeId;
     private String employeeName;           // resolved from User
     private String salaryMonth;            // "2025-03" format
-    private BigDecimal grossSalary;
-    private BigDecimal deductions;
-    private BigDecimal netSalary;
+    private Double grossSalary;
+    private Double deductions;
+    private Double netSalary;
     private String bankAccountMasked;      // ****1234 — from EmployeeBankAccount
     private String bankName;               // resolved from BankMaster
     private PaymentStatus paymentStatus;

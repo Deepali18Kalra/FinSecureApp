@@ -14,6 +14,7 @@ public class MyUserDetails implements UserDetails{
 	public MyUserDetails(AppUser user) {
 		super();
 		this.user = user;
+		
 	}
 
 	@Override
@@ -21,7 +22,11 @@ public class MyUserDetails implements UserDetails{
 		SimpleGrantedAuthority a = new SimpleGrantedAuthority(user.getRole().toString());
 		return Arrays.asList(a);
 	}
-
+	
+	public AppUser getUser()
+	{
+		return this.user;
+	}
 	@Override
 	public String getPassword() {
 		return user.getPassword();

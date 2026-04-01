@@ -1,0 +1,537 @@
+{
+  "info": {
+    "name": "FinSecure - Complete App Testing",
+    "description": "Complete Postman collection for testing FinSecure app with all endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1️⃣ AUTH - Setup",
+      "item": [
+        {
+          "name": "Setup: Create Admin User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin1\",\n  \"password\": \"AdminPass123\",\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/finsecure/public/signup",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "public", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Setup: Create Employee User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"emp1\",\n  \"password\": \"EmpPass123\",\n  \"role\": \"EMPLOYEE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/finsecure/public/signup",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "public", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Setup: Create Finance User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"fin1\",\n  \"password\": \"FinPass123\",\n  \"role\": \"FINANCE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/finsecure/public/signup",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "public", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Setup: Create HR User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"hr1\",\n  \"password\": \"HRPass123\",\n  \"role\": \"HR\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/finsecure/public/signup",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "public", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Setup: Create System User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"sys1\",\n  \"password\": \"SysPass123\",\n  \"role\": \"SYSTEM\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/finsecure/public/signup",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "public", "signup"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2️⃣ AUTH - Login",
+      "item": [
+        {
+          "name": "Login: Admin (Save Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var data = pm.response.json();",
+                  "  pm.environment.set('admin_token', data.token);",
+                  "  pm.environment.set('current_user', 'admin1');",
+                  "  console.log('✓ Admin token saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin1\",\n  \"password\": \"AdminPass123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/finsecure/public/login",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "public", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login: Employee (Save Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var data = pm.response.json();",
+                  "  pm.environment.set('employee_token', data.token);",
+                  "  console.log('✓ Employee token saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"emp1\",\n  \"password\": \"EmpPass123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/finsecure/public/login",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "public", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login: Finance (Save Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var data = pm.response.json();",
+                  "  pm.environment.set('finance_token', data.token);",
+                  "  console.log('✓ Finance token saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"fin1\",\n  \"password\": \"FinPass123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/finsecure/public/login",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "public", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login: HR (Save Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var data = pm.response.json();",
+                  "  pm.environment.set('hr_token', data.token);",
+                  "  console.log('✓ HR token saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"hr1\",\n  \"password\": \"HRPass123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/finsecure/public/login",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "public", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login: System (Save Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var data = pm.response.json();",
+                  "  pm.environment.set('system_token', data.token);",
+                  "  console.log('✓ System token saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"sys1\",\n  \"password\": \"SysPass123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/finsecure/public/login",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "public", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3️⃣ ADMIN CONTROLLER",
+      "item": [
+        {
+          "name": "Admin Test Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/finsecure/admin/test",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "admin", "test"]
+            }
+          }
+        },
+        {
+          "name": "Admin Test (Employee Token - Should Fail)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/finsecure/admin/test",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "admin", "test"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4️⃣ EMPLOYEE CONTROLLER",
+      "item": [
+        {
+          "name": "Employee Test Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/finsecure/employee/test",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "employee", "test"]
+            }
+          }
+        },
+        {
+          "name": "Employee Test (Admin Token - Should Work)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/finsecure/employee/test",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "employee", "test"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5️⃣ FINANCE CONTROLLER",
+      "item": [
+        {
+          "name": "Finance Test Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{finance_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/finsecure/finance/test",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "finance", "test"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6️⃣ HR CONTROLLER",
+      "item": [
+        {
+          "name": "HR Test Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hr_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/finsecure/hr/test",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "hr", "test"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7️⃣ SYSTEM CONTROLLER",
+      "item": [
+        {
+          "name": "System Test Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{system_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/finsecure/system/test",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "system", "test"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧪 TEST SCENARIOS",
+      "item": [
+        {
+          "name": "Test: No Token (Should Fail)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/finsecure/admin/test",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "admin", "test"]
+            }
+          }
+        },
+        {
+          "name": "Test: Invalid Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer invalid.token.here"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/finsecure/admin/test",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "admin", "test"]
+            }
+          }
+        },
+        {
+          "name": "Test: Wrong Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin1\",\n  \"password\": \"WrongPassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/finsecure/public/login",
+              "host": ["{{base_url}}"],
+              "path": ["finsecure", "public", "login"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8085",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "employee_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "finance_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "hr_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "system_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "current_user",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
+

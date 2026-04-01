@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class BankResponseDTO {
+public class FinanceBankAccountResponseDTO {
 
     private Long bankId;
     private String bankName;

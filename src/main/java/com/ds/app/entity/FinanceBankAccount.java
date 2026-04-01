@@ -1,33 +1,20 @@
 package com.ds.app.entity;
 
+import com.ds.app.enums.BankStatus;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import com.ds.app.enums.BankStatus;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor @AllArgsConstructor
 @Data
-public class CompanyBankAccount {
+public class FinanceBankAccount {
 
-	@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bankId;
 
@@ -39,9 +26,10 @@ public class CompanyBankAccount {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    
     private BankStatus status;
-    
+
+    // Finance user who added this bank to whitelist/blacklist
+    // plain Long — cross module, User is owned by Auth module
     @Column(nullable = false)
     private Long addedBy;
 
@@ -52,6 +40,8 @@ public class CompanyBankAccount {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    // One bank institution → many employee accounts
+    // e.g. ICICI has many employees banking with it
     @OneToMany(mappedBy = "bank", fetch = FetchType.LAZY)
     private List<EmployeeBankAccount> employeeBankAccounts;
 }

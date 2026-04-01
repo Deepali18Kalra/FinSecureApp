@@ -1,0 +1,118 @@
+Authentication
+
+POST   /finsecure/public/signup
+→ Register a new user 
+
+POST   /finsecure/public/login
+→ Login and get JWT token 
+
+
+Company Bank Accounts 
+
+POST   /finsecure/finance/banks
+→ Add a bank  
+
+PUT    /finsecure/finance/banks/{id}/status
+→ Update bank status (WHITELISTED / BLACKLISTED) 
+
+GET    /finsecure/finance/banks/{id}
+→ Get bank by ID 
+
+GET    /finsecure/finance/banks?page=0&size=10&status=
+→ Get all banks with pagination and optional status filter 
+
+
+ Company Mutual Funds 
+
+POST   /finsecure/finance/mutual-funds
+→ Add a fund to whitelist/blacklist 
+
+PUT    /finsecure/finance/mutual-funds/{id}/status
+→ Update fund status (WHITELISTED / BLACKLISTED) 
+
+GET    /finsecure/finance/mutual-funds/{id}
+→ Get fund by ID 
+
+GET    /finsecure/finance/mutual-funds?page=0&size=10&status=&category=
+→ Get all funds with pagination, optional status and category filter 
+
+
+ Employee Bank Accounts —
+/finsecure/finance/bank-accounts  
+/finsecure/employee/bank-accounts
+
+POST   /finsecure/employee/bank-accounts
+→ Employee submits their bank account 
+
+GET    /finsecure/employee/bank-accounts/my
+→ Employee views their own bank account 
+
+PUT    /finsecure/finance/bank-accounts/{id}/status
+→ Finance approves/rejects (PENDING / APPROVED / REJECTED) 
+
+GET    /finsecure/finance/bank-accounts/{id}
+→ Finance gets one account by ID 
+
+GET    /finsecure/finance/bank-accounts?page=0&size=10&status=
+→ Finance gets all accounts with optional status filter 
+
+
+ Employee Investments —
+/finsecure/employee/investments  
+/finsecure/finance/investments
+
+POST   /finsecure/employee/investments
+→ Employee declares an investment (mutual fund / equity / bonds) 
+
+GET    /finsecure/employee/investments/my
+→ Employee views their own investments 
+
+PUT    /finsecure/finance/investments/{id}/review
+→ Finance reviews (COMPLIANT / NON_COMPLIANT) 
+
+GET    /finsecure/finance/investments?page=0&size=10&status=
+→ Finance gets all investments with optional compliance status filter 
+
+
+ Employee Cards — /finsecure/finance/cards
+
+POST   /finsecure/finance/cards
+→ Issue a card to an employee 
+
+PUT    /finsecure/finance/cards/{id}/status
+→ Block / unblock / expire a card 
+
+GET    /finsecure/finance/cards/employee/{employeeId}
+→ Get all cards for a specific employee 
+
+GET    /finsecure/employee/cards/my
+→ Employee views their own cards (EMPLOYEE)
+
+
+ Salary — /finsecure/finance/salary
+
+POST   /finsecure/finance/salary/jobs
+→ Schedule a salary job for a target month 
+
+GET    /finsecure/finance/salary/jobs
+→ Get all salary jobs with status 
+
+GET    /finsecure/finance/salary/records?employeeId=&month=
+→ Get salary records with optional filters 
+
+GET    /finsecure/employee/salary/my
+→ Employee views their own salary records 
+
+
+ Reports — /finsecure/finance/reports
+
+GET    /finsecure/finance/reports/salary-summary?month=
+→ Salary summary report for a given month 
+
+GET    /finsecure/finance/reports/investment-compliance
+→ Investment compliance report 
+
+GET    /finsecure/finance/reports/bank-validation
+→ Bank validation status report 
+
+

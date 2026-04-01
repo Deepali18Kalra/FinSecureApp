@@ -20,6 +20,6 @@ public class SalaryJobResponseDTO {
     private Integer totalEmployees;
     private Integer successCount;
     private Integer failureCount;
-    private String createdByName;      // resolved from User
+    private Long createdBy;      // resolved from User
     private LocalDateTime createdAt;
 }

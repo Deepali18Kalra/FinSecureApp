@@ -12,17 +12,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class InvestmentResponseDTO {
+public class EmployeeInvestmentResponseDTO {
 
-    private Long id;
+    private Long empInvestmentId;
+    private String employeeName;
     private Long employeeId;
     private InvestmentType investmentType;
     private String fundName;           // resolved from MutualFundMaster if MUTUAL_FUND
     private String fundCode;
     private String securityName;       // for DIRECT_EQUITY / BONDS
-    private BigDecimal declaredAmount;
+    private Double declaredAmount;
     private ComplianceStatus complianceStatus;
-    private String reviewedByName;     // resolved from User — Finance reviewer
+    private String reviewedBy;     // resolved from User — Finance reviewer
     private String reviewNote;
     private LocalDateTime declaredAt;
+    private LocalDateTime updatedAt;
 }

@@ -11,11 +11,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BankAccountRequestDTO {
-///s
+public class EmployeeBankAccountRequestDTO {
 
     @NotNull(message = "Bank ID is required")
-    private Long bankId;  // validated against CompanyBank  BLACKLISTED → alert raised
+    private Long bankId;  // validated against BankMaster — BLACKLISTED → alert raised
 
     @NotBlank(message = "Account number is required")
     @Size(min = 8, max = 30)

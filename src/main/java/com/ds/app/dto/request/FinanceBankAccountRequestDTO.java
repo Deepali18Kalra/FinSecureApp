@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BankRequestDTO {
+public class FinanceBankAccountRequestDTO {
     @NotBlank(message = "Bank name is required")
     @Size(max = 100)
     private String bankName;

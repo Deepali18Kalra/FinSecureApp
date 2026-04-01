@@ -36,11 +36,12 @@ public class SecurityConfig{
 		 
 	        http.authorizeHttpRequests(auth -> auth
 	                .requestMatchers("/finsecure/public/**").permitAll()
-	                .requestMatchers("/finsecure/admin/**").hasAuthority("Admin")
+	                .requestMatchers("/finsecure/admin/**").hasAuthority("ADMIN")
 	                .requestMatchers("/finsecure/hr/**").hasAuthority("HR")
-	                .requestMatchers("/finsecure/finance/**").hasAuthority("Finance")
-	                .requestMatchers("/finsecure/system/**").hasAuthority("System")
-	                .requestMatchers("/finsecure/employee/**").hasAuthority("Employee")
+	                .requestMatchers("/finsecure/finance/**").hasAuthority("FINANCE")
+	                .requestMatchers("/finsecure/system/**").hasAuthority("SYSTEM")
+	                .requestMatchers("/finsecure/employee/**").hasAuthority("EMPLOYEE")
+	                .anyRequest().authenticated()
 	        );
 
 	        http.sessionManagement(session ->

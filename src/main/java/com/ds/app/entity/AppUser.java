@@ -1,7 +1,12 @@
 package com.ds.app.entity;
 
+import com.ds.app.enums.UserRole;
+
 import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,11 +22,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+
 public class AppUser {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer userId;
+	private Long userId;
 	private String username;
 	private String password;
 	
@@ -29,5 +35,17 @@ public class AppUser {
 	private Boolean isAccountLocked = false;
 	
 	@EqualsAndHashCode.Exclude
+//	@Enumerated(EnumType.STRING)
 	private UserRole role;
+
+	public AppUser(String username, String password, Boolean isAccountLocked, UserRole role) {
+		super();
+		this.username = username;
+		this.password = password;
+		this.isAccountLocked = isAccountLocked;
+		this.role = role;
+	}
+	
+	
+	
 }

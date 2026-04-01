@@ -4,12 +4,18 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SalaryJobRequestDTO {
 
-    @NotBlank(message = "Job name is required")
+	@NotBlank(message = "Job name is required")
     private String jobName;
 
     @NotNull(message = "Scheduled date-time is required")
@@ -17,6 +23,8 @@ public class SalaryJobRequestDTO {
     private LocalDateTime scheduledDateTime;
 
     @NotBlank(message = "Target month is required")
-    @Pattern(regexp = "^\\d{4}-(0[1-9]|1[0-2])$", message = "Format must be YYYY-MM")
-    private String targetMonth;  // parsed to YearMonth in service layer
+    @Pattern(regexp = "^\\d{4}-(0[1-9]|1[0-2])$",
+             message = "Format must be YYYY-MM e.g. 2025-03")
+    
+    private String targetMonth;
 }

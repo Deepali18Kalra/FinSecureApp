@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MutualFundRequestDTO {
+public class FinanceInvestmentRequestDTO {
 
     @NotBlank(message = "Fund name is required")
     @Size(max = 150)

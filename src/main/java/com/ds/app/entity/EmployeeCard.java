@@ -1,49 +1,41 @@
 package com.ds.app.entity;
 
+import com.ds.app.enums.CardStatus;
+import com.ds.app.enums.CardType;
+import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDate;
 import java.time.YearMonth;
 
-import com.ds.app.enums.CardStatus;
-import com.ds.app.enums.CardType;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
+ @NoArgsConstructor @AllArgsConstructor
+ @Builder
+ @Data
 public class EmployeeCard {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(name = "employee_id", nullable = false)
-	private Long employeeId;
+    @ManyToOne(fetch = FetchType.LAZY , targetEntity = Employee.class)    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employee;
 
-	@Column(nullable = false, length = 20)
-	private String cardNumber;
+    // stored encrypted — expose only last 4 digits
+    @Column(nullable = false, length = 20)
+    private String cardNumber;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private CardType cardType;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CardType cardType;
 
-	@Column(nullable = false)
-	private YearMonth expiryDate;
+    // stored as YYYY-MM string via YearMonthConverter
+    @Column(nullable = false)
+    private YearMonth expiryDate;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private CardStatus cardStatus = CardStatus.ACTIVE;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CardStatus cardStatus = CardStatus.ACTIVE;
 
-	@Column(nullable = false)
-	private LocalDate issuedAt;
+    @Column(nullable = false)
+    private LocalDate issuedAt;
 }

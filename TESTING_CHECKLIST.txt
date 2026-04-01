@@ -1,0 +1,178 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║                   FINSECURE POSTMAN TESTING CHECKLIST                      ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+
+BEFORE YOU START:
+┌────────────────────────────────────────────────────────────────────────┐
+│ □ MySQL is running                                                      │
+│ □ Database "finsecure" is created                                       │
+│ □ App is running on http://localhost:8085                               │
+│ □ Postman is installed                                                  │
+│ □ Collection imported: FinSecure-Complete-Testing.postman_collection.json│
+└────────────────────────────────────────────────────────────────────────┘
+
+
+TEST 1: CREATE USERS
+┌────────────────────────────────────────────────────────────────────────┐
+│ Folder: 1️⃣ AUTH - Setup                                                │
+│                                                                        │
+│ □ Setup: Create Admin User                 Status: _____ (expect 200) │
+│ □ Setup: Create Employee User              Status: _____ (expect 200) │
+│ □ Setup: Create Finance User               Status: _____ (expect 200) │
+│ □ Setup: Create HR User                    Status: _____ (expect 200) │
+│ □ Setup: Create System User                Status: _____ (expect 200) │
+│                                                                        │
+│ ✓ All return 200 OK with username and role                            │
+└────────────────────────────────────────────────────────────────────────┘
+
+
+TEST 2: LOGIN & GET TOKENS
+┌────────────────────────────────────────────────────────────────────────┐
+│ Folder: 2️⃣ AUTH - Login                                               │
+│                                                                        │
+│ □ Login: Admin (Save Token)                Status: _____ (expect 200) │
+│   - Token saved to: admin_token                                        │
+│                                                                        │
+│ □ Login: Employee (Save Token)             Status: _____ (expect 200) │
+│   - Token saved to: employee_token                                     │
+│                                                                        │
+│ □ Login: Finance (Save Token)              Status: _____ (expect 200) │
+│   - Token saved to: finance_token                                      │
+│                                                                        │
+│ □ Login: HR (Save Token)                   Status: _____ (expect 200) │
+│   - Token saved to: hr_token                                           │
+│                                                                        │
+│ □ Login: System (Save Token)               Status: _____ (expect 200) │
+│   - Token saved to: system_token                                       │
+│                                                                        │
+│ ✓ All return 200 OK with token, username, and isValid: true           │
+│ ✓ Environment variables populated (check top-right in Postman)        │
+└────────────────────────────────────────────────────────────────────────┘
+
+
+TEST 3: ADMIN CONTROLLER
+┌────────────────────────────────────────────────────────────────────────┐
+│ Folder: 3️⃣ ADMIN CONTROLLER                                            │
+│                                                                        │
+│ □ Admin Test Endpoint (with admin_token)                               │
+│   Status: _____ (expect 200)                                           │
+│   Response: "successfuly accessing admin controller"                   │
+│                                                                        │
+│ □ Admin Test (Employee Token - Should Fail)                            │
+│   Status: _____ (expect 401 or 403)                                    │
+│   Response: Error/Forbidden message                                    │
+│                                                                        │
+│ ✓ Admin can access admin endpoints                                     │
+│ ✓ Non-admin blocked from admin endpoints                               │
+└────────────────────────────────────────────────────────────────────────┘
+
+
+TEST 4: EMPLOYEE CONTROLLER
+┌────────────────────────────────────────────────────────────────────────┐
+│ Folder: 4️⃣ EMPLOYEE CONTROLLER                                         │
+│                                                                        │
+│ □ Employee Test Endpoint (with employee_token)                         │
+│   Status: _____ (expect 200)                                           │
+│   Response: "successfuly accessing employee controller"                │
+│                                                                        │
+│ □ Employee Test (Admin Token - Should Work)                            │
+│   Status: _____ (expect 200)                                           │
+│   Response: "successfuly accessing employee controller"                │
+│                                                                        │
+│ ✓ Employee can access employee endpoints                               │
+│ ✓ Admin can access employee endpoints                                  │
+└────────────────────────────────────────────────────────────────────────┘
+
+
+TEST 5: FINANCE CONTROLLER
+┌────────────────────────────────────────────────────���───────────────────┐
+│ Folder: 5️⃣ FINANCE CONTROLLER                                          │
+│                                                                        │
+│ □ Finance Test Endpoint (with finance_token)                           │
+│   Status: _____ (expect 200)                                           │
+│   Response: "successfuly accessing finance controller"                 │
+│                                                                        │
+│ ✓ Finance user can access finance endpoints                            │
+└────────────────────────────────────────────────────────────────────────┘
+
+
+TEST 6: HR CONTROLLER
+┌────────────────────────────────────────────────────────────────────────┐
+│ Folder: 6️⃣ HR CONTROLLER                                               │
+│                                                                        │
+│ □ HR Test Endpoint (with hr_token)                                     │
+│   Status: _____ (expect 200)                                           │
+│   Response: "successfuly accessing hr controller"                      │
+│                                                                        │
+│ ✓ HR user can access HR endpoints                                      │
+└────────────────────────────────────────────────────────────────────────┘
+
+
+TEST 7: SYSTEM CONTROLLER
+┌────────────────────────────────────────────────────────────────────────┐
+│ Folder: 7️⃣ SYSTEM CONTROLLER                                           │
+│                                                                        │
+│ □ System Test Endpoint (with system_token)                             │
+│   Status: _____ (expect 200)                                           │
+│   Response: "successfuly accessing system controller"                  │
+│                                                                        │
+│ ✓ System user can access system endpoints                              │
+└────────────────────────────────────────────────────────────────────────┘
+
+
+TEST 8: SECURITY TESTS
+┌────────────────────────────────────────────────────────────────────────┐
+│ Folder: 🧪 TEST SCENARIOS                                              │
+│                                                                        │
+│ □ Test: No Token (Should Fail)                                         │
+│   Status: _____ (expect 401 or 403)                                    │
+│   ✓ System blocks requests without token                               │
+│                                                                        │
+│ □ Test: Invalid Token                                                  │
+│   Status: _____ (expect 401 or 403)                                    │
+│   ✓ System rejects invalid tokens                                      │
+│                                                                        │
+│ □ Test: Wrong Password                                                 │
+│   Status: _____ (expect 401)                                           │
+│   ✓ System rejects invalid login attempts                              │
+│                                                                        │
+│ ✓ Security validation working correctly                                │
+└────────────────────────────────────────────────────────────────────────┘
+
+
+SUMMARY
+┌────────────────────────────────────────────────────────────────────────┐
+│                                                                        │
+│ Total Tests:          ______ / 21                                      │
+│ Passed:               ______ (expect 21)                               │
+│ Failed:               ______ (expect 0)                                │
+│                                                                        │
+│ AUTHENTICATION:       □ PASS   □ FAIL                                  │
+│ ADMIN ACCESS:         □ PASS   □ FAIL                                  │
+│ EMPLOYEE ACCESS:      □ PASS   □ FAIL                                  │
+│ FINANCE ACCESS:       □ PASS   □ FAIL                                  │
+│ HR ACCESS:            □ PASS   □ FAIL                                  │
+│ SYSTEM ACCESS:        □ PASS   □ FAIL                                  │
+│ ROLE ISOLATION:       □ PASS   □ FAIL                                  │
+│ SECURITY:             □ PASS   □ FAIL                                  │
+│                                                                        │
+│ ═══════════════════════════════════════                                │
+│ OVERALL STATUS:       □ PASS   □ FAIL                                  │
+│ ═══════════════════════════════════════                                │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+
+NOTES:
+─────────────────────────────────────────────────────────────────────────
+• All successful responses should be HTTP 200
+• All blocked responses should be HTTP 401 or 403
+• Tokens expire in 1 hour - refresh if tests start failing
+• Check Postman Console (View → Show Postman Console) for details
+• If any test fails, check the response body for error details
+
+─────────────────────────────────────────────────────────────────────────
+

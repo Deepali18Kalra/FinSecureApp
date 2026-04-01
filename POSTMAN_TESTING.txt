@@ -1,0 +1,192 @@
+FINSECURE POSTMAN TESTING - QUICK START
+
+================================================================================
+1. SETUP DATABASE
+================================================================================
+Open MySQL Command Line:
+  mysql -u root -p
+  (enter password: root)
+
+Then run:
+  CREATE DATABASE finsecure;
+
+Done!
+
+================================================================================
+2. START APPLICATION
+================================================================================
+Open Command Prompt/PowerShell at: C:\FinSecure\FinSecureApp
+
+Run:
+  mvn clean spring-boot:run
+
+Wait until you see:
+  "Started FinSecureProjectApplication in X.XXX seconds"
+  "Tomcat started on port(s): 8085"
+
+================================================================================
+3. IMPORT POSTMAN COLLECTION
+================================================================================
+Open Postman
+
+Click: File → Import
+Or: Ctrl + O
+
+Select: FinSecure-Complete-Testing.postman_collection.json
+(From C:\FinSecure\FinSecureApp folder)
+
+Click Import
+
+================================================================================
+4. TESTING WORKFLOW
+================================================================================
+
+STEP 1 - Create Users:
+  Go to: "1️⃣ AUTH - Setup" folder
+  Run each request one by one:
+    ✓ Setup: Create Admin User
+    ✓ Setup: Create Employee User
+    ✓ Setup: Create Finance User
+    ✓ Setup: Create HR User
+    ✓ Setup: Create System User
+
+STEP 2 - Login & Get Tokens:
+  Go to: "2️⃣ AUTH - Login" folder
+  Run each login request one by one:
+    ✓ Login: Admin (Save Token)
+    ✓ Login: Employee (Save Token)
+    ✓ Login: Finance (Save Token)
+    ✓ Login: HR (Save Token)
+    ✓ Login: System (Save Token)
+
+(Tokens are auto-saved to environment variables)
+
+STEP 3 - Test Admin Controller:
+  Go to: "3️⃣ ADMIN CONTROLLER"
+  Run:
+    ✓ Admin Test Endpoint (SHOULD WORK)
+    ✓ Admin Test (Employee Token - Should Fail) (SHOULD FAIL)
+
+STEP 4 - Test Employee Controller:
+  Go to: "4️⃣ EMPLOYEE CONTROLLER"
+  Run:
+    ✓ Employee Test Endpoint (SHOULD WORK)
+    ✓ Employee Test (Admin Token - Should Work) (SHOULD WORK)
+
+STEP 5 - Test Finance Controller:
+  Go to: "5️⃣ FINANCE CONTROLLER"
+  Run:
+    ✓ Finance Test Endpoint (SHOULD WORK)
+
+STEP 6 - Test HR Controller:
+  Go to: "6️⃣ HR CONTROLLER"
+  Run:
+    ✓ HR Test Endpoint (SHOULD WORK)
+
+STEP 7 - Test System Controller:
+  Go to: "7️⃣ SYSTEM CONTROLLER"
+  Run:
+    ✓ System Test Endpoint (SHOULD WORK)
+
+STEP 8 - Test Scenarios (Security Tests):
+  Go to: "🧪 TEST SCENARIOS"
+  Run:
+    ✓ Test: No Token (Should Fail) - SHOULD RETURN 401/403
+    ✓ Test: Invalid Token - SHOULD RETURN 401/403
+    ✓ Test: Wrong Password - SHOULD RETURN ERROR
+
+================================================================================
+5. EXPECTED RESULTS
+================================================================================
+
+✅ Successful Test:
+   Status: 200 OK
+   Response: "successfuly accessing admin controller"
+   (Note: There's a typo in the app - "successfuly" not "successfully")
+
+❌ Failed Test (No Token):
+   Status: 401 Unauthorized or 403 Forbidden
+
+❌ Failed Test (Wrong Password):
+   Status: 401 Unauthorized
+   Response: Error message about invalid credentials
+
+================================================================================
+6. TESTING TIPS
+================================================================================
+
+1. Run STEP 1 first (Create Users) - must do once
+2. Run STEP 2 (Login) - tokens are saved automatically
+3. After STEP 2, you can run any other test in any order
+4. Tokens expire in 1 HOUR - if tests fail, run STEP 2 again
+5. Check Postman Console for details: View → Show Postman Console
+6. Environment variables show in Postman top-right corner
+
+================================================================================
+7. WHAT GETS TESTED
+================================================================================
+
+✓ User Authentication (Signup)
+✓ User Login (JWT Token Generation)
+✓ Token Validation
+✓ Role-Based Access Control
+  - Admin accessing Admin endpoints
+  - Employee accessing Employee endpoints
+  - Admin accessing Employee endpoints (should work)
+  - Employee accessing Admin endpoints (should fail)
+✓ All 5 Controllers: Admin, Employee, Finance, HR, System
+✓ Security Tests: No token, Invalid token, Wrong password
+
+================================================================================
+8. FILE LOCATION
+================================================================================
+
+Postman Collection: C:\FinSecure\FinSecureApp\FinSecure-Complete-Testing.postman_collection.json
+
+Credentials created during testing:
+  Admin:    admin1 / AdminPass123
+  Employee: emp1 / EmpPass123
+  Finance:  fin1 / FinPass123
+  HR:       hr1 / HRPass123
+  System:   sys1 / SysPass123
+
+API Base URL: http://localhost:8085
+
+================================================================================
+9. TROUBLESHOOTING
+================================================================================
+
+Problem: "Unknown database 'finsecure'"
+Solution: CREATE DATABASE finsecure;
+
+Problem: "Connection refused"
+Solution: Check MySQL is running and app is running on 8085
+
+Problem: "401 Unauthorized on all tests"
+Solution: Run login requests again (STEP 2)
+
+Problem: Tests passed before but now fail
+Solution: Token expired - run STEP 2 again to get fresh tokens
+
+Problem: "Invalid username or password" on login
+Solution: User wasn't created - run STEP 1 again
+
+================================================================================
+10. QUICK REFERENCE
+================================================================================
+
+PUBLIC ENDPOINTS (No Auth Required):
+  POST /finsecure/public/signup
+  POST /finsecure/public/login
+
+PROTECTED ENDPOINTS (Auth Required):
+  GET /finsecure/admin/test
+  GET /finsecure/employee/test
+  GET /finsecure/finance/test
+  GET /finsecure/hr/test
+  GET /finsecure/system/test
+
+================================================================================
+DONE! You're ready to test.
+================================================================================
+

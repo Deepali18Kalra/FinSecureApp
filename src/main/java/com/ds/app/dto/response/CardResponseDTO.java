@@ -3,6 +3,7 @@ package com.ds.app.dto.response;
 import com.ds.app.enums.CardStatus;
 import com.ds.app.enums.CardType;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 public class CardResponseDTO {
 
     private Long id;

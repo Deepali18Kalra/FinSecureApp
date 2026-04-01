@@ -1,47 +1,30 @@
 package com.ds.app.entity;
-
+import com.ds.app.enums.BankValidationStatus;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.hibernate.annotations.CreationTimestamp;
-
-import com.ds.app.enums.BankValidationStatus;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
+@Table(name = "employee_bank_account")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class EmployeeBankAccount {
-	
-	@Id
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long empBankId;
 
-    
-    @Column(name = "employee_id", nullable = false, unique = true)
-    private Long employeeId;
+    @ManyToOne(fetch = FetchType.LAZY , targetEntity = Employee.class)    @JoinColumn(name = "employee_id", nullable = false, unique = true)
+    private Employee employee;
 
-    
+    // Many-to-One with BankMaster
+    // many employees can bank with the same institution (ICICI, HDFC etc.)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_id", nullable = false)
-    private CompanyBankAccount bank;
+    private FinanceBankAccount bank;
 
-    
+    // stored encrypted — never expose raw value
     @Column(nullable = false, length = 30)
     private String accountNumber;
 
@@ -54,12 +37,18 @@ public class EmployeeBankAccount {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BankValidationStatus validationStatus = BankValidationStatus.PENDING;
+    
+    @Column(name = "review_note", length = 500)
+    private String reviewNote; // HR/Admin can add comments during review
+    
+    @Column(name = "reviewed_by")
+    private Long reviewedBy; // HR/Admin user ID who reviewed this account
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    
+    // One bank account → many salary records (one per month)
     @OneToMany(mappedBy = "bankAccount", fetch = FetchType.LAZY)
     private List<SalaryRecord> salaryRecords;
 }

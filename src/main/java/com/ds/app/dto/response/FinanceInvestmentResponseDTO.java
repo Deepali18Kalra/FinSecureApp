@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MutualFundResponseDTO {
+public class FinanceInvestmentResponseDTO {
 
-    private Long id;
+    private Long mutualFundId;
     private String fundName;
     private String fundCode;
     private String category;

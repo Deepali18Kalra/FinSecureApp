@@ -16,7 +16,7 @@ public interface ILeaveService {
 
     LeaveResponse cancelOrWithdrawLeave(Long leaveId);
     
-    // HR related methods
+    // MANAGER related methods
     LeaveResponse processLeaveRequest(Long leaveId, ApprovalRequest approvalRequest);
 
     LeaveResponse processCancellationRequest(Long leaveId, ApprovalRequest approvalRequest);

@@ -21,13 +21,13 @@ public class TimesheetEntryController {
 
     private final ITimesheetEntryService service;
 
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @PostMapping
     public ResponseEntity<TimesheetEntryResponse> addMyEntry(@Valid @RequestBody TimesheetEntryRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.addMyEntry(request));
     }
 
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @GetMapping
     public ResponseEntity<List<TimesheetEntryResponse>> getMyEntries(
             @RequestParam Integer month,
@@ -36,7 +36,7 @@ public class TimesheetEntryController {
         return ResponseEntity.ok(service.getMyEntries(month, year));
     }
 
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @GetMapping("/range")
     public ResponseEntity<List<TimesheetEntryResponse>> getMyEntriesByRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -45,7 +45,7 @@ public class TimesheetEntryController {
         return ResponseEntity.ok(service.getMyEntriesByDateRange(startDate, endDate));
     }
 
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @PutMapping("/{entryId}")
     public ResponseEntity<TimesheetEntryResponse> updateMyEntry(
             @PathVariable Long entryId,
@@ -54,7 +54,7 @@ public class TimesheetEntryController {
         return ResponseEntity.ok(service.updateMyEntry(entryId, request));
     }
 
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @DeleteMapping("/{entryId}")
     public ResponseEntity<Void> deleteMyEntry(@PathVariable Long entryId) {
         service.deleteMyEntry(entryId);

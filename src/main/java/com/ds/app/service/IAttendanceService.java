@@ -19,7 +19,7 @@ public interface IAttendanceService {
 
 	List<AttendanceResponse> getMyAttendance(Integer month, Integer year);
 	
-	// HR related methods
+	// MANAGER related methods
 
 	Page<AttendanceResponse> getEmployeeAttendance(Long employeeId, Integer month, Integer year, Pageable pageable);
 

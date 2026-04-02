@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Repository
 public interface ILeaveRepository extends JpaRepository<Leave, Long> {
-    Page<Leave> findByEmployeeHrUserId(Long hrId, Pageable pageable);
+    Page<Leave> findByEmployee_Manager_UserId(Long hrId, Pageable pageable);
 
     @Query("""
     select new com.ds.app.dto.LeaveStatusResponse(
@@ -44,7 +44,7 @@ public interface ILeaveRepository extends JpaRepository<Leave, Long> {
             Pageable pageable
     );
 
-    Page<Leave> findByEmployee_Hr_UserIdAndStatusIn(Long hrId, List<LeaveStatus> status, Pageable pageable);
+    Page<Leave> findByEmployee_Manager_UserIdAndStatusIn(Long hrId, List<LeaveStatus> status, Pageable pageable);
     
     Optional<Leave> findByLeaveIdAndEmployeeUserId(Long leaveId, Long employeeId);
 

@@ -79,7 +79,7 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
         Employee hr = securityUtils.getLoggedInEmployee();
 
         return regularizationRepository
-                .findByEmployeeHrUserIdAndStatusOrderByDateDesc(hr.getUserId(), RegularizationRequestStatus.PENDING)
+                .findByEmployee_Manager_UserIdAndStatusOrderByDateDesc(hr.getUserId(), RegularizationRequestStatus.PENDING)
                 .stream()
                 .map(regularizationMapper::mapToResponse)
                 .toList();
@@ -93,7 +93,7 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
         RegularizationRequest rr = regularizationRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Regularization request not found with id: " + requestId));
 
-        if (rr.getEmployee().getHr() == null || !rr.getEmployee().getHr().getUserId().equals(hr.getUserId())) {
+        if (rr.getEmployee().getManager() == null || !rr.getEmployee().getManager().getUserId().equals(hr.getUserId())) {
             throw new ResourceNotFoundException("Regularization request not found with id: " + requestId);
         }
 

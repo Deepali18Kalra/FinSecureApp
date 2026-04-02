@@ -24,14 +24,14 @@ public class LeaveController {
     private final ILeaveService leaveService;
 
     // Employee endpoints
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @PostMapping
     public ResponseEntity<LeaveResponse> applyLeave(@RequestBody LeaveRequest leaveRequest) {
         LeaveResponse response = leaveService.applyLeave(leaveRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE', 'HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE', 'MANAGER')")
     @GetMapping
     public ResponseEntity<Page<LeaveStatusResponse>> getMyLeaves(
     		@RequestParam(required = false) LeaveStatus status,
@@ -43,7 +43,7 @@ public class LeaveController {
         return ResponseEntity.ok(pageResponse);
     }
     
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE', 'HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE', 'MANAGER')")
     @PatchMapping("/{leaveId}/cancel")
     public ResponseEntity<LeaveResponse> cancelOrWithdraw(
     		@PathVariable Long leaveId
@@ -52,8 +52,8 @@ public class LeaveController {
     	return ResponseEntity.ok(response);
     }
 
-    // HR endpoints
-    @PreAuthorize("hasAuthority('HR')")
+    // MANAGER endpoints
+    @PreAuthorize("hasAuthority('MANAGER')")
     @PatchMapping("/{leaveId}/decision")
     public ResponseEntity<LeaveResponse> processLeaveRequest(
             @PathVariable Long leaveId,
@@ -63,7 +63,7 @@ public class LeaveController {
         return ResponseEntity.ok(response);
     }
     
-    @PreAuthorize("hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('MANAGER')")
     @PatchMapping("/{leaveId}/cancel-request")
     public ResponseEntity<LeaveResponse> processCancellationRequest(
     		@PathVariable Long leaveId,
@@ -73,7 +73,7 @@ public class LeaveController {
     	return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('MANAGER')")
     @GetMapping("/pending")
     public ResponseEntity<Page<LeaveResponse>> getPendingRequests(
             @PageableDefault(size = 10, page = 0, direction = Sort.Direction.DESC)

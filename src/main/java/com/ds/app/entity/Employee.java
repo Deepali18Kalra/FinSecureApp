@@ -22,11 +22,11 @@ public class Employee extends AppUser{
     private String email;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "hr_id")
+	@JoinColumn(name = "manager_id")
 	@JsonIgnore
-	private Employee hr;
+	private Employee manager;
 	
-	@OneToMany(mappedBy = "hr", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
 	private List<Employee> assignedEmployees;
 	
 	@OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)

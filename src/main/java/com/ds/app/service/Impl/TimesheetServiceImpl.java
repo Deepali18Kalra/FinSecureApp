@@ -66,14 +66,14 @@ public class TimesheetServiceImpl implements ITimesheetService {
     @Override
     public Page<TimesheetResponse> getPendingTimesheetsForHr(Pageable pageable) {
         Employee hr = securityUtils.getLoggedInEmployee();
-        return timesheetRepository.findByEmployeeHrUserIdAndStatus(hr.getUserId(), TimesheetStatus.SUBMITTED, pageable)
+        return timesheetRepository.findByEmployee_Manager_UserIdAndStatus(hr.getUserId(), TimesheetStatus.SUBMITTED, pageable)
                 .map(timesheetMapper::mapToResponse);
     }
 
     @Override
     public Page<TimesheetResponse> getTeamTimesheetsByMonthYear(Integer month, Integer year, Pageable pageable) {
         Employee hr = securityUtils.getLoggedInEmployee();
-        return timesheetRepository.findByEmployeeHrUserIdAndMonthAndYear(hr.getUserId(), month, year, pageable)
+        return timesheetRepository.findByEmployee_Manager_UserIdAndMonthAndYear(hr.getUserId(), month, year, pageable)
                 .map(timesheetMapper::mapToResponse);
     }
 
@@ -85,7 +85,7 @@ public class TimesheetServiceImpl implements ITimesheetService {
         Timesheet ts = timesheetRepository.findById(timesheetId)
                 .orElseThrow(() -> new ResourceNotFoundException("Timesheet not found with id: " + timesheetId));
 
-        if (ts.getEmployee().getHr() == null || !ts.getEmployee().getHr().getUserId().equals(hr.getUserId())) {
+        if (ts.getEmployee().getManager() == null || !ts.getEmployee().getManager().getUserId().equals(hr.getUserId())) {
             throw new ResourceNotFoundException("Timesheet not found with id: " + timesheetId);
         }
 

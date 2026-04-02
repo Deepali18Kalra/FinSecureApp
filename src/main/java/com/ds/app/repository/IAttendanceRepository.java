@@ -36,7 +36,7 @@ public interface IAttendanceRepository extends JpaRepository<Attendance, Long>{
 			""")
 	Page<Attendance> findAttendanceByEmployeeUserIdAndMonthAndYear(Long employeeId, Integer month, Integer year, Pageable pageable);
 	
-	Page<Attendance> findByEmployee_Hr_UserIdAndDate(Long hrId, LocalDate date, Pageable pageable);
+	Page<Attendance> findByEmployee_Manager_UserIdAndDate(Long hrId, LocalDate date, Pageable pageable);
 	
 //	@Query("""
 //			select new com.ds.app.dto.MonthlyAttendanceReport(

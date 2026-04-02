@@ -20,7 +20,9 @@ public class RegularizationRequestController {
 
     private final IRegularizationRequestService regularizationService;
 
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    // Employee endpoints
+
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @PostMapping
     public ResponseEntity<RegularizationResponse> applyRegularization(
             @Valid @RequestBody RegularizationRequestdto request
@@ -28,7 +30,7 @@ public class RegularizationRequestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(regularizationService.applyRegularization(request));
     }
 
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @GetMapping("/my")
     public ResponseEntity<List<RegularizationResponse>> getMyRegularizationRequests(
             @RequestParam(required = false) String status
@@ -36,15 +38,15 @@ public class RegularizationRequestController {
         return ResponseEntity.ok(regularizationService.getMyRegularizationRequests(status));
     }
 
-    // HR endpoints
+    // MANAGER endpoints
     
-    @PreAuthorize("hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('MANAGER')")
     @GetMapping("/pending")
     public ResponseEntity<List<RegularizationResponse>> getPendingRegularizationsForHr() {
         return ResponseEntity.ok(regularizationService.getPendingRegularizationsForHr());
     }
 
-    @PreAuthorize("hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('MANAGER')")
     @PatchMapping("/{requestId}/decision")
     public ResponseEntity<RegularizationResponse> reviewRegularization(
             @PathVariable Long requestId,

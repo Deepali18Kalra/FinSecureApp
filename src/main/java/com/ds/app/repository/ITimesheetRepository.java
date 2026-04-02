@@ -16,7 +16,7 @@ public interface ITimesheetRepository extends JpaRepository<Timesheet, Long> {
 
     Optional<Timesheet> findByTimesheetIdAndEmployeeUserId(Long timesheetId, Long employeeId);
 
-    Page<Timesheet> findByEmployeeHrUserIdAndStatus(Long hrId, TimesheetStatus status, Pageable pageable);
+    Page<Timesheet> findByEmployee_Manager_UserIdAndStatus(Long hrId, TimesheetStatus status, Pageable pageable);
 
-    Page<Timesheet> findByEmployeeHrUserIdAndMonthAndYear(Long hrId, Integer month, Integer year, Pageable pageable);
+    Page<Timesheet> findByEmployee_Manager_UserIdAndMonthAndYear(Long hrId, Integer month, Integer year, Pageable pageable);
 }

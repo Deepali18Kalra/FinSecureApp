@@ -20,8 +20,8 @@ public class TimesheetController {
 
     private final ITimesheetService timesheetService;
 
-    // Employee
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    // Employee endpoints
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @GetMapping("/my")
     public ResponseEntity<TimesheetResponse> getMyMonthlyTimesheet(
             @RequestParam Integer month,
@@ -30,14 +30,14 @@ public class TimesheetController {
         return ResponseEntity.ok(timesheetService.getMyMonthlyTimesheet(month, year));
     }
 
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @PatchMapping("/{timesheetId}/submit")
     public ResponseEntity<TimesheetResponse> submitMyTimesheet(@PathVariable Long timesheetId) {
         return ResponseEntity.ok(timesheetService.submitMyTimesheet(timesheetId));
     }
 
-    // HR
-    @PreAuthorize("hasAuthority('HR')")
+    // Manager endpoints
+    @PreAuthorize("hasAuthority('MANAGER')")
     @GetMapping("/pending")
     public ResponseEntity<Page<TimesheetResponse>> getPendingTimesheetsForHr(
             @PageableDefault(size = 10, page = 0, sort = "submittedAt", direction = Sort.Direction.DESC)
@@ -46,7 +46,7 @@ public class TimesheetController {
         return ResponseEntity.ok(timesheetService.getPendingTimesheetsForHr(pageable));
     }
 
-    @PreAuthorize("hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('MANAGER')")
     @GetMapping("/team")
     public ResponseEntity<Page<TimesheetResponse>> getTeamTimesheetsByMonthYear(
             @RequestParam Integer month,
@@ -57,7 +57,7 @@ public class TimesheetController {
         return ResponseEntity.ok(timesheetService.getTeamTimesheetsByMonthYear(month, year, pageable));
     }
 
-    @PreAuthorize("hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('MANAGER')")
     @PatchMapping("/{timesheetId}/decision")
     public ResponseEntity<TimesheetResponse> reviewTimesheet(
             @PathVariable Long timesheetId,

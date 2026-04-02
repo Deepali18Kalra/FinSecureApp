@@ -103,7 +103,7 @@ public class AttendanceServiceImpl implements IAttendanceService{
 		return attendanceMapper.mapToResponse(todayAttendance);
 	}
 	
-	// HR related methods
+	// MANAGER related methods
 
 	@Override
 	public Page<AttendanceResponse> getEmployeeAttendance(Long employeeId, Integer month, Integer year, Pageable pageable) {
@@ -112,7 +112,7 @@ public class AttendanceServiceImpl implements IAttendanceService{
 		
 		Employee loggedEmployee = securityUtil.getLoggedInEmployee();
 		
-		if(emp.getHr().getUserId() != loggedEmployee.getUserId()) {
+		if(emp.getManager().getUserId() != loggedEmployee.getUserId()) {
 			throw new UnAuthorizedException("Unauthorized for employee with id: " + employeeId);
 		}
 		Page<Attendance> attendancePage = attendanceRepo.findAttendanceByEmployeeUserIdAndMonthAndYear(employeeId, month, year, pageable);
@@ -122,7 +122,7 @@ public class AttendanceServiceImpl implements IAttendanceService{
 	@Override
 	public Page<AttendanceResponse> getAllAttendanceByDate(LocalDate date, Pageable pageable) {
 		Employee loggedInHr = securityUtil.getLoggedInEmployee();
-		Page<Attendance> attendanceByDatePage = attendanceRepo.findByEmployee_Hr_UserIdAndDate(loggedInHr.getUserId(),date, pageable);
+		Page<Attendance> attendanceByDatePage = attendanceRepo.findByEmployee_Manager_UserIdAndDate(loggedInHr.getUserId(),date, pageable);
 		return attendanceByDatePage.map(attendance -> attendanceMapper.mapToResponse(attendance));
 	}
 

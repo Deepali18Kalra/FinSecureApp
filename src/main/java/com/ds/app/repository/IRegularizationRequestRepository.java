@@ -18,7 +18,7 @@ public interface IRegularizationRequestRepository extends JpaRepository<Regulari
 
     List<RegularizationRequest> findByEmployeeUserIdAndStatusOrderByDateDesc(Long employeeId, RegularizationRequestStatus status);
 
-    List<RegularizationRequest> findByEmployeeHrUserIdAndStatusOrderByDateDesc(Long hrId, RegularizationRequestStatus status);
+    List<RegularizationRequest> findByEmployee_Manager_UserIdAndStatusOrderByDateDesc(Long hrId, RegularizationRequestStatus status);
 
     boolean existsByEmployeeUserIdAndDateAndStatus(Long employeeId, LocalDate date, RegularizationRequestStatus status);
 }

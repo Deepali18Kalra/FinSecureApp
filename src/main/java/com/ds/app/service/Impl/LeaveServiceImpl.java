@@ -6,7 +6,6 @@ import com.ds.app.dto.LeaveResponse;
 import com.ds.app.dto.LeaveStatusResponse;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.Leave;
-import com.ds.app.entity.LeaveBalance;
 import com.ds.app.enums.ApprovalStatus;
 import com.ds.app.enums.LeaveStatus;
 import com.ds.app.enums.LeaveType;
@@ -14,9 +13,9 @@ import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.exception.UnAuthorizedException;
 import com.ds.app.mapper.LeaveMapper;
 import com.ds.app.repository.IHolidayRepository;
-import com.ds.app.repository.ILeaveBalanceRepository;
 import com.ds.app.repository.ILeaveRepository;
 import com.ds.app.service.IEmailService;
+import com.ds.app.service.ILeaveBalanceService;
 import com.ds.app.service.ILeaveService;
 import com.ds.app.utils.DateUtil;
 import com.ds.app.utils.SecurityUtils;
@@ -26,7 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +37,7 @@ public class LeaveServiceImpl implements ILeaveService {
     private final IHolidayRepository holidayRepository;
     private final LeaveMapper leaveMapper;
     private final SecurityUtils securityUtils;
-    private final ILeaveBalanceRepository leaveBalanceRepository;
+    private final ILeaveBalanceService leaveBalanceService;
     private final IEmailService emailService;
 
     // Employee related methods
@@ -55,32 +53,9 @@ public class LeaveServiceImpl implements ILeaveService {
         int workingDays = DateUtil.workingDaysExcludingHolidays(startDate, endDate, holidays);
 
         int leaveYear = startDate.getYear();
-
-        LeaveBalance lb = leaveBalanceRepository
-                .findByEmployeeUserIdAndYear(emp.getUserId(), leaveYear)
-                .orElseThrow(() -> new IllegalStateException("Leave balance not found for year: " + leaveYear));
-
         LeaveType type = leaveRequest.getLeaveType();
-        if (type != LeaveType.UNPAID) {
-            switch (type) {
-                case SICK -> {
-                    int available = lb.getSickLeaveBalance() - lb.getReservedSickLeaves();
-                    if (available < workingDays) throw new IllegalArgumentException("Insufficient sick leave balance");
-                    lb.setReservedSickLeaves(lb.getReservedSickLeaves() + workingDays);
-                }
-                case CASUAL -> {
-                    int available = lb.getCasualLeaveBalance() - lb.getReservedCasualLeaves();
-                    if (available < workingDays) throw new IllegalArgumentException("Insufficient casual leave balance");
-                    lb.setReservedCasualLeaves(lb.getReservedCasualLeaves() + workingDays);
-                }
-                case EARNED -> {
-                    int available = lb.getEarnedLeaveBalance().intValue() - lb.getReservedEarnedLeaves();
-                    if (available < workingDays) throw new IllegalArgumentException("Insufficient earned leave balance");
-                    lb.setReservedEarnedLeaves(lb.getReservedEarnedLeaves() + workingDays);
-                }
-                default -> {}
-            }
-        }
+
+        leaveBalanceService.reserveLeaves(emp.getUserId(), leaveYear, type, workingDays);
 
         Leave leave = leaveMapper.mapToEntity(leaveRequest, emp);
         leave.setTotalDays(workingDays);
@@ -88,7 +63,7 @@ public class LeaveServiceImpl implements ILeaveService {
 
         Leave saved = leaveRepository.save(leave);
 
-        emailService.notifyHrForNewLeave(emp, saved);
+        emailService.notifyManagerForNewLeave(emp, saved);
 
         return leaveMapper.mapToResponse(saved);
     }
@@ -113,9 +88,12 @@ public class LeaveServiceImpl implements ILeaveService {
         if (currentStatus == LeaveStatus.PENDING) {
             existingLeave.setStatus(LeaveStatus.WITHDRAWN);
 
-            if (existingLeave.getLeaveType() != LeaveType.UNPAID) {
-                releaseReservedLeaves(employee.getUserId(), existingLeave);
-            }
+            leaveBalanceService.releaseReservedLeaves(
+                    employee.getUserId(),
+                    existingLeave.getStartDate().getYear(),
+                    existingLeave.getLeaveType(),
+                    existingLeave.getTotalDays()
+            );
 
             return leaveMapper.mapToResponse(existingLeave);
         }
@@ -123,7 +101,7 @@ public class LeaveServiceImpl implements ILeaveService {
         if (currentStatus == LeaveStatus.APPROVED) {
             existingLeave.setStatus(LeaveStatus.CANCELLATION_PENDING);
 
-            emailService.notifyHrForCancellationRequest(employee, existingLeave);
+            emailService.notifyManagerForCancellationRequest(employee, existingLeave);
 
             return leaveMapper.mapToResponse(existingLeave);
         }
@@ -131,7 +109,7 @@ public class LeaveServiceImpl implements ILeaveService {
         throw new IllegalStateException("Leave can only be withdrawn when PENDING or cancellation-requested when APPROVED");
     }
 
-    // HR related methods
+    // MANAGER related methods
     @Override
     @Transactional
     public LeaveResponse processLeaveRequest(Long leaveId, ApprovalRequest approvalRequest) {
@@ -155,43 +133,13 @@ public class LeaveServiceImpl implements ILeaveService {
 
         LeaveType leaveType = existingLeave.getLeaveType();
         int days = existingLeave.getTotalDays();
+        int year = existingLeave.getStartDate().getYear();
+        Long empUserId = existingLeave.getEmployee().getUserId();
 
-        if (leaveType != LeaveType.UNPAID) {
-            int year = existingLeave.getStartDate().getYear();
-            Long empUserId = existingLeave.getEmployee().getUserId();
-
-            LeaveBalance lb = findLeaveBalance(empUserId, year);
-
-            if (LeaveStatus.APPROVED.equals(newStatus)) {
-                switch (leaveType) {
-                    case SICK -> {
-                        if (lb.getReservedSickLeaves() < days) throw new IllegalStateException("Reserved sick leaves less than requested days");
-                        lb.setReservedSickLeaves(lb.getReservedSickLeaves() - days);
-                        lb.setSickLeaveBalance(lb.getSickLeaveBalance() - days);
-                        lb.setSickLeavesConsumed(lb.getSickLeavesConsumed() + days);
-                    }
-                    case CASUAL -> {
-                        if (lb.getReservedCasualLeaves() < days) throw new IllegalStateException("Reserved casual leaves less than requested days");
-                        lb.setReservedCasualLeaves(lb.getReservedCasualLeaves() - days);
-                        lb.setCasualLeaveBalance(lb.getCasualLeaveBalance() - days);
-                        lb.setCasualLeavesConsumed(lb.getCasualLeavesConsumed() + days);
-                    }
-                    case EARNED -> {
-                        if (lb.getReservedEarnedLeaves() < days) throw new IllegalStateException("Reserved earned leaves less than requested days");
-                        lb.setReservedEarnedLeaves(lb.getReservedEarnedLeaves() - days);
-                        lb.setEarnedLeaveBalance(lb.getEarnedLeaveBalance().subtract(BigDecimal.valueOf(days)));
-                        lb.setEarnedLeavesConsumed(lb.getEarnedLeavesConsumed() + days);
-                    }
-                    default -> {}
-                }
-            } else if (LeaveStatus.REJECTED.equals(newStatus)) {
-                switch (leaveType) {
-                    case SICK -> lb.setReservedSickLeaves(Math.max(0, lb.getReservedSickLeaves() - days));
-                    case CASUAL -> lb.setReservedCasualLeaves(Math.max(0, lb.getReservedCasualLeaves() - days));
-                    case EARNED -> lb.setReservedEarnedLeaves(Math.max(0, lb.getReservedEarnedLeaves() - days));
-                    default -> {}
-                }
-            }
+        if (LeaveStatus.APPROVED.equals(newStatus)) {
+            leaveBalanceService.applyApproval(empUserId, year, leaveType, days);
+        } else if (LeaveStatus.REJECTED.equals(newStatus)) {
+            leaveBalanceService.releaseReservedLeaves(empUserId, year, leaveType, days);
         }
 
         emailService.notifyEmployeeForLeaveDecision(existingLeave.getEmployee(), existingLeave);
@@ -216,33 +164,14 @@ public class LeaveServiceImpl implements ILeaveService {
 
         LeaveType leaveType = existingLeave.getLeaveType();
         int days = existingLeave.getTotalDays();
+        int year = existingLeave.getStartDate().getYear();
+        Long empUserId = existingLeave.getEmployee().getUserId();
 
         if (ApprovalStatus.APPROVED.equals(approvalRequest.getStatus())) {
             existingLeave.setStatus(LeaveStatus.CANCELLED);
             existingLeave.setRejectionReason(null);
 
-            if (leaveType != LeaveType.UNPAID) {
-                int year = existingLeave.getStartDate().getYear();
-                Long empUserId = existingLeave.getEmployee().getUserId();
-
-                LeaveBalance lb = findLeaveBalance(empUserId, year);
-
-                switch (leaveType) {
-                    case SICK -> {
-                        lb.setSickLeaveBalance(lb.getSickLeaveBalance() + days);
-                        lb.setSickLeavesConsumed(lb.getSickLeavesConsumed() - days);
-                    }
-                    case CASUAL -> {
-                        lb.setCasualLeaveBalance(lb.getCasualLeaveBalance() + days);
-                        lb.setCasualLeavesConsumed(lb.getCasualLeavesConsumed() - days);
-                    }
-                    case EARNED -> {
-                        lb.setEarnedLeaveBalance(lb.getEarnedLeaveBalance().add(BigDecimal.valueOf(days)));
-                        lb.setEarnedLeavesConsumed(lb.getEarnedLeavesConsumed() - days);
-                    }
-                    default -> {}
-                }
-            }
+            leaveBalanceService.applyCancellationApproval(empUserId, year, leaveType, days);
 
         } else if (ApprovalStatus.REJECTED.equals(approvalRequest.getStatus())) {
             existingLeave.setStatus(LeaveStatus.APPROVED);
@@ -265,11 +194,11 @@ public class LeaveServiceImpl implements ILeaveService {
     public Page<LeaveResponse> getPendingRequest(Pageable pageable) {
         Employee loggedInHR = securityUtils.getLoggedInEmployee();
         List<LeaveStatus> status = List.of(LeaveStatus.PENDING, LeaveStatus.CANCELLATION_PENDING);
-        Page<Leave> pendingLeaves = leaveRepository.findByEmployee_Hr_UserIdAndStatusIn(
+        Page<Leave> pendingLeaves = leaveRepository.findByEmployee_Manager_UserIdAndStatusIn(
                 loggedInHR.getUserId(),
                 status,
                 pageable);
-        return pendingLeaves.map(leave -> leaveMapper.mapToResponse(leave));
+        return pendingLeaves.map(leaveMapper::mapToResponse);
     }
 
     // Helper methods
@@ -278,24 +207,5 @@ public class LeaveServiceImpl implements ILeaveService {
             case APPROVED -> LeaveStatus.APPROVED;
             case REJECTED -> LeaveStatus.REJECTED;
         };
-    }
-
-    private LeaveBalance findLeaveBalance(Long userId, int year) {
-        return leaveBalanceRepository.findByEmployeeUserIdAndYear(userId, year)
-                .orElseThrow(() -> new ResourceNotFoundException("Leave balance not found for employee/year"));
-    }
-
-    private void releaseReservedLeaves(Long userId, Leave leave) {
-        int year = leave.getStartDate().getYear();
-        int days = leave.getTotalDays();
-
-        LeaveBalance lb = findLeaveBalance(userId, year);
-
-        switch (leave.getLeaveType()) {
-            case SICK -> lb.setReservedSickLeaves(Math.max(0, lb.getReservedSickLeaves() - days));
-            case CASUAL -> lb.setReservedCasualLeaves(Math.max(0, lb.getReservedCasualLeaves() - days));
-            case EARNED -> lb.setReservedEarnedLeaves(Math.max(0, lb.getReservedEarnedLeaves() - days));
-            default -> {}
-        }
     }
 }

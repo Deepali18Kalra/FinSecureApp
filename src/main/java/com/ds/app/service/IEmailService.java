@@ -7,11 +7,11 @@ import com.ds.app.enums.ApprovalStatus;
 public interface IEmailService {
     void sendPlainText(String to, String subject, String body);
 
-    void notifyHrForNewLeave(Employee employee, Leave leave);
+    void notifyManagerForNewLeave(Employee employee, Leave leave);
 
     void notifyEmployeeForLeaveDecision(Employee employee, Leave leave);
 
-    void notifyHrForCancellationRequest(Employee employee, Leave leave);
+    void notifyManagerForCancellationRequest(Employee employee, Leave leave);
 
     void notifyEmployeeForCancellationDecision(Employee employee, Leave leave, ApprovalStatus decision, String reason);
 }

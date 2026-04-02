@@ -24,21 +24,21 @@ public class AttendanceController {
 	private final IAttendanceService attendanceService;
 	
 	// Employee Endpoints
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
 	@PostMapping("/punch-in")
 	public ResponseEntity<AttendanceResponse> punchIn() {
 		AttendanceResponse response = attendanceService.punchIn();
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
 	@PostMapping("/punch-out")
 	public ResponseEntity<AttendanceResponse> punchOut() {
 		AttendanceResponse response = attendanceService.punchOut();
 		return ResponseEntity.ok(response);
 	}
 
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
 	@GetMapping()
 	public ResponseEntity<List<AttendanceResponse>> getMyAttendance(
 			@RequestParam Integer month,
@@ -48,7 +48,7 @@ public class AttendanceController {
 		return ResponseEntity.ok(response);
 	}
 
-    @PreAuthorize("hasAnyAuthority('EMPLOYEE','HR')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
 	@GetMapping("/date/{date}")
 	public ResponseEntity<AttendanceResponse> getMyAttendanceByDate(
 			@PathVariable LocalDate date) {
@@ -56,8 +56,8 @@ public class AttendanceController {
 		return ResponseEntity.ok(response);
 	}
 	
-	// HR Endpoints
-    @PreAuthorize("hasAuthority('HR')")
+	// MANAGER Endpoints
+    @PreAuthorize("hasAuthority('MANAGER')")
 	@GetMapping("/employee/{employeeId}")
 	public ResponseEntity<Page<AttendanceResponse>> getEmployeeAttendance(
 			@PathVariable Long employeeId,
@@ -70,7 +70,7 @@ public class AttendanceController {
 		return ResponseEntity.ok(pageResponse);
 	}
 
-    @PreAuthorize("hasAuthority('HR')")
+    @PreAuthorize("hasAuthority('MANAGER')")
 	@GetMapping("/all")
 	public ResponseEntity<Page<AttendanceResponse>> getAllAttendanceByDate(
 			@RequestParam LocalDate date,

@@ -30,8 +30,8 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     @Override
-    public void notifyHrForNewLeave(Employee employee, Leave leave) {
-        Employee hr = employee.getHr();
+    public void notifyManagerForNewLeave(Employee employee, Leave leave) {
+        Employee hr = employee.getManager();
         if (hr == null || hr.getEmail() == null || hr.getEmail().isBlank()) return;
 
         String subject = "New Leave Request - " + employee.getFirstName() + " " + employee.getLastName();
@@ -64,8 +64,8 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     @Override
-    public void notifyHrForCancellationRequest(Employee employee, Leave leave) {
-        Employee hr = employee.getHr();
+    public void notifyManagerForCancellationRequest(Employee employee, Leave leave) {
+        Employee hr = employee.getManager();
         if (hr == null || hr.getEmail() == null || hr.getEmail().isBlank()) return;
 
         String subject = "Leave Cancellation Request - " + employee.getFirstName() + " " + employee.getLastName();

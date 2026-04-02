@@ -1,0 +1,7 @@
+package com.ds.app.exception;
+
+public class InvalidTimesheetStateException extends RuntimeException {
+    public InvalidTimesheetStateException(String message) {
+        super(message);
+    }
+}

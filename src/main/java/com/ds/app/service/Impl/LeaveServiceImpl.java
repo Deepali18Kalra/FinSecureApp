@@ -9,8 +9,8 @@ import com.ds.app.entity.Leave;
 import com.ds.app.enums.ApprovalStatus;
 import com.ds.app.enums.LeaveStatus;
 import com.ds.app.enums.LeaveType;
+import com.ds.app.exception.InvalidLeaveStateException;
 import com.ds.app.exception.ResourceNotFoundException;
-import com.ds.app.exception.UnAuthorizedException;
 import com.ds.app.mapper.LeaveMapper;
 import com.ds.app.repository.IHolidayRepository;
 import com.ds.app.repository.ILeaveRepository;
@@ -80,8 +80,7 @@ public class LeaveServiceImpl implements ILeaveService {
         Employee employee = securityUtils.getLoggedInEmployee();
 
         Leave existingLeave = leaveRepository.findByLeaveIdAndEmployeeUserId(leaveId, employee.getUserId())
-                .orElseThrow(() -> new UnAuthorizedException(
-                        "Leave not found or you are unauthorized to perform this action"));
+                .orElseThrow(() -> new ResourceNotFoundException("Leave not found with id: " + leaveId));
 
         LeaveStatus currentStatus = existingLeave.getStatus();
 
@@ -106,7 +105,7 @@ public class LeaveServiceImpl implements ILeaveService {
             return leaveMapper.mapToResponse(existingLeave);
         }
 
-        throw new IllegalStateException("Leave can only be withdrawn when PENDING or cancellation-requested when APPROVED");
+        throw new InvalidLeaveStateException("Leave can only be withdrawn when PENDING or cancelled when APPROVED");
     }
 
     // MANAGER related methods
@@ -119,7 +118,7 @@ public class LeaveServiceImpl implements ILeaveService {
                 .orElseThrow(() -> new ResourceNotFoundException("Leave not found with id: " + leaveId));
 
         if (!existingLeave.getStatus().equals(LeaveStatus.PENDING)) {
-            throw new IllegalStateException("Only pending leaves can be processed");
+            throw new InvalidLeaveStateException("Only PENDING leaves can be processed");
         }
 
         LeaveStatus newStatus = toLeaveStatus(approvalRequest.getStatus());
@@ -156,7 +155,7 @@ public class LeaveServiceImpl implements ILeaveService {
                 .orElseThrow(() -> new ResourceNotFoundException("Leave not found with id: " + leaveId));
 
         if (!LeaveStatus.CANCELLATION_PENDING.equals(existingLeave.getStatus())) {
-            throw new IllegalStateException("Only cancellation pending leaves can be processed");
+            throw new InvalidLeaveStateException("Only CANCELLATION_PENDING leaves can be processed");
         }
 
         existingLeave.setApprovedBy(loggedInHR);

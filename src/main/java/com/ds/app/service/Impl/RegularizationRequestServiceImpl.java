@@ -9,6 +9,8 @@ import com.ds.app.entity.RegularizationRequest;
 import com.ds.app.enums.ApprovalStatus;
 import com.ds.app.enums.AttendanceStatus;
 import com.ds.app.enums.RegularizationRequestStatus;
+import com.ds.app.exception.DuplicateRegularizationException;
+import com.ds.app.exception.InvalidDateRangeException;
 import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.mapper.RegularizationRequestMapper;
 import com.ds.app.repository.IAttendanceRepository;
@@ -39,14 +41,14 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
         Employee me = securityUtils.getLoggedInEmployee();
 
         if (request.getDate().isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("Regularization cannot be applied for future date.");
+            throw new InvalidDateRangeException("Regularization cannot be applied for a future date");
         }
 
         boolean alreadyPending = regularizationRepository.existsByEmployeeUserIdAndDateAndStatus(
                 me.getUserId(), request.getDate(), RegularizationRequestStatus.PENDING);
 
         if (alreadyPending) {
-            throw new IllegalStateException("Pending regularization already exists for this date.");
+            throw new DuplicateRegularizationException("Pending regularization already exists for date: " + request.getDate());
         }
 
         RegularizationRequest rr = RegularizationRequest.builder()
@@ -67,15 +69,14 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
     }
 
     @Override
-    public List<RegularizationResponse> getMyRegularizationRequests(String status) {
+    public List<RegularizationResponse> getMyRegularizationRequests(RegularizationRequestStatus status) {
         Employee me = securityUtils.getLoggedInEmployee();
 
         List<RegularizationRequest> list;
-        if (status == null || status.isBlank()) {
+        if (status == null) {
             list = regularizationRepository.findByEmployeeUserIdOrderByDateDesc(me.getUserId());
         } else {
-            RegularizationRequestStatus parsed = RegularizationRequestStatus.valueOf(status.toUpperCase());
-            list = regularizationRepository.findByEmployeeUserIdAndStatusOrderByDateDesc(me.getUserId(), parsed);
+            list = regularizationRepository.findByEmployeeUserIdAndStatusOrderByDateDesc(me.getUserId(), status);
         }
 
         return list.stream().map(regularizationMapper::mapToResponse).toList();

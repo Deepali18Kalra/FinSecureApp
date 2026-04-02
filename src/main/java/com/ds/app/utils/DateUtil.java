@@ -1,5 +1,7 @@
 package com.ds.app.utils;
 
+import com.ds.app.exception.InvalidDateRangeException;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Set;
@@ -24,10 +26,10 @@ public class DateUtil {
 
     public static void validateRange(LocalDate startDate, LocalDate endDate) {
         if (startDate == null || endDate == null) {
-            throw new IllegalArgumentException("Start date and end date are required");
+            throw new InvalidDateRangeException("Start date and end date are required");
         }
         if (endDate.isBefore(startDate)) {
-            throw new IllegalArgumentException("End date cannot be before start date");
+            throw new InvalidDateRangeException("End date cannot be before start date");
         }
     }
 }

@@ -6,6 +6,7 @@ import com.ds.app.entity.Employee;
 import com.ds.app.entity.Timesheet;
 import com.ds.app.enums.ApprovalStatus;
 import com.ds.app.enums.TimesheetStatus;
+import com.ds.app.exception.InvalidTimesheetStateException;
 import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.mapper.TimesheetMapper;
 import com.ds.app.repository.ITimesheetRepository;
@@ -49,11 +50,11 @@ public class TimesheetServiceImpl implements ITimesheetService {
                 .orElseThrow(() -> new ResourceNotFoundException("Timesheet not found with id: " + timesheetId));
 
         if (ts.getStatus() != TimesheetStatus.DRAFT) {
-            throw new IllegalStateException("Only DRAFT timesheet can be submitted.");
+            throw new InvalidTimesheetStateException("Only DRAFT timesheet can be submitted");
         }
 
         if (ts.getTotalMonthlyHours() == null || ts.getTotalMonthlyHours() <= 0) {
-            throw new IllegalStateException("Cannot submit empty timesheet.");
+            throw new InvalidTimesheetStateException("Cannot submit an empty timesheet. Please add entries first");
         }
 
         ts.setStatus(TimesheetStatus.SUBMITTED);
@@ -94,7 +95,7 @@ public class TimesheetServiceImpl implements ITimesheetService {
         }
 
         if (ts.getStatus() != TimesheetStatus.SUBMITTED) {
-            throw new IllegalStateException("Only SUBMITTED timesheet can be reviewed.");
+            throw new InvalidTimesheetStateException("Only SUBMITTED timesheet can be reviewed");
         }
 
         if (request.getStatus() == ApprovalStatus.APPROVED) {

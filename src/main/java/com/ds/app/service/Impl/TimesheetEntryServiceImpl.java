@@ -6,6 +6,7 @@ import com.ds.app.entity.Employee;
 import com.ds.app.entity.Timesheet;
 import com.ds.app.entity.TimesheetEntry;
 import com.ds.app.enums.TimesheetStatus;
+import com.ds.app.exception.InvalidTimesheetStateException;
 import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.mapper.TimesheetEntryMapper;
 import com.ds.app.repository.ITimesheetEntryRepository;
@@ -136,7 +137,7 @@ public class TimesheetEntryServiceImpl implements ITimesheetEntryService {
 
     private void ensureEditableAndResetIfRejected(Timesheet timesheet) {
         if (timesheet.getStatus() == TimesheetStatus.SUBMITTED || timesheet.getStatus() == TimesheetStatus.APPROVED) {
-            throw new IllegalStateException("Cannot modify entries. Timesheet is already submitted/approved.");
+            throw new InvalidTimesheetStateException("Cannot modify entries. Timesheet is already SUBMITTED/APPROVED");
         }
 
         if (timesheet.getStatus() == TimesheetStatus.REJECTED) {

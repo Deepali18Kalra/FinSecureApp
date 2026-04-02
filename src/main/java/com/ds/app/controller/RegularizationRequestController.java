@@ -3,6 +3,7 @@ package com.ds.app.controller;
 import com.ds.app.dto.ApprovalRequest;
 import com.ds.app.dto.RegularizationRequestdto;
 import com.ds.app.dto.RegularizationResponse;
+import com.ds.app.enums.RegularizationRequestStatus;
 import com.ds.app.service.IRegularizationRequestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,7 @@ public class RegularizationRequestController {
     @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @GetMapping("/my")
     public ResponseEntity<List<RegularizationResponse>> getMyRegularizationRequests(
-            @RequestParam(required = false) String status
+            @RequestParam(required = false) RegularizationRequestStatus status
     ) {
         return ResponseEntity.ok(regularizationService.getMyRegularizationRequests(status));
     }

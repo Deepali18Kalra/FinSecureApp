@@ -112,7 +112,7 @@ public class AttendanceServiceImpl implements IAttendanceService{
 		
 		Employee loggedEmployee = securityUtil.getLoggedInEmployee();
 		
-		if(emp.getManager().getUserId().equals(loggedEmployee.getUserId())) {
+		if(!emp.getManager().getUserId().equals(loggedEmployee.getUserId())) {
 			throw new UnAuthorizedException("Unauthorized for employee with id: " + employeeId);
 		}
 		Page<Attendance> attendancePage = attendanceRepo.findAttendanceByEmployeeUserIdAndMonthAndYear(employeeId, month, year, pageable);

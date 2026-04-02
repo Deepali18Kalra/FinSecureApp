@@ -2,6 +2,8 @@ package com.ds.app.service.Impl;
 
 import com.ds.app.entity.LeaveBalance;
 import com.ds.app.enums.LeaveType;
+import com.ds.app.exception.InsufficientLeaveBalanceException;
+import com.ds.app.exception.InvalidLeaveStateException;
 import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.repository.ILeaveBalanceRepository;
 import com.ds.app.service.ILeaveBalanceService;
@@ -25,17 +27,17 @@ public class LeaveBalanceServiceImpl implements ILeaveBalanceService {
         switch (type) {
             case SICK -> {
                 int available = lb.getSickLeaveBalance() - lb.getReservedSickLeaves();
-                if (available < days) throw new IllegalArgumentException("Insufficient sick leave balance");
+                if (available < days) throw new InsufficientLeaveBalanceException("Insufficient sick leave balance");
                 lb.setReservedSickLeaves(lb.getReservedSickLeaves() + days);
             }
             case CASUAL -> {
                 int available = lb.getCasualLeaveBalance() - lb.getReservedCasualLeaves();
-                if (available < days) throw new IllegalArgumentException("Insufficient casual leave balance");
+                if (available < days) throw new InsufficientLeaveBalanceException("Insufficient casual leave balance");
                 lb.setReservedCasualLeaves(lb.getReservedCasualLeaves() + days);
             }
             case EARNED -> {
                 int available = lb.getEarnedLeaveBalance().intValue() - lb.getReservedEarnedLeaves();
-                if (available < days) throw new IllegalArgumentException("Insufficient earned leave balance");
+                if (available < days) throw new InsufficientLeaveBalanceException("Insufficient earned leave balance");
                 lb.setReservedEarnedLeaves(lb.getReservedEarnedLeaves() + days);
             }
             default -> { }
@@ -65,7 +67,7 @@ public class LeaveBalanceServiceImpl implements ILeaveBalanceService {
         switch (type) {
             case SICK -> {
                 if (lb.getReservedSickLeaves() < days) {
-                    throw new IllegalStateException("Reserved sick leaves less than requested days");
+                    throw new InvalidLeaveStateException("Invalid leave state: reserved sick leaves less than requested days");
                 }
                 lb.setReservedSickLeaves(lb.getReservedSickLeaves() - days);
                 lb.setSickLeaveBalance(lb.getSickLeaveBalance() - days);
@@ -73,7 +75,7 @@ public class LeaveBalanceServiceImpl implements ILeaveBalanceService {
             }
             case CASUAL -> {
                 if (lb.getReservedCasualLeaves() < days) {
-                    throw new IllegalStateException("Reserved casual leaves less than requested days");
+                    throw new InvalidLeaveStateException("Invalid leave state: reserved casual leaves less than requested days");
                 }
                 lb.setReservedCasualLeaves(lb.getReservedCasualLeaves() - days);
                 lb.setCasualLeaveBalance(lb.getCasualLeaveBalance() - days);
@@ -81,7 +83,7 @@ public class LeaveBalanceServiceImpl implements ILeaveBalanceService {
             }
             case EARNED -> {
                 if (lb.getReservedEarnedLeaves() < days) {
-                    throw new IllegalStateException("Reserved earned leaves less than requested days");
+                    throw new InvalidLeaveStateException("Invalid leave state: reserved earned leaves less than requested days");
                 }
                 lb.setReservedEarnedLeaves(lb.getReservedEarnedLeaves() - days);
                 lb.setEarnedLeaveBalance(lb.getEarnedLeaveBalance().subtract(BigDecimal.valueOf(days)));

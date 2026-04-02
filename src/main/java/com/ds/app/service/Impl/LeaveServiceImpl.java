@@ -16,6 +16,7 @@ import com.ds.app.mapper.LeaveMapper;
 import com.ds.app.repository.IHolidayRepository;
 import com.ds.app.repository.ILeaveBalanceRepository;
 import com.ds.app.repository.ILeaveRepository;
+import com.ds.app.service.IEmailService;
 import com.ds.app.service.ILeaveService;
 import com.ds.app.utils.DateUtil;
 import com.ds.app.utils.SecurityUtils;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +40,7 @@ public class LeaveServiceImpl implements ILeaveService {
     private final LeaveMapper leaveMapper;
     private final SecurityUtils securityUtils;
     private final ILeaveBalanceRepository leaveBalanceRepository;
+    private final IEmailService emailService;
 
     // Employee related methods
     @Override
@@ -86,13 +87,16 @@ public class LeaveServiceImpl implements ILeaveService {
         leave.setStatus(LeaveStatus.PENDING);
 
         Leave saved = leaveRepository.save(leave);
+
+        emailService.notifyHrForNewLeave(emp, saved);
+
         return leaveMapper.mapToResponse(saved);
     }
 
     @Override
     public Page<LeaveStatusResponse> getMyLeaves(LeaveStatus status, Integer year, Integer month, Pageable pageable) {
         Employee employee = securityUtils.getLoggedInEmployee();
-        return leaveRepository.searchLeaveByEmployee(employee.getUserId(),status,year,month,pageable);
+        return leaveRepository.searchLeaveByEmployee(employee.getUserId(), status, year, month, pageable);
     }
 
     @Override
@@ -110,19 +114,7 @@ public class LeaveServiceImpl implements ILeaveService {
             existingLeave.setStatus(LeaveStatus.WITHDRAWN);
 
             if (existingLeave.getLeaveType() != LeaveType.UNPAID) {
-                int year = existingLeave.getStartDate().getYear();
-                int days = existingLeave.getTotalDays();
-
-                LeaveBalance lb = leaveBalanceRepository
-                        .findByEmployeeUserIdAndYear(employee.getUserId(), year)
-                        .orElseThrow(() -> new ResourceNotFoundException("Leave balance not found for employee/year"));
-
-                switch (existingLeave.getLeaveType()) {
-                    case SICK -> lb.setReservedSickLeaves(Math.max(0, lb.getReservedSickLeaves() - days));
-                    case CASUAL -> lb.setReservedCasualLeaves(Math.max(0, lb.getReservedCasualLeaves() - days));
-                    case EARNED -> lb.setReservedEarnedLeaves(Math.max(0, lb.getReservedEarnedLeaves() - days));
-                    default -> {}
-                }
+                releaseReservedLeaves(employee.getUserId(), existingLeave);
             }
 
             return leaveMapper.mapToResponse(existingLeave);
@@ -130,12 +122,15 @@ public class LeaveServiceImpl implements ILeaveService {
 
         if (currentStatus == LeaveStatus.APPROVED) {
             existingLeave.setStatus(LeaveStatus.CANCELLATION_PENDING);
+
+            emailService.notifyHrForCancellationRequest(employee, existingLeave);
+
             return leaveMapper.mapToResponse(existingLeave);
         }
 
         throw new IllegalStateException("Leave can only be withdrawn when PENDING or cancellation-requested when APPROVED");
     }
-    
+
     // HR related methods
     @Override
     @Transactional
@@ -165,8 +160,7 @@ public class LeaveServiceImpl implements ILeaveService {
             int year = existingLeave.getStartDate().getYear();
             Long empUserId = existingLeave.getEmployee().getUserId();
 
-            LeaveBalance lb = leaveBalanceRepository.findByEmployeeUserIdAndYear(empUserId, year)
-                    .orElseThrow(() -> new ResourceNotFoundException("Leave balance not found for employee/year"));
+            LeaveBalance lb = findLeaveBalance(empUserId, year);
 
             if (LeaveStatus.APPROVED.equals(newStatus)) {
                 switch (leaveType) {
@@ -200,6 +194,8 @@ public class LeaveServiceImpl implements ILeaveService {
             }
         }
 
+        emailService.notifyEmployeeForLeaveDecision(existingLeave.getEmployee(), existingLeave);
+
         return leaveMapper.mapToResponse(existingLeave);
     }
 
@@ -229,8 +225,7 @@ public class LeaveServiceImpl implements ILeaveService {
                 int year = existingLeave.getStartDate().getYear();
                 Long empUserId = existingLeave.getEmployee().getUserId();
 
-                LeaveBalance lb = leaveBalanceRepository.findByEmployeeUserIdAndYear(empUserId, year)
-                        .orElseThrow(() -> new ResourceNotFoundException("Leave balance not found for employee/year"));
+                LeaveBalance lb = findLeaveBalance(empUserId, year);
 
                 switch (leaveType) {
                     case SICK -> {
@@ -256,6 +251,13 @@ public class LeaveServiceImpl implements ILeaveService {
             throw new IllegalArgumentException("Unsupported approval status for cancellation request");
         }
 
+        emailService.notifyEmployeeForCancellationDecision(
+                existingLeave.getEmployee(),
+                existingLeave,
+                approvalRequest.getStatus(),
+                approvalRequest.getRejectionReason()
+        );
+
         return leaveMapper.mapToResponse(existingLeave);
     }
 
@@ -276,5 +278,24 @@ public class LeaveServiceImpl implements ILeaveService {
             case APPROVED -> LeaveStatus.APPROVED;
             case REJECTED -> LeaveStatus.REJECTED;
         };
+    }
+
+    private LeaveBalance findLeaveBalance(Long userId, int year) {
+        return leaveBalanceRepository.findByEmployeeUserIdAndYear(userId, year)
+                .orElseThrow(() -> new ResourceNotFoundException("Leave balance not found for employee/year"));
+    }
+
+    private void releaseReservedLeaves(Long userId, Leave leave) {
+        int year = leave.getStartDate().getYear();
+        int days = leave.getTotalDays();
+
+        LeaveBalance lb = findLeaveBalance(userId, year);
+
+        switch (leave.getLeaveType()) {
+            case SICK -> lb.setReservedSickLeaves(Math.max(0, lb.getReservedSickLeaves() - days));
+            case CASUAL -> lb.setReservedCasualLeaves(Math.max(0, lb.getReservedCasualLeaves() - days));
+            case EARNED -> lb.setReservedEarnedLeaves(Math.max(0, lb.getReservedEarnedLeaves() - days));
+            default -> {}
+        }
     }
 }

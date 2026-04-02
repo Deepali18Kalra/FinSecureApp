@@ -18,6 +18,8 @@ public class Employee extends AppUser{
 	
 	private String firstName;
 	private String lastName;
+    @Column(unique = true, nullable = false)
+    private String email;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "hr_id")

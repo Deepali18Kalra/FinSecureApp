@@ -41,18 +41,18 @@ public class DataSeeder implements CommandLineRunner {
         int currentYear = Year.now().getValue();
 
         // 1) HRs
-        Employee hr1 = buildUser("manish_hr", "pass123hr", "Manish", "Sharma", UserRole.HR, null);
-        Employee hr2 = buildUser("neha_hr", "pass123hr", "Neha", "Verma", UserRole.HR, null);
+        Employee hr1 = buildUser("manish_hr", "pass123hr", "Manish", "Sharma", "mayanksharma00819@gmail.com", UserRole.HR, null);
+        Employee hr2 = buildUser("neha_hr", "pass123hr", "Neha", "Verma", "neha@gamil.com", UserRole.HR, null);
         hr1 = (Employee) appUserRepository.save(hr1);
         hr2 = (Employee) appUserRepository.save(hr2);
 
         // 2) Employees
-        Employee e1 = buildUser("mayank", "pass123", "Mayank", "Singh", UserRole.EMPLOYEE, hr1);
-        Employee e2 = buildUser("riya", "pass123", "Riya", "Kapoor", UserRole.EMPLOYEE, hr1);
-        Employee e3 = buildUser("arjun", "pass123", "Arjun", "Mehta", UserRole.EMPLOYEE, hr1);
-        Employee e4 = buildUser("kavya", "pass123", "Kavya", "Nair", UserRole.EMPLOYEE, hr2);
-        Employee e5 = buildUser("rohit", "pass123", "Rohit", "Gupta", UserRole.EMPLOYEE, hr2);
-        Employee e6 = buildUser("sana", "pass123", "Sana", "Khan", UserRole.EMPLOYEE, hr2);
+        Employee e1 = buildUser("mayank", "pass123", "Mayank", "Singh", "mayanksharma00918@gmail.com", UserRole.EMPLOYEE, hr1);
+        Employee e2 = buildUser("riya", "pass123", "Riya", "Kapoor", "riya@gamil.com", UserRole.EMPLOYEE, hr1);
+        Employee e3 = buildUser("arjun", "pass123", "Arjun", "Mehta","arjun@gamil.com", UserRole.EMPLOYEE, hr1);
+        Employee e4 = buildUser("kavya", "pass123", "Kavya", "Nair","kavya@gamil.com", UserRole.EMPLOYEE, hr2);
+        Employee e5 = buildUser("rohit", "pass123", "Rohit", "Gupta","rohit@gamil.com", UserRole.EMPLOYEE, hr2);
+        Employee e6 = buildUser("sana", "pass123", "Sana", "Khan","sana@gamil.com", UserRole.EMPLOYEE, hr2);
 
         List<Employee> employees = appUserRepository.saveAll(List.of(e1, e2, e3, e4, e5, e6))
                 .stream().map(u -> (Employee) u).toList();
@@ -93,13 +93,14 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("EMP Login → username: mayank   | password: pass123");
     }
 
-    private Employee buildUser(String username, String rawPassword, String firstName, String lastName,
+    private Employee buildUser(String username, String rawPassword, String firstName, String lastName, String email,
                                UserRole role, Employee hr) {
         Employee user = new Employee();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(rawPassword));
         user.setFirstName(firstName);
         user.setLastName(lastName);
+        user.setEmail(email);
         user.setRole(role);
         user.setFailedLoginAttemptsCount(0);
         user.setIsAccountLocked(false);

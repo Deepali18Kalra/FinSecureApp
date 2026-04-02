@@ -8,6 +8,7 @@ import com.ds.app.dto.response.EmployeeBankAccountResponseDTO;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.MyUserDetails;
 import com.ds.app.enums.BankValidationStatus;
+import com.ds.app.exception.BankAccountLockedException;
 import com.ds.app.exception.BlacklistedBankException;
 import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.service.EmployeeAccountService;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,24 +44,27 @@ public class EmployeeBankAccountController {
 				.getPrincipal();
 		return userDetails.getUser().getUserId();
 	}
-	@PostMapping("/{id}/bank-account")
-	public ResponseEntity<EmployeeBankAccountResponseDTO> registerBankAccount(@Valid @PathVariable Long id,
+
+	@PostMapping("/bank-account")
+	@PreAuthorize("hasAnyAuthority('EMPLOYEE','FINANCE','HR','ADMIN')")	public ResponseEntity<EmployeeBankAccountResponseDTO> registerBankAccount(
 			@RequestBody EmployeeBankAccountRequestDTO dto) throws ResourceNotFoundException, BlacklistedBankException {
 
-		EmployeeBankAccountResponseDTO response = employeeAccountService.addBankAccount(dto, id);
+		EmployeeBankAccountResponseDTO response = employeeAccountService.addBankAccount(dto, getLoggedInUserId());
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 	@PutMapping("/employee/bank-account")
+	@PreAuthorize("hasAuthority('EMPLOYEE')")
 	public ResponseEntity<EmployeeBankAccountResponseDTO> updateBankAccount(
 			@Valid @RequestBody EmployeeBankAccountRequestDTO dto)
-			throws ResourceNotFoundException, BlacklistedBankException {
+			throws ResourceNotFoundException, BlacklistedBankException, BankAccountLockedException {
 
 		EmployeeBankAccountResponseDTO response = employeeAccountService.updateBankAccount(dto, getLoggedInUserId());
 		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("/employee/bank-account")
+	@PreAuthorize("hasAuthority('EMPLOYEE')")
 	public ResponseEntity<EmployeeBankAccountResponseDTO> getMyBankAccount() throws ResourceNotFoundException {
 
 		EmployeeBankAccountResponseDTO response = employeeAccountService.getMyBankAccount(getLoggedInUserId());
@@ -67,6 +72,7 @@ public class EmployeeBankAccountController {
 	}
 
 	@GetMapping
+	@PreAuthorize("hasAuthority('FINANCE')")
 	public ResponseEntity<Page<EmployeeBankAccountResponseDTO>> getAllBankAccounts(
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
 			@RequestParam(required = false) BankValidationStatus status, @RequestParam(required = false) Long bankId,
@@ -75,26 +81,26 @@ public class EmployeeBankAccountController {
 		Page<EmployeeBankAccountResponseDTO> results = employeeAccountService.getAllAccounts(page, size, status, bankId,
 				holderName);
 		return ResponseEntity.ok(results);
-		
+
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAuthority('EMPLOYEE,FINANCE')")
 	public ResponseEntity<EmployeeBankAccountResponseDTO> getBankAccountById(@PathVariable Long id)
 			throws ResourceNotFoundException {
 
 		return ResponseEntity.ok(employeeAccountService.getAccountById(id));
 	}
-	
+
 	@GetMapping("/unregistered")
-	public ResponseEntity<Page<Employee>>getUnregisteredEmployees()
-	{
-		Page<Employee>accounts = employeeAccountService.findByBankAccountIsNull(0 , 10);
-		
+	public ResponseEntity<Page<Employee>> getUnregisteredEmployees() {
+		Page<Employee> accounts = employeeAccountService.findByBankAccountIsNull(0, 10);
+
 		return ResponseEntity.ok(accounts);
 	}
-	
 
 	@PutMapping("/{id}/review")
+	@PreAuthorize("hasAuthority('FINANCE')")
 	public ResponseEntity<EmployeeBankAccountResponseDTO> reviewBankAccount(@PathVariable Long id,
 			@Valid @RequestBody BankValidationReviewRequestDTO dto) throws ResourceNotFoundException {
 
@@ -104,6 +110,7 @@ public class EmployeeBankAccountController {
 	}
 
 	@GetMapping("/summary")
+	@PreAuthorize("hasAuthority('FINANCE')")
 	public ResponseEntity<Map<String, Long>> getBankAccountSummary() {
 		return ResponseEntity.ok(employeeAccountService.getBankAccountStatusSummary());
 	}

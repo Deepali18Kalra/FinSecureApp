@@ -31,10 +31,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> BankAccountAlreadyRegistered(SalaryJobException ex) {
     	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+    
     @ExceptionHandler(ResourceAlreadyExistException.class)
     public ResponseEntity<String> ResourceAlreadyExistException(SalaryJobException ex) {
     	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+    
+    @ExceptionHandler(BankAccountLockedException.class)
+    public ResponseEntity<String> BankAccountLockedException(BankAccountLockedException ex) {
+    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+    
     
     
 

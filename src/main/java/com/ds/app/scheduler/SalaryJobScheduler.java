@@ -15,7 +15,6 @@ import com.ds.app.service.SalaryService;
 import lombok.RequiredArgsConstructor;
 
 @Component
-@RequiredArgsConstructor
 public class SalaryJobScheduler {
 	
 	@Autowired

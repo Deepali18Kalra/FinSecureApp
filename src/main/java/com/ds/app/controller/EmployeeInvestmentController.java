@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +49,7 @@ public class EmployeeInvestmentController {
 
 	// Employee declares investment
 	@PostMapping("/{employeeId}")
+	@PreAuthorize("hasAuthority('EMPLOYEE')")
 	public EmployeeInvestmentResponseDTO declareInvestment(@PathVariable Long employeeId,
 			@Valid @RequestBody EmployeeInvestmentRequestDTO dto) throws ResourceNotFoundException, InvestmentComplianceException {
 		return employeeInvestmentService.declareInvestment(employeeId, dto);
@@ -55,6 +57,7 @@ public class EmployeeInvestmentController {
 	
 	// Finance reviews investment
 	@PutMapping("/{id}/review")
+	@PreAuthorize("hasAuthority('FINANCE')")
 	public EmployeeInvestmentResponseDTO reviewInvestment(
 	@PathVariable Long id,
 	@Valid @RequestBody InvestmentReviewRequestDTO dto) throws ResourceNotFoundException, InvestmentComplianceException {
@@ -63,12 +66,14 @@ public class EmployeeInvestmentController {
 
 	// Get investment by id
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAuthority('EMPLOYEE,FINANCE')")
 	public EmployeeInvestmentResponseDTO getById(@PathVariable Long id) throws ResourceNotFoundException {
 	return employeeInvestmentService.getInvestmentById(id);
 	}
 
 	// Get all investments of one employee
 	@GetMapping("/employee/{employeeId}")
+	@PreAuthorize("hasAuthority('EMPLOYEE,FINANCE')")
 	public Page<EmployeeInvestmentResponseDTO> getByEmployee(
 	@PathVariable Long employeeId,
 	@RequestParam(defaultValue = "0") int page,
@@ -78,6 +83,7 @@ public class EmployeeInvestmentController {
 
 	// Get all investments — Finance/Admin/HR
 	@GetMapping
+	@PreAuthorize("hasAuthority('EMPLOYEE,FINANCE')")
 	public Page<EmployeeInvestmentResponseDTO> getAll(
 	@RequestParam(defaultValue = "0") int page,
 	@RequestParam(defaultValue = "10") int size,

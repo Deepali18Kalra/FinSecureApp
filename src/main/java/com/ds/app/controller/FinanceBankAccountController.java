@@ -9,6 +9,7 @@ import com.ds.app.service.MyUserDetailService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +35,7 @@ public class FinanceBankAccountController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('FINANCE')")
     public ResponseEntity<FinanceBankAccountResponseDTO>addBank(@Valid @RequestBody FinanceBankAccountRequestDTO dto) throws ResourceNotFoundException
     {
     	
@@ -42,6 +44,7 @@ public class FinanceBankAccountController {
     }
 
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasAuthority('FINANCE')")
     public FinanceBankAccountResponseDTO updateStatus(
             @PathVariable Long id,
             @RequestParam BankStatus status) throws ResourceNotFoundException {
@@ -49,11 +52,13 @@ public class FinanceBankAccountController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('FINANCE')")
     public FinanceBankAccountResponseDTO getById(@PathVariable Long id) throws ResourceNotFoundException {
         return companyBankAccountService.getBankById(id);
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('FINANCE')")
     public List<FinanceBankAccountResponseDTO> getAll(
             @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "10") int size,

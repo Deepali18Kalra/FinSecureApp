@@ -38,7 +38,7 @@ public class CardController {
 	}
 
 	@PostMapping
-	@PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER')")
+	@PreAuthorize("hasAuthority('EMPLOYEE')")
 	public ResponseEntity<CardResponseDTO> addCard(@Valid @RequestBody CardRequestDTO dto)
 			throws ResourceAlreadyExistException {
 		CardResponseDTO response = cardService.registerCard(dto);
@@ -46,23 +46,27 @@ public class CardController {
 	}
 
 	@PutMapping("/{id}/status")
+	@PreAuthorize("hasAuthority('EMPLOYEE')")
 	public ResponseEntity<CardResponseDTO> updateCardStatus(@PathVariable Long id,
 			@Valid @RequestBody CardStatusUpdateDTO dto) throws ResourceNotFoundException {
 		return ResponseEntity.ok(cardService.updateCardStatus(id, dto));
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAuthority('EMPLOYEE')")
 	public ResponseEntity<CardResponseDTO> getCardById(@PathVariable Long id) throws ResourceNotFoundException {
 		return ResponseEntity.ok(cardService.getCardById(id));
 	}
 
 	@GetMapping("/employee/{employeeId}")
+	@PreAuthorize("hasAuthority('FINANCE')")
 	public ResponseEntity<List<CardResponseDTO>> getCardsByEmployee(@PathVariable Long employeeId)
 			throws ResourceNotFoundException {
 		return ResponseEntity.ok(cardService.getCardsByEmployee(employeeId));
 	}
 
 	@GetMapping("/summary")
+	@PreAuthorize("hasAuthority('FINANCE')")
 	public ResponseEntity<Map<String, Long>> getCardSummary() {
 		return ResponseEntity.ok(cardService.getCardStatistics());
 	}

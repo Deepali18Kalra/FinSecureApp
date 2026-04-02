@@ -30,12 +30,11 @@ public class AppUser {
 	private Long userId;
 	private String username;
 	private String password;
-	
 	private Integer failedLoginAttemptsCount = 0;
 	private Boolean isAccountLocked = false;
 	
 	@EqualsAndHashCode.Exclude
-//	@Enumerated(EnumType.STRING)
+	@Enumerated(EnumType.STRING)
 	private UserRole role;
 
 	public AppUser(String username, String password, Boolean isAccountLocked, UserRole role) {

@@ -22,6 +22,7 @@ public class DataLoader {
     ) {
         return args -> {
 
+        	
             // ── ADMIN ─────────────────────────────────────────────────────────
             if (!userRepo.existsByUsername("admin")) {
                 AppUser admin = new AppUser();
@@ -31,14 +32,21 @@ public class DataLoader {
                 userRepo.save(admin);
                 System.out.println("✅ Admin created — admin / admin123");
             }
+            
 
             // ── FINANCE ───────────────────────────────────────────────────────
-            if (!userRepo.existsByUsername("finance")) {
-                AppUser finance = new AppUser();
+            if (!employeeRepo.existsByUsername("finance")) {
+            	Employee finance = new Employee();
                 finance.setUsername("finance");
+                finance.setFirstName("Yatin_finance");
+                finance.setLastName("Sharma_finance");
                 finance.setPassword(passwordEncoder.encode("finance123"));
                 finance.setRole(UserRole.FINANCE);
-                userRepo.save(finance);
+                finance.setEmail("sharmayatin0882@gmail.com");
+                finance.setCurrentSalary(75000.0);
+                finance.setEmployeeCode("FIN001");
+                finance.setStatus(Status.ACTIVE);
+                employeeRepo.save(finance);
                 System.out.println("✅ Finance created — finance / finance123");
             }
 
@@ -74,6 +82,7 @@ public class DataLoader {
                 System.out.println("✅ Employee 1 created — rahul / rahul123");
             }
 
+            
             // ── EMPLOYEE 2 ────────────────────────────────────────────────────
             if (!employeeRepo.existsByUsername("sneha")) {
                 Employee emp2 = new Employee();
@@ -129,6 +138,20 @@ public class DataLoader {
                 emp3.setCurrentSalary(50000.0);
                 emp3.setEmail("sharmayatin0882@gmail.com");
                 emp3.setEmployeeCode("EMP005");
+                emp3.setStatus(Status.ACTIVE);  // ← salary job skips this
+                employeeRepo.save(emp3);
+                System.out.println("✅ Inactive employee created — inactive_emp / inactive123");
+            }
+            if (!employeeRepo.existsByUsername("shreya")) {
+                Employee emp3 = new Employee();
+                emp3.setUsername("shreya");
+                emp3.setPassword(passwordEncoder.encode("shreya123"));
+                emp3.setRole(UserRole.EMPLOYEE);
+                emp3.setFirstName("shreya");
+                emp3.setLastName("singhal");
+                emp3.setCurrentSalary(50000.0);
+                emp3.setEmail("sharmayatin0882@gmail.com");
+                emp3.setEmployeeCode("EMP006");
                 emp3.setStatus(Status.ACTIVE);  // ← salary job skips this
                 employeeRepo.save(emp3);
                 System.out.println("✅ Inactive employee created — inactive_emp / inactive123");

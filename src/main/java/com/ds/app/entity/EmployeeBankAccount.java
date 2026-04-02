@@ -51,4 +51,15 @@ public class EmployeeBankAccount {
     // One bank account → many salary records (one per month)
     @OneToMany(mappedBy = "bankAccount", fetch = FetchType.LAZY)
     private List<SalaryRecord> salaryRecords;
+    
+    
+    // trying....
+    
+//    private Boolean isFlagged = false;
+    private Integer modifiedToday = 0;
+    private LocalDateTime coolDownPeriod;
+    
+    
+
+
 }

@@ -13,6 +13,7 @@ import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.mapper.RegularizationRequestMapper;
 import com.ds.app.repository.IAttendanceRepository;
 import com.ds.app.repository.IRegularizationRequestRepository;
+import com.ds.app.service.IEmailService;
 import com.ds.app.service.IRegularizationRequestService;
 import com.ds.app.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
     private final IAttendanceRepository attendanceRepo;
     private final RegularizationRequestMapper regularizationMapper;
     private final SecurityUtils securityUtils;
+    private final IEmailService emailService;
 
     @Override
     @Transactional
@@ -56,7 +58,12 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
                 .status(RegularizationRequestStatus.PENDING)
                 .build();
 
-        return regularizationMapper.mapToResponse(regularizationRepository.save(rr));
+        RegularizationRequest saved = regularizationRepository.save(rr);
+
+        // notify manager for new regularization request
+        emailService.notifyManagerForNewRegularization(me, saved);
+
+        return regularizationMapper.mapToResponse(saved);
     }
 
     @Override
@@ -103,28 +110,36 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
 
         if (request.getStatus() == ApprovalStatus.APPROVED) {
             rr.setStatus(RegularizationRequestStatus.APPROVED);
+
+            Attendance attendance = attendanceRepo.findByEmployeeUserIdAndDate(rr.getEmployee().getUserId(), rr.getDate())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Attendance not found for employeeId: " + rr.getEmployee().getUserId() + " and date: " + rr.getDate()
+                    ));
+
+            if (rr.getPunchInTime() != null) {
+                attendance.setPunchInTime(rr.getPunchInTime());
+            }
+
+            if (rr.getPunchOutTime() != null) {
+                attendance.setPunchOutTime(rr.getPunchOutTime());
+            }
+
+            attendance.setIsRegularized(true);
+            attendance.setStatus(AttendanceStatus.MANUAL_PUNCH);
+
         } else {
             rr.setStatus(RegularizationRequestStatus.REJECTED);
+            rr.setRejectionReason(request.getRejectionReason());
         }
 
         rr.setApprovedBy(hr);
         rr.setApprovalDate(LocalDate.now());
-        
-        Attendance attendance = attendanceRepo.findByEmployeeUserIdAndDate(rr.getEmployee().getUserId(), rr.getDate())
-        		.orElseThrow( () -> new ResourceNotFoundException("Attendance not found with id: "));
-        
-        if(rr.getPunchInTime() != null) {
-        	attendance.setPunchInTime(rr.getPunchInTime());
-        }
-        
-        if(rr.getPunchOutTime() != null) {
-        	attendance.setPunchOutTime(rr.getPunchOutTime());
-        }
-        
-        attendance.setIsRegularized(true);
-        
-        attendance.setStatus(AttendanceStatus.MANUAL_PUNCH);
 
-        return regularizationMapper.mapToResponse(rr);
+        RegularizationRequest saved = regularizationRepository.save(rr);
+
+        // notify employee for final decision
+        emailService.notifyEmployeeForRegularizationDecision(saved.getEmployee(), saved);
+
+        return regularizationMapper.mapToResponse(saved);
     }
 }

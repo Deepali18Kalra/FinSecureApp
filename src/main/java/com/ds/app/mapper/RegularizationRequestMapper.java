@@ -23,6 +23,7 @@ public class RegularizationRequestMapper {
                 .reason(r.getReason())
                 .status(r.getStatus())
                 .approvedByName(approvedByName)
+                .rejectionReason(r.getRejectionReason())
                 .build();
     }
 }

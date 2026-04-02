@@ -2,6 +2,8 @@ package com.ds.app.service.Impl;
 
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.Leave;
+import com.ds.app.entity.RegularizationRequest;
+import com.ds.app.entity.Timesheet;
 import com.ds.app.enums.ApprovalStatus;
 import com.ds.app.service.IEmailService;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +31,17 @@ public class EmailServiceImpl implements IEmailService {
         mailSender.send(msg);
     }
 
+    // =========================
+    // Leave notifications
+    // =========================
+
     @Override
     public void notifyManagerForNewLeave(Employee employee, Leave leave) {
-        Employee hr = employee.getManager();
-        if (hr == null || hr.getEmail() == null || hr.getEmail().isBlank()) return;
+        Employee manager = employee.getManager();
+        if (manager == null || manager.getEmail() == null || manager.getEmail().isBlank()) return;
 
         String subject = "New Leave Request - " + employee.getFirstName() + " " + employee.getLastName();
-        String body = "Hello " + hr.getFirstName() + ",\n\n"
+        String body = "Hello " + manager.getFirstName() + ",\n\n"
                 + employee.getFirstName() + " " + employee.getLastName() + " has applied for leave.\n\n"
                 + "Type: " + leave.getLeaveType() + "\n"
                 + "Dates: " + leave.getStartDate() + " to " + leave.getEndDate() + "\n"
@@ -43,7 +49,7 @@ public class EmailServiceImpl implements IEmailService {
                 + "Reason: " + leave.getReasonForLeave() + "\n"
                 + "Status: " + leave.getStatus() + "\n\n"
                 + "Please review it in the portal.";
-        sendPlainText(hr.getEmail(), subject, body);
+        sendPlainText(manager.getEmail(), subject, body);
     }
 
     @Override
@@ -65,11 +71,11 @@ public class EmailServiceImpl implements IEmailService {
 
     @Override
     public void notifyManagerForCancellationRequest(Employee employee, Leave leave) {
-        Employee hr = employee.getManager();
-        if (hr == null || hr.getEmail() == null || hr.getEmail().isBlank()) return;
+        Employee manager = employee.getManager();
+        if (manager == null || manager.getEmail() == null || manager.getEmail().isBlank()) return;
 
         String subject = "Leave Cancellation Request - " + employee.getFirstName() + " " + employee.getLastName();
-        String body = "Hello " + hr.getFirstName() + ",\n\n"
+        String body = "Hello " + manager.getFirstName() + ",\n\n"
                 + employee.getFirstName() + " " + employee.getLastName()
                 + " has requested cancellation of an approved leave.\n\n"
                 + "Type: " + leave.getLeaveType() + "\n"
@@ -77,7 +83,7 @@ public class EmailServiceImpl implements IEmailService {
                 + "Days: " + leave.getTotalDays() + "\n"
                 + "Current Status: " + leave.getStatus() + "\n\n"
                 + "Please review the cancellation request in the portal.";
-        sendPlainText(hr.getEmail(), subject, body);
+        sendPlainText(manager.getEmail(), subject, body);
     }
 
     @Override
@@ -91,6 +97,81 @@ public class EmailServiceImpl implements IEmailService {
                 + "Dates: " + leave.getStartDate() + " to " + leave.getEndDate() + "\n"
                 + "Days: " + leave.getTotalDays() + "\n"
                 + (decision == ApprovalStatus.REJECTED ? "Reason: " + (reason == null ? "" : reason) + "\n" : "")
+                + "\nRegards,\nHR Team";
+        sendPlainText(employee.getEmail(), subject, body);
+    }
+
+    // =========================
+    // Regularization notifications (no cancellation flow)
+    // =========================
+
+    @Override
+    public void notifyManagerForNewRegularization(Employee employee, RegularizationRequest regularizationRequest) {
+        Employee manager = employee.getManager();
+        if (manager == null || manager.getEmail() == null || manager.getEmail().isBlank()) return;
+
+        String subject = "New Regularization Request - " + employee.getFirstName() + " " + employee.getLastName();
+        String body = "Hello " + manager.getFirstName() + ",\n\n"
+                + employee.getFirstName() + " " + employee.getLastName() + " has applied for regularization.\n\n"
+                + "Date: " + regularizationRequest.getDate() + "\n"
+                + "Punch In: " + regularizationRequest.getPunchInTime() + "\n"
+                + "Punch Out: " + regularizationRequest.getPunchOutTime() + "\n"
+                + "Reason: " + regularizationRequest.getReason() + "\n"
+                + "Status: " + regularizationRequest.getStatus() + "\n\n"
+                + "Please review it in the portal.";
+        sendPlainText(manager.getEmail(), subject, body);
+    }
+
+    @Override
+    public void notifyEmployeeForRegularizationDecision(Employee employee, RegularizationRequest regularizationRequest) {
+        if (employee.getEmail() == null || employee.getEmail().isBlank()) return;
+
+        String subject = "Regularization Request " + regularizationRequest.getStatus();
+        String body = "Hello " + employee.getFirstName() + ",\n\n"
+                + "Your regularization request has been " + regularizationRequest.getStatus() + ".\n\n"
+                + "Date: " + regularizationRequest.getDate() + "\n"
+                + "Punch In: " + regularizationRequest.getPunchInTime() + "\n"
+                + "Punch Out: " + regularizationRequest.getPunchOutTime() + "\n"
+                + "Reason: " + regularizationRequest.getReason() + "\n"
+                + (regularizationRequest.getStatus().name().equals("REJECTED")
+                ? "Reason for Rejection: "
+                + (regularizationRequest.getRejectionReason() == null ? "" : regularizationRequest.getRejectionReason()) + "\n"
+                : "")
+                + "\nRegards,\nHR Team";
+        sendPlainText(employee.getEmail(), subject, body);
+    }
+
+    // =========================
+    // Timesheet notifications
+    // =========================
+
+    @Override
+    public void notifyManagerForTimesheetSubmission(Employee employee, Timesheet timesheet) {
+        Employee manager = employee.getManager();
+        if (manager == null || manager.getEmail() == null || manager.getEmail().isBlank()) return;
+
+        String subject = "Timesheet Submitted - " + employee.getFirstName() + " " + employee.getLastName();
+        String body = "Hello " + manager.getFirstName() + ",\n\n"
+                + employee.getFirstName() + " " + employee.getLastName() + " has submitted a timesheet.\n\n"
+                + "Month/Year: " + timesheet.getMonth() + "/" + timesheet.getYear() + "\n"
+                + "Total Hours: " + timesheet.getTotalMonthlyHours() + "\n"
+                + "Status: " + timesheet.getStatus() + "\n\n"
+                + "Please review it in the portal.";
+        sendPlainText(manager.getEmail(), subject, body);
+    }
+
+    @Override
+    public void notifyEmployeeForTimesheetDecision(Employee employee, Timesheet timesheet) {
+        if (employee.getEmail() == null || employee.getEmail().isBlank()) return;
+
+        String subject = "Timesheet " + timesheet.getStatus();
+        String body = "Hello " + employee.getFirstName() + ",\n\n"
+                + "Your timesheet has been " + timesheet.getStatus() + ".\n\n"
+                + "Month/Year: " + timesheet.getMonth() + "/" + timesheet.getYear() + "\n"
+                + "Total Hours: " + timesheet.getTotalMonthlyHours() + "\n"
+                + (timesheet.getStatus().name().equals("REJECTED")
+                ? "Reason: " + (timesheet.getRejectionReason() == null ? "" : timesheet.getRejectionReason()) + "\n"
+                : "")
                 + "\nRegards,\nHR Team";
         sendPlainText(employee.getEmail(), subject, body);
     }

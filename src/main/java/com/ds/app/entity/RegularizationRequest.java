@@ -38,4 +38,6 @@ public class RegularizationRequest {
 	private Employee approvedBy;
 	
 	private LocalDate approvalDate;
+
+    private String rejectionReason;
 }

@@ -9,6 +9,7 @@ import com.ds.app.enums.TimesheetStatus;
 import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.mapper.TimesheetMapper;
 import com.ds.app.repository.ITimesheetRepository;
+import com.ds.app.service.IEmailService;
 import com.ds.app.service.ITimesheetService;
 import com.ds.app.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class TimesheetServiceImpl implements ITimesheetService {
     private final ITimesheetRepository timesheetRepository;
     private final TimesheetMapper timesheetMapper;
     private final SecurityUtils securityUtils;
+    private final IEmailService emailService;
 
     @Override
     public TimesheetResponse getMyMonthlyTimesheet(Integer month, Integer year) {
@@ -59,6 +61,8 @@ public class TimesheetServiceImpl implements ITimesheetService {
         ts.setApprovedBy(null);
         ts.setApprovalDate(null);
         ts.setRejectionReason(null);
+
+        emailService.notifyManagerForTimesheetSubmission(me, ts);
 
         return timesheetMapper.mapToResponse(ts);
     }
@@ -103,6 +107,8 @@ public class TimesheetServiceImpl implements ITimesheetService {
 
         ts.setApprovedBy(hr);
         ts.setApprovalDate(LocalDate.now());
+
+        emailService.notifyEmployeeForTimesheetDecision(ts.getEmployee(), ts);
 
         return timesheetMapper.mapToResponse(ts);
     }

@@ -23,4 +23,5 @@ public class RegularizationResponse {
     private String reason;
     private RegularizationRequestStatus status;
     private String approvedByName;
+    private String rejectionReason;
 }

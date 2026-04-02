@@ -32,7 +32,7 @@ public interface ILeaveRepository extends JpaRepository<Leave, Long> {
     )
     from Leave l
     where l.employee.userId = :employeeId
-    and (:status is null or l.status = :status)
+    and (:status is null or l.status in :status)
     and (:year is null or year(l.startDate) = :year)
     and (:month is null or month(l.startDate) = :month)
     """)

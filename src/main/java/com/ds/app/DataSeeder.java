@@ -5,7 +5,6 @@ import com.ds.app.enums.*;
 import com.ds.app.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,9 +39,9 @@ public class DataSeeder implements CommandLineRunner {
 
         int currentYear = Year.now().getValue();
 
-        // 1) HRs
-        Employee hr1 = buildUser("manish_hr", "pass123hr", "Manish", "Sharma", "mayanksharma00819@gmail.com", UserRole.HR, null);
-        Employee hr2 = buildUser("neha_hr", "pass123hr", "Neha", "Verma", "neha@gamil.com", UserRole.HR, null);
+        // 1) Managers
+        Employee hr1 = buildUser("manish_mngr", "pass123mngr", "Manish", "Sharma", "mayanksharma00819@gmail.com", UserRole.MANAGER, null);
+        Employee hr2 = buildUser("neha_mngr", "pass123mngr", "Neha", "Verma", "neha@gamil.com", UserRole.MANAGER, null);
         hr1 = (Employee) appUserRepository.save(hr1);
         hr2 = (Employee) appUserRepository.save(hr2);
 
@@ -83,7 +82,7 @@ public class DataSeeder implements CommandLineRunner {
         // 5) Attendance + Leave + Timesheet sample
         for (Employee emp : employees) {
             seedAttendance(emp);
-            seedLeavesAndSyncBalance(emp, emp.getHr(), currentYear);
+            seedLeavesAndSyncBalance(emp, emp.getManager(), currentYear);
             seedPreviousMonthTimesheet(emp);
         }
 
@@ -104,20 +103,11 @@ public class DataSeeder implements CommandLineRunner {
         user.setRole(role);
         user.setFailedLoginAttemptsCount(0);
         user.setIsAccountLocked(false);
-        user.setHr(hr);
+        user.setManager(hr);
         return user;
     }
 
     private void seedAttendance(Employee employee) {
-        Attendance missSwipeToday = Attendance.builder()
-                .employee(employee)
-                .date(LocalDate.now())
-                .punchInTime(LocalTime.of(9, 20))
-                .punchOutTime(null)
-                .status(AttendanceStatus.MISS_SWIPE)
-                .hoursWorked(0.0)
-                .isRegularized(false)
-                .build();
 
         Attendance presentYesterday = Attendance.builder()
                 .employee(employee)
@@ -147,7 +137,7 @@ public class DataSeeder implements CommandLineRunner {
                 .isRegularized(false)
                 .build();
 
-        attendanceRepository.saveAll(List.of(missSwipeToday, presentYesterday, halfDay, absent));
+        attendanceRepository.saveAll(List.of(presentYesterday, halfDay, absent));
     }
 
     private void seedLeavesAndSyncBalance(Employee employee, Employee approverHr, int year) {
@@ -219,7 +209,7 @@ public class DataSeeder implements CommandLineRunner {
                 .year(prev.getYear())
                 .status(TimesheetStatus.APPROVED)
                 .submittedAt(prev.atEndOfMonth().atTime(18, 0))
-                .approvedBy(employee.getHr())
+                .approvedBy(employee.getManager())
                 .approvalDate(LocalDate.now().minusDays(2))
                 .totalMonthlyHours(0.0)
                 .timesheetEntries(new ArrayList<>())
@@ -235,7 +225,6 @@ public class DataSeeder implements CommandLineRunner {
         ts.setTimesheetEntries(entries);
         ts.setTotalMonthlyHours(totalHours);
 
-        // single save (cascade persists entries)
         timesheetRepository.save(ts);
     }
 }

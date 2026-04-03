@@ -101,9 +101,9 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(UnAuthorizedException.class)
+    @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorized(
-            UnAuthorizedException ex,
+            ForbiddenException ex,
             HttpServletRequest request
     ) {
         return buildErrorResponse(

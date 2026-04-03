@@ -7,10 +7,26 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
 public interface IHolidayRepository extends JpaRepository<Holiday, Long> {
+
+    // used internally by LeaveService and LeaveBalanceScheduler
     @Query("select h.date from Holiday h where h.date between :startDate and :endDate")
-    Set<LocalDate> findDatesBetween(@Param("startDate") LocalDate startDate,
-                                    @Param("endDate") LocalDate endDate);}
+    Set<LocalDate> findDatesBetween(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+    // get all holidays for a given year — ordered by date
+    @Query("select h from Holiday h where year(h.date) = :year order by h.date asc")
+    List<Holiday> findByYear(@Param("year") Integer year);
+
+    // check if a holiday already exists on a given date
+    boolean existsByDate(LocalDate date);
+
+    // find by id for delete validation
+    Optional<Holiday> findById(Long holidayId);
+}

@@ -58,6 +58,7 @@ public class EmployeeAccountServiceImpl implements EmployeeAccountService {
 			throw new ResourceNotFoundException("Employee already has a bank account registered.");
 		}
 		
+		
 		FinanceBankAccount bank = allBankRepository.findById(dto.getBankId())
 				.orElseThrow(() -> new ResourceNotFoundException("Bank not found with ID: " + dto.getBankId()));
 		
@@ -68,8 +69,7 @@ public class EmployeeAccountServiceImpl implements EmployeeAccountService {
 					"ALERT : Bank " + bank.getBankName() + " ( " + bank.getBankCode() +" ) is blacklisted and cannot be used for employee bank accounts."   
 					);
 		}
-		
-		
+	
 		EmployeeBankAccount account = EmployeeBankAccount.builder()
 				.employee(employee)
 				.accountHolderName(employee.getFirstName() +" "+employee.getLastName())

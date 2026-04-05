@@ -19,7 +19,7 @@ public interface CardService {
 	
 	
 	// finance register a card for the employee
-	CardResponseDTO registerCard(CardRequestDTO cardRequest) throws ResourceAlreadyExistException;
+	CardResponseDTO registerCard(CardRequestDTO cardRequest,Long empid) throws ResourceAlreadyExistException;
 	
 	// finance can update card status (block/unblock)
 	CardResponseDTO updateCardStatus(Long cardId, CardStatusUpdateDTO dto) throws ResourceNotFoundException;

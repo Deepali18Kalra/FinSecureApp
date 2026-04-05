@@ -14,8 +14,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class CardRequestDTO {
 
-    @NotNull(message = "Employee ID is required")
-    private Long employeeId;
 
     @NotBlank(message = "Card number is required")
     @Size(min = 16, max = 19)

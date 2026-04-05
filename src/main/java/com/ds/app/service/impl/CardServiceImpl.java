@@ -32,16 +32,16 @@ public class CardServiceImpl implements CardService {
 	private EmployeeRepository employeeRepository;
 
 	@Override
-	public CardResponseDTO registerCard(CardRequestDTO dto) throws ResourceAlreadyExistException {
+	public CardResponseDTO registerCard(CardRequestDTO dto,Long empId) throws ResourceAlreadyExistException {
 		// 1 — validate employee exists
-		Employee employee = employeeRepository.findByUserId(dto.getEmployeeId()).orElseThrow(
-				() -> new ResourceAlreadyExistException("Employee not found with id: " + dto.getEmployeeId()));
+		Employee employee = employeeRepository.findByUserId(empId).orElseThrow(
+				() -> new ResourceAlreadyExistException("Employee not found with id: " + empId));
 
 		// 2 — duplicate check: employee already has an ACTIVE card of the same type
-		boolean duplicate = cardRepository.existsByEmployee_UserIdAndCardTypeAndCardStatus(dto.getEmployeeId(),
+		boolean duplicate = cardRepository.existsByEmployee_UserIdAndCardTypeAndCardStatus(empId,
 				dto.getCardType(), CardStatus.ACTIVE);
 		if (duplicate) {
-			throw new IllegalStateException("Employee already has an ACTIVE " + dto.getCardType() + " card. "
+			throw new ResourceAlreadyExistException("Employee already has an ACTIVE " + dto.getCardType() + " card. "
 					+ "Block the existing card before registering a new one.");
 		}
 

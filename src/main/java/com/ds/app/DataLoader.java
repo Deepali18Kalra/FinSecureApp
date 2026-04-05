@@ -20,8 +20,8 @@ public class DataLoader {
             EmployeeRepository employeeRepo,
             PasswordEncoder passwordEncoder
     ) {
+    	
         return args -> {
-
         	
             // ── ADMIN ─────────────────────────────────────────────────────────
             if (!userRepo.existsByUsername("admin")) {
@@ -34,7 +34,7 @@ public class DataLoader {
             }
             
 
-            // ── FINANCE ───────────────────────────────────────────────────────
+            //   FINANCE 
             if (!employeeRepo.existsByUsername("finance")) {
             	Employee finance = new Employee();
                 finance.setUsername("finance");
@@ -50,7 +50,7 @@ public class DataLoader {
                 System.out.println("✅ Finance created — finance / finance123");
             }
 
-            // ── HR ────────────────────────────────────────────────────────────
+            // ─ HR 
             if (!employeeRepo.existsByUsername("hr")) {
                 Employee hr = new Employee();
                 hr.setUsername("hr");
@@ -61,7 +61,7 @@ public class DataLoader {
                 hr.setEmail("sharmayatin0882@gmail.com");
                 hr.setCurrentSalary(75000.0);
                 hr.setEmployeeCode("HR001");
-                hr.setStatus(Status.ACTIVE);    // ← enum instead of isActive
+                hr.setStatus(Status.ACTIVE);    
                 employeeRepo.save(hr);
                 System.out.println("✅ HR created — hr / hr123");
             }
@@ -110,7 +110,7 @@ public class DataLoader {
                 emp3.setCurrentSalary(50000.0);
                 emp3.setEmail("sharmayatin0882@gmail.com");
                 emp3.setEmployeeCode("EMP003");
-                emp3.setStatus(Status.INACTIVE);  // ← salary job skips this
+                emp3.setStatus(Status.INACTIVE);  
                 employeeRepo.save(emp3);
                 System.out.println("✅ Inactive employee created — inactive_emp / inactive123");
             }
@@ -124,7 +124,7 @@ public class DataLoader {
                 emp3.setCurrentSalary(50000.0);
                 emp3.setEmail("sharmayatin0882@gmail.com");
                 emp3.setEmployeeCode("EMP004");
-                emp3.setStatus(Status.ACTIVE);  // ← salary job skips this
+                emp3.setStatus(Status.ACTIVE);  
                 employeeRepo.save(emp3);
                 System.out.println("✅ Inactive employee created — inactive_emp / inactive123");
             }
@@ -138,7 +138,7 @@ public class DataLoader {
                 emp3.setCurrentSalary(50000.0);
                 emp3.setEmail("sharmayatin0882@gmail.com");
                 emp3.setEmployeeCode("EMP005");
-                emp3.setStatus(Status.ACTIVE);  // ← salary job skips this
+                emp3.setStatus(Status.ACTIVE);  
                 employeeRepo.save(emp3);
                 System.out.println("✅ Inactive employee created — inactive_emp / inactive123");
             }
@@ -152,7 +152,7 @@ public class DataLoader {
                 emp3.setCurrentSalary(50000.0);
                 emp3.setEmail("sharmayatin0882@gmail.com");
                 emp3.setEmployeeCode("EMP006");
-                emp3.setStatus(Status.ACTIVE);  // ← salary job skips this
+                emp3.setStatus(Status.ACTIVE);  
                 employeeRepo.save(emp3);
                 System.out.println("✅ Inactive employee created — inactive_emp / inactive123");
             }

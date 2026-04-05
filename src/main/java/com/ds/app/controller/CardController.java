@@ -41,7 +41,7 @@ public class CardController {
 	@PreAuthorize("hasAuthority('EMPLOYEE')")
 	public ResponseEntity<CardResponseDTO> addCard(@Valid @RequestBody CardRequestDTO dto)
 			throws ResourceAlreadyExistException {
-		CardResponseDTO response = cardService.registerCard(dto);
+		CardResponseDTO response = cardService.registerCard(dto , getLoggedInUserId());
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 

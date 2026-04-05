@@ -3,6 +3,7 @@ package com.ds.app.scheduler;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.ds.app.entity.EmployeeBankAccount;
@@ -21,7 +22,7 @@ public class ModifiedTodayScheduler {
 	@Autowired
 	EmployeeBankAccountRepository accountRepository;
 	
-	
+	@Scheduled(cron = "0 0 0 * * ?", zone = "Asia/Kolkata")
 	public void resetModifiedToZero()
 	{
 		List<EmployeeBankAccount> accounts = accountRepository.findResetableEmployees();

@@ -15,6 +15,7 @@ public enum SalarySkipReason {
     EMPLOYEE_INACTIVE,      // employee status is INACTIVE
     
     PROCESSING_ERROR,
+    
     EMAIL_FAILURE   // unexpected exception during processing
     
     

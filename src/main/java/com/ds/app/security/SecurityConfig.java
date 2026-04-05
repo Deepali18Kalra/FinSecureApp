@@ -36,62 +36,49 @@ public class SecurityConfig {
 
 //	@Autowired
 //	private CustomAccessDeniedHandler accessDeniedHandler;
-//
+
+	
+	
 //	@Autowired
 //	private CustomAuthenticationEntryPoint authenticationEntryPoint;
+	
+	
+	
 
 	@Autowired
 
 	private JWTFilter jwtFilter;
 
 	@Bean
-
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-		http.csrf(csrf -> csrf.disable());
+	    http
+	        .csrf(csrf -> csrf.disable())
+	        .cors(cors -> cors.disable())
 
-		// configure CORS properly later if needed for frontend
+	        .authorizeHttpRequests(auth -> auth
+	            .requestMatchers("/finsecure/public/**").permitAll()
+	            .requestMatchers(
+	                "/v3/api-docs/**",
+	                "/swagger-ui/**",
+	                "/swagger-ui.html",
+	                "/swagger-resources/**",
+	                "/webjars/**"
+	            ).permitAll()
+	            .anyRequest().authenticated()
+	        )
+	        .exceptionHandling(ex -> ex
+	            .accessDeniedHandler(new RestAccessDeniedHandler())        // 403 (loggedIn but no permission)
+	            .authenticationEntryPoint(new RestAuthenticationEntryPoint()) // 401 (User is NOT authenticated)
+	        )
 
-		http.cors(cors -> cors.disable());
+	        .sessionManagement(session ->
+	            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+	        );
 
-		http.authorizeHttpRequests(auth -> auth
+	    http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-				// public auth/login/register endpoints
-
-				.requestMatchers("/finsecure/public/**").permitAll()
-
-				// Swagger / OpenAPI endpoints
-
-				.requestMatchers(
-
-						"/v3/api-docs/**",
-
-						"/swagger-ui/**",
-
-						"/swagger-ui.html",
-
-						"/swagger-resources/**",
-
-						"/webjars/**"
-
-				).permitAll()
-
-				// everything else requires authentication
-
-				.anyRequest().authenticated()
-
-		);
-
-		http.sessionManagement(session ->
-
-		session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-
-		);
-
-		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-		return http.build();
-
+	    return http.build();
 	}
 
 	@Bean

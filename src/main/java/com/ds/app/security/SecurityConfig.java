@@ -57,60 +57,45 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-
 	    http
 	        .csrf(csrf -> csrf.disable())
 	        .cors(cors -> cors.disable())
 
-	        .authorizeHttpRequests(auth -> auth
-	            .requestMatchers("/finsecure/public/**").permitAll()
-	            .requestMatchers(
-	                "/v3/api-docs/**",
-	                "/swagger-ui/**",
-	                "/swagger-ui.html",
-	                "/swagger-resources/**",
-	                "/webjars/**"
-	            ).permitAll()
-	            .anyRequest().authenticated()
-	        )
 	        .exceptionHandling(ex -> ex
-	            .accessDeniedHandler(new RestAccessDeniedHandler())        // 403 (loggedIn but no permission)
-	            .authenticationEntryPoint(new RestAuthenticationEntryPoint()) // 401 (User is NOT authenticated)
+	            .accessDeniedHandler(new RestAccessDeniedHandler())
+	            .authenticationEntryPoint(new RestAuthenticationEntryPoint())
 	        )
 
 	        .sessionManagement(session ->
 	            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+	        )
+
+	        .authorizeHttpRequests(auth -> auth
+
+	            // ✅ Swagger Public Access
+	            .requestMatchers(
+	                    "/v3/api-docs/**",
+	                    "/swagger-ui/**",
+	                    "/swagger-ui.html",
+	                    "/swagger-resources/**",
+	                    "/webjars/**"
+	            ).permitAll()
+
+	            // ✅ Public APIs
+	            .requestMatchers("/finsecure/public/**").permitAll()
+
+	            // ✅ Role Based APIs
+	            .requestMatchers("/finsecure/admin/**").hasRole("ADMIN")
+	            .requestMatchers("/finsecure/hr/**").hasRole("HR")
+	            .requestMatchers("/finsecure/finance/**").hasRole("FINANCE")
+	            .requestMatchers("/finsecure/system/**").hasRole("SYSTEM")
+	            .requestMatchers("/finsecure/employee/**").hasRole("EMPLOYEE")
+	            .requestMatchers("/finsecure/insurance/**")
+	            .hasAnyRole("EMPLOYEE", "ADMIN", "FINANCE", "HR")
+
+	            // ✅ MUST BE LAST ALWAYS
+	            .anyRequest().authenticated()
 	        );
-
-		 http.cors(cors->cors.disable());
-		 
-		 http.authorizeHttpRequests(auth -> auth
-				    .requestMatchers(
-				    	    "/swagger-ui/**",
-				    	    "/swagger-ui.html",
-				    	    "/v3/api-docs/**"
-				    	).permitAll()
-				    .requestMatchers("/finsecure/public/**").permitAll()
-				    .requestMatchers("/finsecure/admin/**").hasRole("ADMIN")
-				    .requestMatchers("/finsecure/hr/**").hasRole("HR")
-				    .requestMatchers("/finsecure/finance/**").hasRole("FINANCE")
-				    .requestMatchers("/finsecure/system/**").hasRole("SYSTEM")
-				    .requestMatchers("/finsecure/employee/**").hasRole("EMPLOYEE")
-				    .requestMatchers("/finsecure/insurance/**").hasAnyRole("EMPLOYEE", "ADMIN", "FINANCE","HR")
-				    .anyRequest().authenticated()
-				);
-		 
-//		 http.authorizeHttpRequests(auth -> auth
-//				    .requestMatchers("/finsecure/public/**").permitAll()
-//				    .requestMatchers("/finsecure/admin/**").hasRole("ADMIN")
-//				    .requestMatchers("/finsecure/hr/**").hasRole("HR")
-//				    .requestMatchers("/finsecure/finance/**").hasRole("FINANCE")
-//				    .requestMatchers("/finsecure/system/**").hasRole("SYSTEM")
-//				    .requestMatchers("/finsecure/employee/**").hasRole("EMPLOYEE")
-//				    .anyRequest().authenticated()
-//				);
-
-
 
 	    http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

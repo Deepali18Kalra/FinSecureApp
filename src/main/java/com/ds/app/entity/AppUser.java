@@ -11,17 +11,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@ToString(exclude = {"insurances", "topUps", "insuranceClaims"})
 public class AppUser {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer userId;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long userId;
 	private String username;
 	private String password;
 	

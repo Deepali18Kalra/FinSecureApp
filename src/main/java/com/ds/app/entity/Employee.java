@@ -1,5 +1,8 @@
 package com.ds.app.entity;
 
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.List;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -12,11 +15,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@PrimaryKeyJoinColumn(name="user_id")
 public class Employee extends AppUser{
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer employeeId;
+  	private String firstName;
+	private String lastName;
 	
 	
 	
@@ -44,12 +54,15 @@ public class Employee extends AppUser{
 	@OneToMany(mappedBy = "employee",cascade = CascadeType.ALL , fetch = FetchType.LAZY)
 	private List<EmployeeCard>salaryRecords;
 	
-	
-	
-	
-	
-	
-	
 
 	
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
+    private List<EmployeeInsurance> insurances;
+
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
+    private List<EmployeeTopUp> topUps;
+
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
+    private List<InsuranceClaim> insuranceClaims;
+    
 }

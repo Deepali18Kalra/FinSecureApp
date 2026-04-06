@@ -10,16 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class MonthlyAttendanceReport {
-
     private Long employeeId;
     private String employeeName;
     private Integer month;
     private Integer year;
-
     private Long presentDays;
     private Long absentDays;
-    private Long lateDays;
-    private Long halfDays;
-
-    private Long totalHoursWorked;
+    private Long lateCount;
+    private Long halfDayCount;
+    private Double totalHoursWorked;
 }

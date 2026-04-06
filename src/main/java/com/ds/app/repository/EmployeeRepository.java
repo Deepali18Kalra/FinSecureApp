@@ -1,5 +1,6 @@
 package com.ds.app.repository;
 
+
 import java.util.List;
 import java.util.Optional;
 
@@ -23,8 +24,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 	 Page<Employee> findByBankAccountIsNull(Pageable pageable);
 
 	boolean existsByUsername(String string);
+	Optional<Employee> findByUsername(String name);
 
 	
+
+
 	
 
 }

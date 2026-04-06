@@ -1,5 +1,6 @@
 package com.ds.app.entity;
 
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -61,7 +62,15 @@ public class Employee extends AppUser{
 	
 	
 	public Long getCompanyId()    { return company    != null ? company.getId()    : null; }
+	
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
+    private List<EmployeeInsurance> insurances;
 
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
+    private List<EmployeeTopUp> topUps;
+
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
+    private List<InsuranceClaim> insuranceClaims;
 
 	public Employee(String username, String password, Boolean isAccountLocked, UserRole role, String firstName,
 			String lastName, String employeeCode) {
@@ -73,22 +82,15 @@ public class Employee extends AppUser{
 	}
 
 
-   // changes made by Ashish 
-	
-	
+
 
 
 }
 
 
-	
+
 
 	
-	
-	
-	
-	
-	
+    
 
-	
 

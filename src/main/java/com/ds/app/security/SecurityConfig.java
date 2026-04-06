@@ -26,6 +26,11 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
+
+import com.ds.app.service.impl.MyUserDetailService;
+
+
 @Configuration
 
 @EnableWebSecurity
@@ -52,6 +57,7 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
+
 	    http
 	        .csrf(csrf -> csrf.disable())
 	        .cors(cors -> cors.disable())
@@ -75,6 +81,36 @@ public class SecurityConfig {
 	        .sessionManagement(session ->
 	            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 	        );
+
+		 http.cors(cors->cors.disable());
+		 
+		 http.authorizeHttpRequests(auth -> auth
+				    .requestMatchers(
+				    	    "/swagger-ui/**",
+				    	    "/swagger-ui.html",
+				    	    "/v3/api-docs/**"
+				    	).permitAll()
+				    .requestMatchers("/finsecure/public/**").permitAll()
+				    .requestMatchers("/finsecure/admin/**").hasRole("ADMIN")
+				    .requestMatchers("/finsecure/hr/**").hasRole("HR")
+				    .requestMatchers("/finsecure/finance/**").hasRole("FINANCE")
+				    .requestMatchers("/finsecure/system/**").hasRole("SYSTEM")
+				    .requestMatchers("/finsecure/employee/**").hasRole("EMPLOYEE")
+				    .requestMatchers("/finsecure/insurance/**").hasAnyRole("EMPLOYEE", "ADMIN", "FINANCE","HR")
+				    .anyRequest().authenticated()
+				);
+		 
+//		 http.authorizeHttpRequests(auth -> auth
+//				    .requestMatchers("/finsecure/public/**").permitAll()
+//				    .requestMatchers("/finsecure/admin/**").hasRole("ADMIN")
+//				    .requestMatchers("/finsecure/hr/**").hasRole("HR")
+//				    .requestMatchers("/finsecure/finance/**").hasRole("FINANCE")
+//				    .requestMatchers("/finsecure/system/**").hasRole("SYSTEM")
+//				    .requestMatchers("/finsecure/employee/**").hasRole("EMPLOYEE")
+//				    .anyRequest().authenticated()
+//				);
+
+
 
 	    http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

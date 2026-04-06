@@ -5,7 +5,8 @@ import com.ds.app.entity.MyUserDetails;
 import com.ds.app.enums.BankStatus;
 import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.service.FinanceBankAccountService;
-import com.ds.app.service.MyUserDetailService;
+import com.ds.app.service.impl.MyUserDetailService;
+
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

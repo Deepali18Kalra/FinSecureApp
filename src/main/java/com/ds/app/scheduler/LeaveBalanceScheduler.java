@@ -133,8 +133,8 @@ public class LeaveBalanceScheduler {
             timesheetPaid = ts.getTimesheetEntries().stream()
                     .filter(e -> e.getDate() != null)
                     .filter(e -> !e.getDate().isBefore(start) && !e.getDate().isAfter(end))
-                    .filter(e -> e.getHoursWorked() != null)
-                    .mapToDouble(e -> e.getHoursWorked() >= 4 ? 1.0 : 0.5)
+                    .filter(e -> e.getTotalMinutesWorked() != null)
+                    .mapToDouble(e -> e.getTotalMinutesWorked() >= 240 ? 1.0 : 0.5)
                     .sum();
         }
 

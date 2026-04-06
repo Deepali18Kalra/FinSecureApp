@@ -24,6 +24,11 @@ public class TimesheetMapper {
                 ? null
                 : t.getApprovedBy().getFirstName() + " " + t.getApprovedBy().getLastName();
 
+        int totalMins = t.getTotalMonthlyMinutes() != null ? t.getTotalMonthlyMinutes() : 0;
+
+        int hours = totalMins / 60;
+        int mins = totalMins % 60;
+
         return TimesheetResponse.builder()
                 .timesheetId(t.getTimesheetId())
                 .employeeId(t.getEmployee().getUserId())
@@ -35,7 +40,8 @@ public class TimesheetMapper {
                 .approvedByName(approvedByName)
                 .approvalDate(t.getApprovalDate())
                 .rejectionReason(t.getRejectionReason())
-                .totalMonthlyHours(t.getTotalMonthlyHours() == null ? 0 : t.getTotalMonthlyHours().intValue())
+                .totalMonthlyMinutes(totalMins)
+                .formattedTotalTime(String.format("%02d:%02d", hours, mins))
                 .entries(entries)
                 .build();
     }

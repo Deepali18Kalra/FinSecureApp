@@ -9,6 +9,7 @@ import com.ds.app.entity.Leave;
 import com.ds.app.enums.ApprovalStatus;
 import com.ds.app.enums.LeaveStatus;
 import com.ds.app.enums.LeaveType;
+import com.ds.app.exception.ForbiddenException;
 import com.ds.app.exception.InvalidLeaveStateException;
 import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.mapper.LeaveMapper;
@@ -112,10 +113,16 @@ public class LeaveServiceImpl implements ILeaveService {
     @Override
     @Transactional
     public LeaveResponse processLeaveRequest(Long leaveId, ApprovalRequest approvalRequest) {
-        Employee loggedInHR = securityUtils.getLoggedInEmployee();
+        Employee loggedInManager = securityUtils.getLoggedInEmployee();
 
         Leave existingLeave = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new ResourceNotFoundException("Leave not found with id: " + leaveId));
+
+        if (existingLeave.getEmployee().getManager() == null ||
+                !existingLeave.getEmployee().getManager().getUserId()
+                        .equals(loggedInManager.getUserId())) {
+            throw new ForbiddenException("You are not authorized to process this leave");
+        }
 
         if (!existingLeave.getStatus().equals(LeaveStatus.PENDING)) {
             throw new InvalidLeaveStateException("Only PENDING leaves can be processed");
@@ -123,7 +130,7 @@ public class LeaveServiceImpl implements ILeaveService {
 
         LeaveStatus newStatus = toLeaveStatus(approvalRequest.getStatus());
         existingLeave.setStatus(newStatus);
-        existingLeave.setApprovedBy(loggedInHR);
+        existingLeave.setApprovedBy(loggedInManager);
         existingLeave.setApprovalDate(LocalDate.now());
 
         if (approvalRequest.getStatus().equals(ApprovalStatus.REJECTED)) {
@@ -149,16 +156,22 @@ public class LeaveServiceImpl implements ILeaveService {
     @Override
     @Transactional
     public LeaveResponse processCancellationRequest(Long leaveId, ApprovalRequest approvalRequest) {
-        Employee loggedInHR = securityUtils.getLoggedInEmployee();
+        Employee loggedInManager = securityUtils.getLoggedInEmployee();
 
         Leave existingLeave = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new ResourceNotFoundException("Leave not found with id: " + leaveId));
+
+        if (existingLeave.getEmployee().getManager() == null ||
+                !existingLeave.getEmployee().getManager().getUserId()
+                        .equals(loggedInManager.getUserId())) {
+            throw new ForbiddenException("You are not authorized to process this leave");
+        }
 
         if (!LeaveStatus.CANCELLATION_PENDING.equals(existingLeave.getStatus())) {
             throw new InvalidLeaveStateException("Only CANCELLATION_PENDING leaves can be processed");
         }
 
-        existingLeave.setApprovedBy(loggedInHR);
+        existingLeave.setApprovedBy(loggedInManager);
         existingLeave.setApprovalDate(LocalDate.now());
 
         LeaveType leaveType = existingLeave.getLeaveType();
@@ -191,10 +204,10 @@ public class LeaveServiceImpl implements ILeaveService {
 
     @Override
     public Page<LeaveResponse> getPendingRequest(Pageable pageable) {
-        Employee loggedInHR = securityUtils.getLoggedInEmployee();
+        Employee loggedInManager = securityUtils.getLoggedInEmployee();
         List<LeaveStatus> status = List.of(LeaveStatus.PENDING, LeaveStatus.CANCELLATION_PENDING);
         Page<Leave> pendingLeaves = leaveRepository.findByEmployee_Manager_UserIdAndStatusIn(
-                loggedInHR.getUserId(),
+                loggedInManager.getUserId(),
                 status,
                 pageable);
         return pendingLeaves.map(leaveMapper::mapToResponse);

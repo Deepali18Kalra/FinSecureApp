@@ -14,6 +14,7 @@ import com.ds.app.repository.ITimesheetRepository;
 import com.ds.app.service.ITimesheetEntryService;
 import com.ds.app.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TimesheetEntryServiceImpl implements ITimesheetEntryService {
 
     private final ITimesheetEntryRepository entryRepository;
@@ -38,31 +40,34 @@ public class TimesheetEntryServiceImpl implements ITimesheetEntryService {
         int month = request.getDate().getMonthValue();
         int year = request.getDate().getYear();
 
+        log.info("Add timesheet entry requested. employeeId={}, date={}, month={}, year={}",
+                me.getUserId(), request.getDate(), month, year);
+
         Timesheet timesheet = timesheetRepository
                 .findByEmployeeUserIdAndMonthAndYear(me.getUserId(), month, year)
-                .orElseGet(() -> timesheetRepository.save(
-                        Timesheet.builder()
-                                .employee(me)
-                                .month(month)
-                                .year(year)
-                                .status(TimesheetStatus.DRAFT)
-                                .totalMonthlyHours(0.0)
-                                .build()
-                ));
+                .orElseGet(() -> {
+                    log.debug("No timesheet found. Creating new DRAFT timesheet. employeeId={}, month={}, year={}",
+                            me.getUserId(), month, year);
+                    return timesheetRepository.save(
+                            Timesheet.builder()
+                                    .employee(me)
+                                    .month(month)
+                                    .year(year)
+                                    .status(TimesheetStatus.DRAFT)
+                                    .totalMonthlyMinutes(0)
+                                    .build()
+                    );
+                });
 
         ensureEditableAndResetIfRejected(timesheet);
 
-        TimesheetEntry entry = TimesheetEntry.builder()
-                .timesheet(timesheet)
-                .date(request.getDate())
-                .taskDescription(request.getTaskDescription())
-                .hoursWorked(request.getHoursWorked())
-                .projectId(request.getProjectId())
-                .projectName(request.getProjectName())
-                .build();
-
+        TimesheetEntry entry = timesheetEntryMapper.mapToEntity(request, timesheet);
         TimesheetEntry saved = entryRepository.save(entry);
+
         recalculateTotalHours(timesheet);
+
+        log.info("Timesheet entry added. employeeId={}, timesheetId={}, entryId={}",
+                me.getUserId(), timesheet.getTimesheetId(), saved.getTimesheetEntryId());
 
         return timesheetEntryMapper.mapToResponse(saved);
     }
@@ -72,24 +77,42 @@ public class TimesheetEntryServiceImpl implements ITimesheetEntryService {
         Employee me = securityUtils.getLoggedInEmployee();
         YearMonth ym = YearMonth.of(year, month);
 
-        return entryRepository.findByTimesheetEmployeeUserIdAndDateBetweenOrderByDateAsc(
+        log.info("Fetch my entries by month/year requested. employeeId={}, month={}, year={}",
+                me.getUserId(), month, year);
+
+        List<TimesheetEntryResponse> response = entryRepository
+                .findByTimesheetEmployeeUserIdAndDateBetweenOrderByDateAsc(
                         me.getUserId(),
                         ym.atDay(1),
                         ym.atEndOfMonth()
                 ).stream()
                 .map(timesheetEntryMapper::mapToResponse)
                 .toList();
+
+        log.debug("Fetch my entries by month/year completed. employeeId={}, count={}",
+                me.getUserId(), response.size());
+
+        return response;
     }
 
     @Override
     public List<TimesheetEntryResponse> getMyEntriesByDateRange(LocalDate startDate, LocalDate endDate) {
         Employee me = securityUtils.getLoggedInEmployee();
 
-        return entryRepository.findByTimesheetEmployeeUserIdAndDateBetweenOrderByDateAsc(
+        log.info("Fetch my entries by date range requested. employeeId={}, startDate={}, endDate={}",
+                me.getUserId(), startDate, endDate);
+
+        List<TimesheetEntryResponse> response = entryRepository
+                .findByTimesheetEmployeeUserIdAndDateBetweenOrderByDateAsc(
                         me.getUserId(), startDate, endDate
                 ).stream()
                 .map(timesheetEntryMapper::mapToResponse)
                 .toList();
+
+        log.debug("Fetch my entries by date range completed. employeeId={}, count={}",
+                me.getUserId(), response.size());
+
+        return response;
     }
 
     @Override
@@ -97,25 +120,38 @@ public class TimesheetEntryServiceImpl implements ITimesheetEntryService {
     public TimesheetEntryResponse updateMyEntry(Long entryId, TimesheetEntryRequest request) {
         Employee me = securityUtils.getLoggedInEmployee();
 
+        log.info("Update timesheet entry requested. employeeId={}, entryId={}", me.getUserId(), entryId);
+
         TimesheetEntry existing = entryRepository.findByTimesheetEntryIdAndTimesheetEmployeeUserId(entryId, me.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Timesheet entry not found with id: " + entryId));
+                .orElseThrow(() -> {
+                    log.warn("Timesheet entry not found for update. employeeId={}, entryId={}",
+                            me.getUserId(), entryId);
+                    return new ResourceNotFoundException("Timesheet entry not found with id: " + entryId);
+                });
 
         Timesheet timesheet = existing.getTimesheet();
         ensureEditableAndResetIfRejected(timesheet);
 
         if (request.getDate().getMonthValue() != timesheet.getMonth()
                 || request.getDate().getYear() != timesheet.getYear()) {
+            log.warn("Entry date moved outside timesheet month/year. employeeId={}, entryId={}, requestDate={}, timesheetMonth={}, timesheetYear={}",
+                    me.getUserId(), entryId, request.getDate(), timesheet.getMonth(), timesheet.getYear());
             throw new IllegalArgumentException("Entry date must remain within same timesheet month/year.");
         }
 
+        int newTotalMinutes = (request.getHours() * 60) + request.getMinutes();
+
         existing.setDate(request.getDate());
         existing.setTaskDescription(request.getTaskDescription());
-        existing.setHoursWorked(request.getHoursWorked());
+        existing.setTotalMinutesWorked(newTotalMinutes);
         existing.setProjectId(request.getProjectId());
         existing.setProjectName(request.getProjectName());
 
         TimesheetEntry saved = entryRepository.save(existing);
         recalculateTotalHours(timesheet);
+
+        log.info("Timesheet entry updated. employeeId={}, timesheetId={}, entryId={}, totalMinutes={}",
+                me.getUserId(), timesheet.getTimesheetId(), entryId, newTotalMinutes);
 
         return timesheetEntryMapper.mapToResponse(saved);
     }
@@ -125,22 +161,33 @@ public class TimesheetEntryServiceImpl implements ITimesheetEntryService {
     public void deleteMyEntry(Long entryId) {
         Employee me = securityUtils.getLoggedInEmployee();
 
+        log.info("Delete timesheet entry requested. employeeId={}, entryId={}", me.getUserId(), entryId);
+
         TimesheetEntry existing = entryRepository.findByTimesheetEntryIdAndTimesheetEmployeeUserId(entryId, me.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Timesheet entry not found with id: " + entryId));
+                .orElseThrow(() -> {
+                    log.warn("Timesheet entry not found for delete. employeeId={}, entryId={}",
+                            me.getUserId(), entryId);
+                    return new ResourceNotFoundException("Timesheet entry not found with id: " + entryId);
+                });
 
         Timesheet timesheet = existing.getTimesheet();
         ensureEditableAndResetIfRejected(timesheet);
 
         entryRepository.delete(existing);
         recalculateTotalHours(timesheet);
+
+        log.info("Timesheet entry deleted. employeeId={}, timesheetId={}, entryId={}",
+                me.getUserId(), timesheet.getTimesheetId(), entryId);
     }
 
     private void ensureEditableAndResetIfRejected(Timesheet timesheet) {
         if (timesheet.getStatus() == TimesheetStatus.SUBMITTED || timesheet.getStatus() == TimesheetStatus.APPROVED) {
+            log.warn("Timesheet not editable. timesheetId={}, status={}", timesheet.getTimesheetId(), timesheet.getStatus());
             throw new InvalidTimesheetStateException("Cannot modify entries. Timesheet is already SUBMITTED/APPROVED");
         }
 
         if (timesheet.getStatus() == TimesheetStatus.REJECTED) {
+            log.info("Rejected timesheet reset to DRAFT before edit. timesheetId={}", timesheet.getTimesheetId());
             timesheet.setStatus(TimesheetStatus.DRAFT);
             timesheet.setSubmittedAt(null);
             timesheet.setApprovedBy(null);
@@ -151,13 +198,16 @@ public class TimesheetEntryServiceImpl implements ITimesheetEntryService {
     }
 
     private void recalculateTotalHours(Timesheet timesheet) {
-        double total = entryRepository.findByTimesheetTimesheetIdOrderByDateAsc(timesheet.getTimesheetId())
+        int total = entryRepository.findByTimesheetTimesheetIdOrderByDateAsc(timesheet.getTimesheetId())
                 .stream()
-                .map(TimesheetEntry::getHoursWorked)
-                .filter(h -> h != null)
-                .reduce(0.0, Double::sum);
+                .map(TimesheetEntry::getTotalMinutesWorked)
+                .filter(m -> m != null)
+                .reduce(0, Integer::sum);
 
-        timesheet.setTotalMonthlyHours(total);
+        timesheet.setTotalMonthlyMinutes(total);
         timesheetRepository.save(timesheet);
+
+        log.debug("Timesheet total recalculated. timesheetId={}, totalMonthlyMinutes={}",
+                timesheet.getTimesheetId(), total);
     }
 }

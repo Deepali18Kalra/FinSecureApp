@@ -24,7 +24,7 @@ public class TimesheetEntry {
 	
 	private LocalDate date;
 	private String taskDescription;
-	private Double hoursWorked;
+	private Integer totalMinutesWorked;
 	private Long projectId;
 	private String projectName;
 }

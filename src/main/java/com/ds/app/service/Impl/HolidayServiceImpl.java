@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.Year;
 import java.util.List;
 
@@ -25,7 +26,6 @@ public class HolidayServiceImpl implements IHolidayService {
     @Transactional
     public HolidayResponse createHoliday(HolidayRequest request) {
 
-        // check if a holiday already exists on this date
         if (holidayRepository.existsByDate(request.getDate())) {
             throw new IllegalStateException(
                     "A holiday already exists on date: " + request.getDate());
@@ -49,12 +49,16 @@ public class HolidayServiceImpl implements IHolidayService {
     @Override
     public List<HolidayResponse> getHolidaysByYear(Integer year) {
 
-        // default to current year if not provided
         int targetYear = (year != null) ? year : Year.now().getValue();
 
         return holidayRepository.findByYear(targetYear)
                 .stream()
                 .map(holidayMapper::mapToResponse)
                 .toList();
+    }
+
+    @Override
+    public boolean isHoliday(LocalDate date) {
+        return holidayRepository.existsByDate(date);
     }
 }

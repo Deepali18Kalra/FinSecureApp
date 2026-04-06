@@ -20,11 +20,16 @@ public class TimesheetEntryRequest {
 	
 	@NotBlank(message = "Task description is required")
 	private String taskDescription;
-	
-	@NotNull(message = "Hours worked is required")
-	@Positive(message = "Hours worked must be greater than 0")
-	@DecimalMax(value = "24.0", message = "Hours worked cannot exeed 24")
-	private Double hoursWorked;
+
+    @NotNull(message = "Hours are required")
+    @Min(value = 0, message = "Hours cannot be negative")
+    @Max(value = 24, message = "Hours cannot exceed 24")
+    private Integer hours;
+
+    @NotNull(message = "Minutes are required")
+    @Min(value = 0, message = "Minutes cannot be negative")
+    @Max(value = 59, message = "Minutes must be between 0 and 59")
+    private Integer minutes;
 	
 	private Long projectId;
 	

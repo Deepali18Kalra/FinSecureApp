@@ -25,6 +25,7 @@ public class TimesheetResponse {
 	private String approvedByName;
 	private LocalDate approvalDate;
 	private String rejectionReason;
-	private Integer totalMonthlyHours;
+    private Integer totalMonthlyMinutes;
+    private String formattedTotalTime;
 	private List<TimesheetEntryResponse> entries;
 }

@@ -4,227 +4,180 @@ import com.ds.app.entity.*;
 import com.ds.app.enums.*;
 import com.ds.app.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.Year;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DataSeeder implements CommandLineRunner {
 
-    private final iAppUserRepository appUserRepository;
-    private final IAttendanceRepository attendanceRepository;
-    private final ILeaveRepository leaveRepository;
-    private final ILeaveBalanceRepository leaveBalanceRepository;
-    private final IHolidayRepository holidayRepository;
-    private final ITimesheetRepository timesheetRepository;
+    private final IEmployeeRepository employeeRepo;
+    private final IAttendanceRepository attendanceRepo;
+    private final ILeaveBalanceRepository leaveBalanceRepo;
+    private final ILeaveRepository leaveRepo;
+    private final IRegularizationRequestRepository regularizationRepo;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
-    public void run(String... args) {
-        if (appUserRepository.count() > 0) {
-            System.out.println("Data already seeded, skipping...");
+    public void run(String... args) throws Exception {
+        if (employeeRepo.count() > 0) {
+            log.info("Database already populated. Skipping demo data seeder.");
             return;
         }
 
-        int currentYear = Year.now().getValue();
+        log.info("Starting massive data generation (Users, Balances, Attendance, Leaves, Regularizations)...");
+        String defaultPass = passwordEncoder.encode("password123");
 
-        // 1) Managers
-        Employee hr1 = buildUser("manish_mngr", "pass123mngr", "Manish", "Sharma", "mayanksharma00819@gmail.com", UserRole.MANAGER, null);
-        Employee hr2 = buildUser("neha_mngr", "pass123mngr", "Neha", "Verma", "neha@gamil.com", UserRole.MANAGER, null);
-        hr1 = (Employee) appUserRepository.save(hr1);
-        hr2 = (Employee) appUserRepository.save(hr2);
+        // 1. Create HR
+        Employee hr = createEmployee("Sarah", "Connor", "hr@company.com", "sarah_hr", defaultPass, UserRole.HR, null);
 
-        // 2) Employees
-        Employee e1 = buildUser("mayank", "pass123", "Mayank", "Singh", "mayanksharma00918@gmail.com", UserRole.EMPLOYEE, hr1);
-        Employee e2 = buildUser("riya", "pass123", "Riya", "Kapoor", "riya@gamil.com", UserRole.EMPLOYEE, hr1);
-        Employee e3 = buildUser("arjun", "pass123", "Arjun", "Mehta","arjun@gamil.com", UserRole.EMPLOYEE, hr1);
-        Employee e4 = buildUser("kavya", "pass123", "Kavya", "Nair","kavya@gamil.com", UserRole.EMPLOYEE, hr2);
-        Employee e5 = buildUser("rohit", "pass123", "Rohit", "Gupta","rohit@gamil.com", UserRole.EMPLOYEE, hr2);
-        Employee e6 = buildUser("sana", "pass123", "Sana", "Khan","sana@gamil.com", UserRole.EMPLOYEE, hr2);
+        // 2. Create 3 Managers
+        Employee m1 = createEmployee("Michael", "Scott", "mscott@company.com", "mscott", defaultPass, UserRole.MANAGER, hr);
+        Employee m2 = createEmployee("Ron", "Swanson", "rswanson@company.com", "rswanson", defaultPass, UserRole.MANAGER, hr);
+        Employee m3 = createEmployee("Leslie", "Knope", "lknope@company.com", "lknope", defaultPass, UserRole.MANAGER, hr);
+        List<Employee> managers = List.of(m1, m2, m3);
 
-        List<Employee> employees = appUserRepository.saveAll(List.of(e1, e2, e3, e4, e5, e6))
-                .stream().map(u -> (Employee) u).toList();
+        // 3. Create 15 Employees distributed under Managers
+        List<Employee> allStaff = new ArrayList<>();
+        allStaff.add(hr);
+        allStaff.addAll(managers);
 
-        // 3) Holidays
-        seedHolidays(currentYear);
-
-        // 4) Initial LeaveBalance for each employee
-        for (Employee emp : employees) {
-            leaveBalanceRepository.save(
-                    LeaveBalance.builder()
-                            .employee(emp)
-                            .year(currentYear)
-                            .sickLeaveBalance(10)
-                            .casualLeaveBalance(8)
-                            .earnedLeaveBalance(BigDecimal.ZERO)
-                            .reservedSickLeaves(0)
-                            .reservedCasualLeaves(0)
-                            .reservedEarnedLeaves(0)
-                            .sickLeavesConsumed(0)
-                            .casualLeavesConsumed(0)
-                            .earnedLeavesConsumed(0)
-                            .carriedForwardEarnedDays(BigDecimal.ZERO)
-                            .build()
-            );
+        for (int i = 1; i <= 15; i++) {
+            Employee managerForThisEmp = managers.get(i % 3);
+            Employee emp = createEmployee("Employee" + i, "Test" + i, "emp" + i + "@company.com", "emp" + i, defaultPass, UserRole.EMPLOYEE, managerForThisEmp);
+            allStaff.add(emp);
         }
 
-        // 5) Attendance + Leave + Timesheet sample
+        // 4. Seed Balances
+        seedLeaveBalances(allStaff, LocalDate.now().getYear());
+
+        // 5. Seed Daily Records (Attendance, Leaves, Regularizations)
+        seedDailyRecords(allStaff, LocalDate.of(2026, 3, 1));
+
+        log.info("Demo data seeding complete! You can log in with any username and password: 'password123'");
+    }
+
+    private Employee createEmployee(String first, String last, String email, String username, String pass, UserRole role, Employee manager) {
+        Employee emp = new Employee();
+        // Base AppUser fields
+        emp.setUsername(username);
+        emp.setPassword(pass);
+        emp.setRole(role);
+        emp.setFailedLoginAttemptsCount(0);
+        emp.setIsAccountLocked(false);
+        // Employee specific fields
+        emp.setFirstName(first);
+        emp.setLastName(last);
+        emp.setEmail(email);
+        emp.setManager(manager);
+
+        return employeeRepo.save(emp);
+    }
+
+    private void seedLeaveBalances(List<Employee> employees, int year) {
+        List<LeaveBalance> balances = new ArrayList<>();
         for (Employee emp : employees) {
-            seedAttendance(emp);
-            seedLeavesAndSyncBalance(emp, emp.getManager(), currentYear);
-            seedPreviousMonthTimesheet(emp);
+            LeaveBalance balance = LeaveBalance.builder()
+                    .employee(emp)
+                    .year(year)
+                    .casualLeaveBalance(8)
+                    .sickLeaveBalance(10)
+                    .earnedLeaveBalance(BigDecimal.valueOf(12.5))
+                    .build();
+            balances.add(balance);
+        }
+        leaveBalanceRepo.saveAll(balances);
+    }
+
+    private void seedDailyRecords(List<Employee> employees, LocalDate startDate) {
+        LocalDate endDate = LocalDate.now().minusDays(1);
+        Random random = new Random();
+
+        List<Attendance> attendanceBatch = new ArrayList<>();
+        List<Leave> leaveBatch = new ArrayList<>();
+        List<RegularizationRequest> regBatch = new ArrayList<>();
+
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            // Skip Weekends
+            if (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                continue;
+            }
+
+            for (Employee emp : employees) {
+                int chance = random.nextInt(100);
+
+                if (chance < 80) {
+                    // 80% chance: Normal Present Day
+                    attendanceBatch.add(Attendance.builder()
+                            .employee(emp).date(date).status(AttendanceStatus.PRESENT)
+                            .punchInTime(LocalTime.of(9, random.nextInt(15)))
+                            .punchOutTime(LocalTime.of(18, random.nextInt(30)))
+                            .totalMinutesWorked(540).isLate(false).isRegularized(false)
+                            .build());
+
+                } else if (chance < 85) {
+                    // 5% chance: Late Arrival
+                    attendanceBatch.add(Attendance.builder()
+                            .employee(emp).date(date).status(AttendanceStatus.PRESENT)
+                            .punchInTime(LocalTime.of(10, 30))
+                            .punchOutTime(LocalTime.of(18, 0))
+                            .totalMinutesWorked(450).isLate(true).isRegularized(false)
+                            .build());
+
+                } else if (chance < 90) {
+                    // 5% chance: Missed Swipe + Create a PENDING Regularization Request
+                    attendanceBatch.add(Attendance.builder()
+                            .employee(emp).date(date).status(AttendanceStatus.MISS_SWIPE)
+                            .punchInTime(LocalTime.of(9, 0)).punchOutTime(null)
+                            .totalMinutesWorked(0).isLate(false).isRegularized(false)
+                            .build());
+
+                    // Generate the regularization request for the manager to approve later
+                    regBatch.add(RegularizationRequest.builder()
+                            .employee(emp).date(date).reason("Forgot to punch out due to client meeting")
+                            .punchInTime(LocalTime.of(9, 0)).punchOutTime(LocalTime.of(18, 0))
+                            .status(RegularizationRequestStatus.PENDING)
+                            .build());
+
+                } else {
+                    // 10% chance: On Leave (Randomly Sick or Casual)
+                    LeaveType type = random.nextBoolean() ? LeaveType.SICK : LeaveType.CASUAL;
+                    boolean isApproved = random.nextBoolean(); // Mix of approved and pending leaves
+
+                    attendanceBatch.add(Attendance.builder()
+                            .employee(emp).date(date).status(AttendanceStatus.ABSENT)
+                            .totalMinutesWorked(0).isLate(false).isRegularized(false)
+                            .build());
+
+                    leaveBatch.add(Leave.builder()
+                            .employee(emp).startDate(date).endDate(date).totalDays(1)
+                            .reasonForLeave("Not feeling well / Personal work")
+                            .leaveType(type)
+                            .status(isApproved ? LeaveStatus.APPROVED : LeaveStatus.PENDING)
+                            .approvedBy(isApproved ? emp.getManager() : null)
+                            .approvalDate(isApproved ? date.minusDays(1) : null)
+                            .build());
+                }
+            }
         }
 
-        System.out.println("✅ Seeding complete!");
-        System.out.println("HR Login → username: manish_hr | password: pass123hr");
-        System.out.println("HR Login → username: neha_hr   | password: pass123hr");
-        System.out.println("EMP Login → username: mayank   | password: pass123");
-    }
-
-    private Employee buildUser(String username, String rawPassword, String firstName, String lastName, String email,
-                               UserRole role, Employee hr) {
-        Employee user = new Employee();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(rawPassword));
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setRole(role);
-        user.setFailedLoginAttemptsCount(0);
-        user.setIsAccountLocked(false);
-        user.setManager(hr);
-        return user;
-    }
-
-    private void seedAttendance(Employee employee) {
-
-        Attendance presentYesterday = Attendance.builder()
-                .employee(employee)
-                .date(LocalDate.now().minusDays(1))
-                .punchInTime(LocalTime.of(9, 5))
-                .punchOutTime(LocalTime.of(18, 15))
-                .status(AttendanceStatus.PRESENT)
-                .hoursWorked(9.17)
-                .isRegularized(false)
-                .build();
-
-        Attendance halfDay = Attendance.builder()
-                .employee(employee)
-                .date(LocalDate.now().minusDays(2))
-                .punchInTime(LocalTime.of(10, 0))
-                .punchOutTime(LocalTime.of(13, 0))
-                .status(AttendanceStatus.HALF_DAY_PRESENT)
-                .hoursWorked(3.0)
-                .isRegularized(false)
-                .build();
-
-        Attendance absent = Attendance.builder()
-                .employee(employee)
-                .date(LocalDate.now().minusDays(3))
-                .status(AttendanceStatus.ABSENT)
-                .hoursWorked(0.0)
-                .isRegularized(false)
-                .build();
-
-        attendanceRepository.saveAll(List.of(presentYesterday, halfDay, absent));
-    }
-
-    private void seedLeavesAndSyncBalance(Employee employee, Employee approverHr, int year) {
-        Leave pending = Leave.builder()
-                .employee(employee)
-                .startDate(LocalDate.now().plusDays(2))
-                .endDate(LocalDate.now().plusDays(3))
-                .totalDays(2)
-                .leaveType(LeaveType.CASUAL)
-                .reasonForLeave("Personal work")
-                .status(LeaveStatus.PENDING)
-                .build();
-
-        Leave approved = Leave.builder()
-                .employee(employee)
-                .startDate(LocalDate.now().minusDays(10))
-                .endDate(LocalDate.now().minusDays(9))
-                .totalDays(2)
-                .leaveType(LeaveType.SICK)
-                .reasonForLeave("Fever")
-                .status(LeaveStatus.APPROVED)
-                .approvedBy(approverHr)
-                .approvalDate(LocalDate.now().minusDays(11))
-                .build();
-
-        Leave rejected = Leave.builder()
-                .employee(employee)
-                .startDate(LocalDate.now().minusDays(5))
-                .endDate(LocalDate.now().minusDays(5))
-                .totalDays(1)
-                .leaveType(LeaveType.CASUAL)
-                .reasonForLeave("Family function")
-                .status(LeaveStatus.REJECTED)
-                .approvedBy(approverHr)
-                .approvalDate(LocalDate.now().minusDays(6))
-                .rejectionReason("Team bandwidth is low for that date")
-                .build();
-
-        leaveRepository.saveAll(List.of(pending, approved, rejected));
-
-        LeaveBalance lb = leaveBalanceRepository.findByEmployeeUserIdAndYear(employee.getUserId(), year)
-                .orElseThrow(() -> new IllegalStateException("Leave balance missing for user: " + employee.getUserId()));
-
-        // pending casual (2) => reserve
-        lb.setReservedCasualLeaves(lb.getReservedCasualLeaves() + 2);
-
-        // approved sick (2) => deduct + consumed
-        lb.setSickLeaveBalance(lb.getSickLeaveBalance() - 2);
-        lb.setSickLeavesConsumed(lb.getSickLeavesConsumed() + 2);
-
-        leaveBalanceRepository.save(lb);
-    }
-
-    private void seedHolidays(int year) {
-        holidayRepository.saveAll(List.of(
-                Holiday.builder().date(LocalDate.of(year, 1, 26)).name("Republic Day").type(HolidayType.NATIONAL).build(),
-                Holiday.builder().date(LocalDate.of(year, 8, 15)).name("Independence Day").type(HolidayType.NATIONAL).build(),
-                Holiday.builder().date(LocalDate.of(year, 10, 2)).name("Gandhi Jayanti").type(HolidayType.NATIONAL).build(),
-                Holiday.builder().date(LocalDate.of(year, 11, 14)).name("Children's Day").type(HolidayType.OPTIONAL).build()
-        ));
-    }
-
-    private void seedPreviousMonthTimesheet(Employee employee) {
-        YearMonth prev = YearMonth.now().minusMonths(1);
-
-        Timesheet ts = Timesheet.builder()
-                .employee(employee)
-                .month(prev.getMonthValue())
-                .year(prev.getYear())
-                .status(TimesheetStatus.APPROVED)
-                .submittedAt(prev.atEndOfMonth().atTime(18, 0))
-                .approvedBy(employee.getManager())
-                .approvalDate(LocalDate.now().minusDays(2))
-                .totalMonthlyHours(0.0)
-                .timesheetEntries(new ArrayList<>())
-                .build();
-
-        List<TimesheetEntry> entries = new ArrayList<>();
-        entries.add(TimesheetEntry.builder().timesheet(ts).date(prev.atDay(3)).taskDescription("Backend API").hoursWorked(8.0).projectId(101L).projectName("DMS").build());
-        entries.add(TimesheetEntry.builder().timesheet(ts).date(prev.atDay(4)).taskDescription("Bug fixing").hoursWorked(3.5).projectId(101L).projectName("DMS").build());
-        entries.add(TimesheetEntry.builder().timesheet(ts).date(prev.atDay(5)).taskDescription("Unit testing").hoursWorked(6.0).projectId(102L).projectName("EMS").build());
-
-        double totalHours = entries.stream().mapToDouble(TimesheetEntry::getHoursWorked).sum();
-
-        ts.setTimesheetEntries(entries);
-        ts.setTotalMonthlyHours(totalHours);
-
-        timesheetRepository.save(ts);
+        // Save everything to the database in bulk
+        attendanceRepo.saveAll(attendanceBatch);
+        leaveRepo.saveAll(leaveBatch);
+        regularizationRepo.saveAll(regBatch);
     }
 }

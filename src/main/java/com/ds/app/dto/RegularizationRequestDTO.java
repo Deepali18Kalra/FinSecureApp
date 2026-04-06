@@ -14,7 +14,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegularizationRequestdto {
+public class RegularizationRequestDTO {
 	
 	@NotNull(message = "Date is required")
 	private LocalDate date;

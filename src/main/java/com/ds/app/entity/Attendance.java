@@ -32,7 +32,10 @@ public class Attendance {
 	@Enumerated(EnumType.STRING)
 	private AttendanceStatus status = AttendanceStatus.MISS_SWIPE;
 
-	private Double hoursWorked;
+	private Integer totalMinutesWorked;
+
+    @Builder.Default
+    private Boolean isLate = false;
 
 	@Builder.Default
 	private Boolean isRegularized = false;

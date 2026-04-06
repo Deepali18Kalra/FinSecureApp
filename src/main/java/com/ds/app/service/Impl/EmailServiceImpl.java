@@ -101,9 +101,7 @@ public class EmailServiceImpl implements IEmailService {
         sendPlainText(employee.getEmail(), subject, body);
     }
 
-    // =========================
-    // Regularization notifications (no cancellation flow)
-    // =========================
+    // Regularization notifications
 
     @Override
     public void notifyManagerForNewRegularization(Employee employee, RegularizationRequest regularizationRequest) {
@@ -141,9 +139,7 @@ public class EmailServiceImpl implements IEmailService {
         sendPlainText(employee.getEmail(), subject, body);
     }
 
-    // =========================
     // Timesheet notifications
-    // =========================
 
     @Override
     public void notifyManagerForTimesheetSubmission(Employee employee, Timesheet timesheet) {
@@ -154,7 +150,7 @@ public class EmailServiceImpl implements IEmailService {
         String body = "Hello " + manager.getFirstName() + ",\n\n"
                 + employee.getFirstName() + " " + employee.getLastName() + " has submitted a timesheet.\n\n"
                 + "Month/Year: " + timesheet.getMonth() + "/" + timesheet.getYear() + "\n"
-                + "Total Hours: " + timesheet.getTotalMonthlyHours() + "\n"
+                + "Total Hours: " + timesheet.getTotalMonthlyMinutes()/60 + "\n"
                 + "Status: " + timesheet.getStatus() + "\n\n"
                 + "Please review it in the portal.";
         sendPlainText(manager.getEmail(), subject, body);
@@ -168,7 +164,7 @@ public class EmailServiceImpl implements IEmailService {
         String body = "Hello " + employee.getFirstName() + ",\n\n"
                 + "Your timesheet has been " + timesheet.getStatus() + ".\n\n"
                 + "Month/Year: " + timesheet.getMonth() + "/" + timesheet.getYear() + "\n"
-                + "Total Hours: " + timesheet.getTotalMonthlyHours() + "\n"
+                + "Total Hours: " + timesheet.getTotalMonthlyMinutes()/60 + "\n"
                 + (timesheet.getStatus().name().equals("REJECTED")
                 ? "Reason: " + (timesheet.getRejectionReason() == null ? "" : timesheet.getRejectionReason()) + "\n"
                 : "")

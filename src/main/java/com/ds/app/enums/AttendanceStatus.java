@@ -6,5 +6,4 @@ public enum AttendanceStatus {
 	HALF_DAY_PRESENT,
 	PRESENT,
 	MANUAL_PUNCH,
-    LATE,
 }

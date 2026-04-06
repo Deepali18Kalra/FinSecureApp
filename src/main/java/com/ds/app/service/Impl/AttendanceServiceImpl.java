@@ -1,6 +1,8 @@
 package com.ds.app.service.Impl;
 
 import com.ds.app.dto.AttendanceResponse;
+import com.ds.app.dto.MonthlyAttendanceReport;
+import com.ds.app.dto.TeamAttendanceReportRow;
 import com.ds.app.entity.Attendance;
 import com.ds.app.entity.Employee;
 import com.ds.app.enums.AttendanceStatus;
@@ -11,8 +13,9 @@ import com.ds.app.repository.IAttendanceRepository;
 import com.ds.app.repository.IEmployeeRepository;
 import com.ds.app.service.IAttendanceService;
 import com.ds.app.utils.SecurityUtils;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,7 +27,8 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AttendanceServiceImpl implements IAttendanceService{
+@Slf4j
+public class AttendanceServiceImpl implements IAttendanceService {
 
     private final SecurityUtils securityUtil;
     private final IAttendanceRepository attendanceRepo;
@@ -34,18 +38,33 @@ public class AttendanceServiceImpl implements IAttendanceService{
     // Employee related methods
 
     @Override
+    @Transactional
     public AttendanceResponse punchIn() {
         Employee loggedInEmp = securityUtil.getLoggedInEmployee();
+        log.info("Punch-in requested. employeeId={}, date={}", loggedInEmp.getUserId(), LocalDate.now());
 
-        Attendance savedAttendance = attendanceRepo.findByEmployeeUserIdAndDate(loggedInEmp.getUserId(),LocalDate.now())
+        Attendance savedAttendance = attendanceRepo.findByEmployeeUserIdAndDate(loggedInEmp.getUserId(), LocalDate.now())
                 .orElseGet(() -> {
+                    LocalTime now = LocalTime.now();
+                    LocalTime threshold = LocalTime.of(12, 0);
+
+                    boolean isLateArrival = now.isAfter(threshold);
+
                     Attendance todayAttendance = Attendance.builder()
                             .employee(loggedInEmp)
                             .date(LocalDate.now())
-                            .punchInTime(LocalTime.now())
+                            .punchInTime(now)
+                            .isLate(isLateArrival)
                             .build();
+
+                    log.debug("Creating new attendance row on punch-in. employeeId={}, isLate={}",
+                            loggedInEmp.getUserId(), isLateArrival);
+
                     return attendanceRepo.save(todayAttendance);
                 });
+
+        log.info("Punch-in processed. employeeId={}, attendanceId={}, punchInTime={}",
+                loggedInEmp.getUserId(), savedAttendance.getAttendanceId(), savedAttendance.getPunchInTime());
 
         return attendanceMapper.mapToResponse(savedAttendance);
     }
@@ -54,33 +73,50 @@ public class AttendanceServiceImpl implements IAttendanceService{
     @Transactional
     public AttendanceResponse punchOut() {
         Employee loggedInEmp = securityUtil.getLoggedInEmployee();
+        log.info("Punch-out requested. employeeId={}, date={}", loggedInEmp.getUserId(), LocalDate.now());
+
         Attendance todayAttendance = attendanceRepo.findByEmployeeUserIdAndDate(loggedInEmp.getUserId(), LocalDate.now())
-                .orElseGet( () -> {
+                .orElseGet(() -> {
+                    log.warn("No attendance row found at punch-out; creating new row. employeeId={}, date={}",
+                            loggedInEmp.getUserId(), LocalDate.now());
+
                     Attendance newTodayAttendance = Attendance.builder()
                             .employee(loggedInEmp)
                             .date(LocalDate.now())
                             .build();
                     return attendanceRepo.save(newTodayAttendance);
                 });
+
         if (todayAttendance.getPunchOutTime() != null) {
+            log.info("Punch-out already exists. employeeId={}, attendanceId={}, punchOutTime={}",
+                    loggedInEmp.getUserId(), todayAttendance.getAttendanceId(), todayAttendance.getPunchOutTime());
             return attendanceMapper.mapToResponse(todayAttendance);
         }
 
         todayAttendance.setPunchOutTime(LocalTime.now());
 
-        if(todayAttendance.getPunchInTime() != null) {
+        if (todayAttendance.getPunchInTime() != null) {
             Duration duration = Duration.between(todayAttendance.getPunchInTime(), todayAttendance.getPunchOutTime());
-            double hoursWorked = duration.toMillis() / 3600000.0;
-            todayAttendance.setHoursWorked(hoursWorked);
+            int totalMinutesWorked = (int) duration.toMinutes();
+            todayAttendance.setTotalMinutesWorked(totalMinutesWorked);
 
             AttendanceStatus todayStatus;
-            if(hoursWorked >= 4) {
+            if (totalMinutesWorked >= 240) {
                 todayStatus = AttendanceStatus.PRESENT;
-            }else {
+            } else {
                 todayStatus = AttendanceStatus.HALF_DAY_PRESENT;
             }
             todayAttendance.setStatus(todayStatus);
+
+            log.debug("Punch-out computed. employeeId={}, attendanceId={}, totalMinutesWorked={}, status={}",
+                    loggedInEmp.getUserId(), todayAttendance.getAttendanceId(), totalMinutesWorked, todayStatus);
+        } else {
+            log.warn("Punch-out without punch-in detected. employeeId={}, attendanceId={}",
+                    loggedInEmp.getUserId(), todayAttendance.getAttendanceId());
         }
+
+        log.info("Punch-out processed. employeeId={}, attendanceId={}, punchOutTime={}",
+                loggedInEmp.getUserId(), todayAttendance.getAttendanceId(), todayAttendance.getPunchOutTime());
 
         return attendanceMapper.mapToResponse(todayAttendance);
     }
@@ -88,18 +124,31 @@ public class AttendanceServiceImpl implements IAttendanceService{
     @Override
     public List<AttendanceResponse> getMyAttendance(Integer month, Integer year) {
         Employee loggedInEmp = securityUtil.getLoggedInEmployee();
-        List<Attendance> attendanceList = attendanceRepo.findAttendanceByEmployeeUserIdAndMonthAndYear(loggedInEmp.getUserId(), month, year);
+        log.info("Fetching self attendance list. employeeId={}, month={}, year={}",
+                loggedInEmp.getUserId(), month, year);
+
+        List<Attendance> attendanceList =
+                attendanceRepo.findAttendanceByEmployeeUserIdAndMonthAndYear(loggedInEmp.getUserId(), month, year);
+
+        log.debug("Self attendance fetched. employeeId={}, records={}",
+                loggedInEmp.getUserId(), attendanceList.size());
+
         return attendanceList.stream()
-                .map(attendance -> attendanceMapper.mapToResponse(attendance))
+                .map(attendanceMapper::mapToResponse)
                 .toList();
     }
 
     @Override
     public AttendanceResponse getMyAttendanceByDate(LocalDate date) {
         Employee emp = securityUtil.getLoggedInEmployee();
+        log.info("Fetching self attendance by date. employeeId={}, date={}", emp.getUserId(), date);
 
         Attendance todayAttendance = attendanceRepo.findByEmployeeUserIdAndDate(emp.getUserId(), date)
-                .orElseThrow( () -> new ResourceNotFoundException("Attendance not found on date: " + date));
+                .orElseThrow(() -> {
+                    log.warn("Attendance not found for self. employeeId={}, date={}", emp.getUserId(), date);
+                    return new ResourceNotFoundException("Attendance not found on date: " + date);
+                });
+
         return attendanceMapper.mapToResponse(todayAttendance);
     }
 
@@ -108,21 +157,104 @@ public class AttendanceServiceImpl implements IAttendanceService{
     @Override
     public Page<AttendanceResponse> getEmployeeAttendance(Long employeeId, Integer month, Integer year, Pageable pageable) {
         Employee emp = employeeRepo.findById(employeeId)
-                .orElseThrow(() ->new ResourceNotFoundException("Employee not found with id: " + employeeId));
+                .orElseThrow(() -> {
+                    log.warn("Employee not found while fetching attendance. employeeId={}", employeeId);
+                    return new ResourceNotFoundException("Employee not found with id: " + employeeId);
+                });
 
         Employee loggedEmployee = securityUtil.getLoggedInEmployee();
 
-        if(!emp.getManager().getUserId().equals(loggedEmployee.getUserId())) {
+        if (emp.getManager() == null || !emp.getManager().getUserId().equals(loggedEmployee.getUserId())) {
+            log.warn("Manager access denied for employee attendance. managerId={}, employeeId={}",
+                    loggedEmployee.getUserId(), employeeId);
             throw new ForbiddenException("You are not allowed to view attendance for employee id: " + employeeId);
         }
-        Page<Attendance> attendancePage = attendanceRepo.findAttendanceByEmployeeUserIdAndMonthAndYear(employeeId, month, year, pageable);
-        return attendancePage.map(attendance -> attendanceMapper.mapToResponse(attendance));
+
+        log.info("Manager fetching employee attendance. managerId={}, employeeId={}, month={}, year={}",
+                loggedEmployee.getUserId(), employeeId, month, year);
+
+        Page<Attendance> attendancePage =
+                attendanceRepo.findAttendanceByEmployeeUserIdAndMonthAndYear(employeeId, month, year, pageable);
+
+        return attendancePage.map(attendanceMapper::mapToResponse);
     }
 
     @Override
     public Page<AttendanceResponse> getAllAttendanceByDate(LocalDate date, Pageable pageable) {
-        Employee loggedInHr = securityUtil.getLoggedInEmployee();
-        Page<Attendance> attendanceByDatePage = attendanceRepo.findByEmployee_Manager_UserIdAndDate(loggedInHr.getUserId(),date, pageable);
-        return attendanceByDatePage.map(attendance -> attendanceMapper.mapToResponse(attendance));
+        Employee loggedInManager = securityUtil.getLoggedInEmployee();
+        log.info("Manager fetching team attendance by date. managerId={}, date={}",
+                loggedInManager.getUserId(), date);
+
+        Page<Attendance> attendanceByDatePage =
+                attendanceRepo.findByEmployee_Manager_UserIdAndDate(loggedInManager.getUserId(), date, pageable);
+
+        return attendanceByDatePage.map(attendanceMapper::mapToResponse);
+    }
+
+    @Override
+    public MonthlyAttendanceReport getMyMonthlyAttendanceReport(Integer month, Integer year) {
+        Employee me = securityUtil.getLoggedInEmployee();
+        log.info("Fetching self monthly attendance report. employeeId={}, month={}, year={}",
+                me.getUserId(), month, year);
+        return fetchMonthlyReport(me.getUserId(), month, year);
+    }
+
+    @Override
+    public MonthlyAttendanceReport getEmployeeMonthlyAttendanceReport(Long employeeId, Integer month, Integer year) {
+        Employee targetEmployee = employeeRepo.findById(employeeId)
+                .orElseThrow(() -> {
+                    log.warn("Employee not found while fetching monthly report. employeeId={}", employeeId);
+                    return new ResourceNotFoundException("Employee not found with id: " + employeeId);
+                });
+
+        Employee loggedInManager = securityUtil.getLoggedInEmployee();
+
+        if (targetEmployee.getManager() == null ||
+                !targetEmployee.getManager().getUserId().equals(loggedInManager.getUserId())) {
+            log.warn("Manager access denied for monthly report. managerId={}, employeeId={}",
+                    loggedInManager.getUserId(), employeeId);
+            throw new ForbiddenException("You are not allowed to view monthly report for employee id: " + employeeId);
+        }
+
+        log.info("Manager fetching monthly attendance report. managerId={}, employeeId={}, month={}, year={}",
+                loggedInManager.getUserId(), employeeId, month, year);
+
+        return fetchMonthlyReport(employeeId, month, year);
+    }
+
+    @Override
+    public List<TeamAttendanceReportRow> getTeamAttendanceReport(LocalDate date) {
+        Employee loggedInManager = securityUtil.getLoggedInEmployee();
+        log.info("Manager fetching team daily attendance report. managerId={}, date={}",
+                loggedInManager.getUserId(), date);
+
+        List<TeamAttendanceReportRow> rows = attendanceRepo.findTeamAttendanceReportByManagerAndDate(
+                loggedInManager.getUserId(),
+                date
+        );
+
+        log.debug("Team daily attendance report generated. managerId={}, date={}, rowCount={}",
+                loggedInManager.getUserId(), date, rows.size());
+
+        return rows;
+    }
+
+    private MonthlyAttendanceReport fetchMonthlyReport(Long employeeId, Integer month, Integer year) {
+        MonthlyAttendanceReport report =
+                attendanceRepo.findMonthlyReportByEmployee_UserIdAndMonthAndYear(employeeId, month, year);
+
+        if (report == null) {
+            log.warn("Monthly attendance report not found. employeeId={}, month={}, year={}",
+                    employeeId, month, year);
+            throw new ResourceNotFoundException(
+                    "Monthly attendance report not found for employee id: " + employeeId +
+                            ", month: " + month + ", year: " + year
+            );
+        }
+
+        log.debug("Monthly attendance report fetched. employeeId={}, month={}, year={}",
+                employeeId, month, year);
+
+        return report;
     }
 }

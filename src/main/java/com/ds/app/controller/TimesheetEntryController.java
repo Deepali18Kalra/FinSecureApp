@@ -19,12 +19,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TimesheetEntryController {
 
-    private final ITimesheetEntryService service;
+    private final ITimesheetEntryService timesheetEntryService;
 
     @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @PostMapping
     public ResponseEntity<TimesheetEntryResponse> addMyEntry(@Valid @RequestBody TimesheetEntryRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.addMyEntry(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(timesheetEntryService.addMyEntry(request));
     }
 
     @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
@@ -33,7 +33,7 @@ public class TimesheetEntryController {
             @RequestParam Integer month,
             @RequestParam Integer year
     ) {
-        return ResponseEntity.ok(service.getMyEntries(month, year));
+        return ResponseEntity.ok(timesheetEntryService.getMyEntries(month, year));
     }
 
     @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
@@ -42,7 +42,7 @@ public class TimesheetEntryController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
-        return ResponseEntity.ok(service.getMyEntriesByDateRange(startDate, endDate));
+        return ResponseEntity.ok(timesheetEntryService.getMyEntriesByDateRange(startDate, endDate));
     }
 
     @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
@@ -51,13 +51,13 @@ public class TimesheetEntryController {
             @PathVariable Long entryId,
             @Valid @RequestBody TimesheetEntryRequest request
     ) {
-        return ResponseEntity.ok(service.updateMyEntry(entryId, request));
+        return ResponseEntity.ok(timesheetEntryService.updateMyEntry(entryId, request));
     }
 
     @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @DeleteMapping("/{entryId}")
     public ResponseEntity<Void> deleteMyEntry(@PathVariable Long entryId) {
-        service.deleteMyEntry(entryId);
+        timesheetEntryService.deleteMyEntry(entryId);
         return ResponseEntity.noContent().build();
     }
 }

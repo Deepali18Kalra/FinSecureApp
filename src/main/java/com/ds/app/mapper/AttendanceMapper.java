@@ -7,6 +7,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class AttendanceMapper {
 	public AttendanceResponse mapToResponse(Attendance attendance) {
+
+        int hours = attendance.getTotalMinutesWorked() != null ? attendance.getTotalMinutesWorked() / 60 : 0;
+        int minutes = attendance.getTotalMinutesWorked() != null ? attendance.getTotalMinutesWorked() % 60 : 0;
+
 		return AttendanceResponse.builder()
 				.attendanceId(attendance.getAttendanceId())
 				.employeeId(attendance.getEmployee().getUserId())
@@ -15,7 +19,9 @@ public class AttendanceMapper {
 				.punchInTime(attendance.getPunchInTime())
 				.punchOutTime(attendance.getPunchOutTime())
 				.status(attendance.getStatus())
-				.hoursWorked(attendance.getHoursWorked())
+				.totalMinutesWorked(attendance.getTotalMinutesWorked())
+                .formattedTotalHoursWorked(String.format("%02d:%02d", hours, minutes))
+                .isLate(attendance.getIsLate())
 				.isRegularized(attendance.getIsRegularized())
 				.build();
 	}

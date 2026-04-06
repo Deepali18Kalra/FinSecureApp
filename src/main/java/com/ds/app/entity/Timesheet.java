@@ -41,13 +41,13 @@ public class Timesheet {
 	private LocalDateTime submittedAt;
 	
 	@Builder.Default
-	private Double totalMonthlyHours = 0.0;
+	private Integer totalMonthlyMinutes = 0;
 	
 	@OneToMany(mappedBy = "timesheet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<TimesheetEntry> timesheetEntries;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "approvedBy")
+	@JoinColumn(name = "approved_by")
 	private Employee approvedBy;
 	
 	private LocalDate approvalDate;

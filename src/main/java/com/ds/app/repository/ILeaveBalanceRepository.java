@@ -16,7 +16,6 @@ public interface ILeaveBalanceRepository extends JpaRepository<LeaveBalance, Lon
 
     Optional<LeaveBalance> findByEmployeeUserIdAndYear(Long employeeId, Integer year);
 
-    // get all leave balances for employees under a specific manager for a year
     @Query("""
             select lb from LeaveBalance lb
             where lb.employee.manager.userId = :managerId

@@ -16,7 +16,8 @@ public class TimesheetEntryResponse {
     private Long timesheetId;
     private LocalDate date;
     private String taskDescription;
-    private Double hoursWorked;
+    private Integer totalMinutesWorked;
+    private String formattedTime;
     private Long projectId;
     private String projectName;
 }

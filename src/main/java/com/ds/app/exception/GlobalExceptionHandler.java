@@ -107,7 +107,7 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         return buildErrorResponse(
-                HttpStatus.UNAUTHORIZED,
+                HttpStatus.FORBIDDEN,
                 ex.getMessage(),
                 "UNAUTHORIZED",
                 null,

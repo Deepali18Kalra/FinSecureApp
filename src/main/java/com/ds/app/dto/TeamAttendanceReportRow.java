@@ -13,16 +13,13 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AttendanceResponse {
-    private Long attendanceId;
+public class TeamAttendanceReportRow {
     private Long employeeId;
     private String employeeName;
     private LocalDate date;
+    private AttendanceStatus status;
     private LocalTime punchInTime;
     private LocalTime punchOutTime;
-    private AttendanceStatus status;
     private Integer totalMinutesWorked;
-    private String formattedTotalHoursWorked;
-    private boolean isLate;
-    private Boolean isRegularized;
+    private Boolean isLate;
 }

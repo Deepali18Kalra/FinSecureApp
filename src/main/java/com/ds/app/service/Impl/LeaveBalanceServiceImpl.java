@@ -28,10 +28,6 @@ public class LeaveBalanceServiceImpl implements ILeaveBalanceService {
     private final LeaveBalanceMapper leaveBalanceMapper;
     private final SecurityUtils securityUtils;
 
-    // ──────────────────────────────────────────────
-    // Internal methods (used by LeaveService)
-    // ──────────────────────────────────────────────
-
     @Override
     public void reserveLeaves(Long userId, int year, LeaveType type, int days) {
         if (type == LeaveType.UNPAID) return;
@@ -133,10 +129,6 @@ public class LeaveBalanceServiceImpl implements ILeaveBalanceService {
         }
     }
 
-    // ──────────────────────────────────────────────
-    // Read methods (exposed via controller)
-    // ──────────────────────────────────────────────
-
     @Override
     public LeaveBalanceResponse getMyLeaveBalance(Integer year) {
         Employee me = securityUtils.getLoggedInEmployee();
@@ -170,10 +162,6 @@ public class LeaveBalanceServiceImpl implements ILeaveBalanceService {
                 .map(leaveBalanceMapper::mapToResponse)
                 .toList();
     }
-
-    // ──────────────────────────────────────────────
-    // Private helper
-    // ──────────────────────────────────────────────
 
     private LeaveBalance findByEmployeeAndYear(Long userId, int year) {
         return leaveBalanceRepository.findByEmployeeUserIdAndYear(userId, year)

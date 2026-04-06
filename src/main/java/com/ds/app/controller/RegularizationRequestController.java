@@ -1,7 +1,7 @@
 package com.ds.app.controller;
 
 import com.ds.app.dto.ApprovalRequest;
-import com.ds.app.dto.RegularizationRequestdto;
+import com.ds.app.dto.RegularizationRequestDTO;
 import com.ds.app.dto.RegularizationResponse;
 import com.ds.app.enums.RegularizationRequestStatus;
 import com.ds.app.service.IRegularizationRequestService;
@@ -26,9 +26,9 @@ public class RegularizationRequestController {
     @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @PostMapping
     public ResponseEntity<RegularizationResponse> applyRegularization(
-            @Valid @RequestBody RegularizationRequestdto request
+            @Valid @RequestBody RegularizationRequestDTO request
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(regularizationService.applyRegularization(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(regularizationService.applyForRegularization(request));
     }
 
     @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
@@ -43,8 +43,8 @@ public class RegularizationRequestController {
     
     @PreAuthorize("hasAuthority('MANAGER')")
     @GetMapping("/pending")
-    public ResponseEntity<List<RegularizationResponse>> getPendingRegularizationsForHr() {
-        return ResponseEntity.ok(regularizationService.getPendingRegularizationsForHr());
+    public ResponseEntity<List<RegularizationResponse>> getPendingRegularizationsForManager() {
+        return ResponseEntity.ok(regularizationService.getPendingRegularizationsForManager());
     }
 
     @PreAuthorize("hasAuthority('MANAGER')")
@@ -53,6 +53,6 @@ public class RegularizationRequestController {
             @PathVariable Long requestId,
             @Valid @RequestBody ApprovalRequest request
     ) {
-        return ResponseEntity.ok(regularizationService.reviewRegularization(requestId, request));
+        return ResponseEntity.ok(regularizationService.processRegularization(requestId, request));
     }
 }

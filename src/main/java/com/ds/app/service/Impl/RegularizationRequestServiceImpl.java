@@ -1,7 +1,7 @@
 package com.ds.app.service.Impl;
 
 import com.ds.app.dto.ApprovalRequest;
-import com.ds.app.dto.RegularizationRequestdto;
+import com.ds.app.dto.RegularizationRequestDTO;
 import com.ds.app.dto.RegularizationResponse;
 import com.ds.app.entity.Attendance;
 import com.ds.app.entity.Employee;
@@ -10,6 +10,7 @@ import com.ds.app.enums.ApprovalStatus;
 import com.ds.app.enums.AttendanceStatus;
 import com.ds.app.enums.RegularizationRequestStatus;
 import com.ds.app.exception.DuplicateRegularizationException;
+import com.ds.app.exception.ForbiddenException;
 import com.ds.app.exception.InvalidDateRangeException;
 import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.mapper.RegularizationRequestMapper;
@@ -22,7 +23,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -37,22 +40,36 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
 
     @Override
     @Transactional
-    public RegularizationResponse applyRegularization(RegularizationRequestdto request) {
-        Employee me = securityUtils.getLoggedInEmployee();
+    public RegularizationResponse applyForRegularization(RegularizationRequestDTO request) {
+        Employee loggedInEmp = securityUtils.getLoggedInEmployee();
 
         if (request.getDate().isAfter(LocalDate.now())) {
             throw new InvalidDateRangeException("Regularization cannot be applied for a future date");
         }
 
         boolean alreadyPending = regularizationRepository.existsByEmployeeUserIdAndDateAndStatus(
-                me.getUserId(), request.getDate(), RegularizationRequestStatus.PENDING);
+                loggedInEmp.getUserId(), request.getDate(), RegularizationRequestStatus.PENDING);
 
         if (alreadyPending) {
             throw new DuplicateRegularizationException("Pending regularization already exists for date: " + request.getDate());
         }
 
+        if (request.getPunchInTime() == null && request.getPunchOutTime() == null) {
+            throw new IllegalArgumentException("You must provide either a punch-in or punch-out time to regularize.");
+        }
+
+        if (request.getDate().isEqual(LocalDate.now())) {
+            LocalTime now = LocalTime.now();
+            if (request.getPunchInTime() != null && request.getPunchInTime().isAfter(now)) {
+                throw new IllegalArgumentException("Punch-in time cannot be in the future.");
+            }
+            if (request.getPunchOutTime() != null && request.getPunchOutTime().isAfter(now)) {
+                throw new IllegalArgumentException("Punch-out time cannot be in the future.");
+            }
+        }
+
         RegularizationRequest rr = RegularizationRequest.builder()
-                .employee(me)
+                .employee(loggedInEmp)
                 .date(request.getDate())
                 .reason(request.getReason())
                 .punchInTime(request.getPunchInTime())
@@ -63,7 +80,7 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
         RegularizationRequest saved = regularizationRepository.save(rr);
 
         // notify manager for new regularization request
-        emailService.notifyManagerForNewRegularization(me, saved);
+        emailService.notifyManagerForNewRegularization(loggedInEmp, saved);
 
         return regularizationMapper.mapToResponse(saved);
     }
@@ -83,11 +100,11 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
     }
 
     @Override
-    public List<RegularizationResponse> getPendingRegularizationsForHr() {
-        Employee hr = securityUtils.getLoggedInEmployee();
+    public List<RegularizationResponse> getPendingRegularizationsForManager() {
+        Employee loggedInManager = securityUtils.getLoggedInEmployee();
 
         return regularizationRepository
-                .findByEmployee_Manager_UserIdAndStatusOrderByDateDesc(hr.getUserId(), RegularizationRequestStatus.PENDING)
+                .findByEmployee_Manager_UserIdAndStatusOrderByDateDesc(loggedInManager.getUserId(), RegularizationRequestStatus.PENDING)
                 .stream()
                 .map(regularizationMapper::mapToResponse)
                 .toList();
@@ -95,48 +112,60 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
 
     @Override
     @Transactional
-    public RegularizationResponse reviewRegularization(Long requestId, ApprovalRequest request) {
-        Employee hr = securityUtils.getLoggedInEmployee();
+    public RegularizationResponse processRegularization(Long requestId, ApprovalRequest request) {
+        Employee loggedInManager = securityUtils.getLoggedInEmployee();
 
-        RegularizationRequest rr = regularizationRepository.findById(requestId)
+        RegularizationRequest regularizationReq = regularizationRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Regularization request not found with id: " + requestId));
 
-        if (rr.getEmployee().getManager() == null || !rr.getEmployee().getManager().getUserId().equals(hr.getUserId())) {
-            throw new ResourceNotFoundException("Regularization request not found with id: " + requestId);
+        if (regularizationReq.getEmployee().getManager() == null || !regularizationReq.getEmployee().getManager().getUserId().equals(loggedInManager.getUserId())) {
+            throw new ForbiddenException("You are not authorised to review this timesheet");
         }
 
-        if (rr.getStatus() != RegularizationRequestStatus.PENDING) {
+        if (regularizationReq.getStatus() != RegularizationRequestStatus.PENDING) {
             throw new IllegalStateException("Only PENDING request can be reviewed.");
         }
 
-        if (request.getStatus() == ApprovalStatus.APPROVED) {
-            rr.setStatus(RegularizationRequestStatus.APPROVED);
+        if (request.getStatus().equals(ApprovalStatus.APPROVED)) {
+            regularizationReq.setStatus(RegularizationRequestStatus.APPROVED);
 
-            Attendance attendance = attendanceRepo.findByEmployeeUserIdAndDate(rr.getEmployee().getUserId(), rr.getDate())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Attendance not found for employeeId: " + rr.getEmployee().getUserId() + " and date: " + rr.getDate()
-                    ));
+            Attendance attendance = attendanceRepo.findByEmployeeUserIdAndDate(regularizationReq.getEmployee().getUserId(), regularizationReq.getDate())
+                    .orElseGet(() -> {
+                        Attendance newAttendance = Attendance.builder()
+                                .employee(regularizationReq.getEmployee())
+                                .date(regularizationReq.getDate())
+                                .build();
+                        return attendanceRepo.save(newAttendance);
+                    });
 
-            if (rr.getPunchInTime() != null) {
-                attendance.setPunchInTime(rr.getPunchInTime());
+            if (regularizationReq.getPunchInTime() != null) {
+                attendance.setPunchInTime(regularizationReq.getPunchInTime());
+                LocalTime threshold = LocalTime.of(12,0);
+                boolean isLateArrival = regularizationReq.getPunchInTime().isAfter(threshold);
+                attendance.setIsLate(isLateArrival);
             }
 
-            if (rr.getPunchOutTime() != null) {
-                attendance.setPunchOutTime(rr.getPunchOutTime());
+            if (regularizationReq.getPunchOutTime() != null) {
+                attendance.setPunchOutTime(regularizationReq.getPunchOutTime());
+            }
+
+            if (attendance.getPunchInTime() != null && attendance.getPunchOutTime() != null) {
+                Duration duration = Duration.between(attendance.getPunchInTime(), attendance.getPunchOutTime());
+                attendance.setTotalMinutesWorked((int) duration.toMinutes());
             }
 
             attendance.setIsRegularized(true);
             attendance.setStatus(AttendanceStatus.MANUAL_PUNCH);
 
         } else {
-            rr.setStatus(RegularizationRequestStatus.REJECTED);
-            rr.setRejectionReason(request.getRejectionReason());
+            regularizationReq.setStatus(RegularizationRequestStatus.REJECTED);
+            regularizationReq.setRejectionReason(request.getRejectionReason());
         }
 
-        rr.setApprovedBy(hr);
-        rr.setApprovalDate(LocalDate.now());
+        regularizationReq.setApprovedBy(loggedInManager);
+        regularizationReq.setApprovalDate(LocalDate.now());
 
-        RegularizationRequest saved = regularizationRepository.save(rr);
+        RegularizationRequest saved = regularizationRepository.save(regularizationReq);
 
         // notify employee for final decision
         emailService.notifyEmployeeForRegularizationDecision(saved.getEmployee(), saved);

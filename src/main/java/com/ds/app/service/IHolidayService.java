@@ -3,6 +3,7 @@ package com.ds.app.service;
 import com.ds.app.dto.HolidayRequest;
 import com.ds.app.dto.HolidayResponse;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IHolidayService {
@@ -14,4 +15,6 @@ public interface IHolidayService {
 
     // Everyone — view holidays for a year
     List<HolidayResponse> getHolidaysByYear(Integer year);
+
+    boolean isHoliday(LocalDate date);
 }

@@ -1,6 +1,8 @@
 package com.ds.app.service;
 
 import com.ds.app.dto.AttendanceResponse;
+import com.ds.app.dto.MonthlyAttendanceReport;
+import com.ds.app.dto.TeamAttendanceReportRow;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -18,6 +20,8 @@ public interface IAttendanceService {
 	AttendanceResponse getMyAttendanceByDate(LocalDate date);
 
 	List<AttendanceResponse> getMyAttendance(Integer month, Integer year);
+
+    MonthlyAttendanceReport getMyMonthlyAttendanceReport(Integer month, Integer year);
 	
 	// MANAGER related methods
 
@@ -25,5 +29,7 @@ public interface IAttendanceService {
 
 	Page<AttendanceResponse> getAllAttendanceByDate(LocalDate date, Pageable pageable);
 
-//	MonthlyAttendanceReport getMonthlyAttendanceReport(Long employeeId, Integer month, Integer year);
+	MonthlyAttendanceReport getEmployeeMonthlyAttendanceReport(Long employeeId, Integer month, Integer year);
+
+    List<TeamAttendanceReportRow> getTeamAttendanceReport(LocalDate date);
 }

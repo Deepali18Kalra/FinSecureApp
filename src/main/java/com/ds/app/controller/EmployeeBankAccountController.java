@@ -6,6 +6,7 @@ import com.ds.app.dto.request.BankValidationReviewRequestDTO;
 import com.ds.app.dto.request.EmployeeBankAccountRequestDTO;
 import com.ds.app.dto.response.EmployeeBankAccountResponseDTO;
 import com.ds.app.entity.Employee;
+import com.ds.app.entity.EmployeeBankAccount;
 import com.ds.app.entity.MyUserDetails;
 import com.ds.app.enums.BankValidationStatus;
 import com.ds.app.exception.BankAccountLockedException;
@@ -113,5 +114,12 @@ public class EmployeeBankAccountController {
 	@PreAuthorize("hasAuthority('FINANCE')")
 	public ResponseEntity<Map<String, Long>> getBankAccountSummary() {
 		return ResponseEntity.ok(employeeAccountService.getBankAccountStatusSummary());
+	}
+	
+	@PutMapping("/{id}/unlock")
+	@PreAuthorize("hasAuthority('FINANCE')")
+	public String unlockAccount(@PathVariable Long id) throws ResourceNotFoundException {
+		employeeAccountService.unlockAccount(id);
+		 return "Account Unlocked !";
 	}
 }

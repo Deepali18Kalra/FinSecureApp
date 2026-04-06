@@ -310,6 +310,35 @@ public class EmployeeAccountServiceImpl implements EmployeeAccountService {
 		
 	}
 
+
+	@Override
+	public EmployeeBankAccount getWholeBankAccount(Long id) throws ResourceNotFoundException {
+		EmployeeBankAccount account =
+				employeeBankAccountRepository.findById(id)
+			        .orElseThrow(() ->
+			            new ResourceNotFoundException("Account not found")
+			        );
+		return account;	
+	}
+
+
+	@Override
+	@Transactional
+	public void unlockAccount(Long id)
+	       throws ResourceNotFoundException {
+
+	    EmployeeBankAccount account =
+	        employeeBankAccountRepository.findById(id)
+	            .orElseThrow(() ->
+	                new ResourceNotFoundException(
+	                    "Bank account not found with ID: " + id
+	                ));
+
+	    account.setModifiedToday(0);
+	    account.setCoolDownPeriod(null);
+	}
+	
+
 	
 	
 }

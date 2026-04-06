@@ -23,8 +23,12 @@ public interface EmployeeAccountService {
 	
 	EmployeeBankAccountResponseDTO getMyBankAccount(Long employeeId) throws ResourceNotFoundException;
 	
-	void resetToZero(Long id) throws ResourceNotFoundException;  
-	 
+	void resetToZero(Long id) throws ResourceNotFoundException;
+	
+	EmployeeBankAccount getWholeBankAccount(Long id)throws ResourceNotFoundException;
+	
+	void unlockAccount(Long id)throws ResourceNotFoundException;
+	
 	
 	EmployeeBankAccountResponseDTO reviewBankAccount(Long accountId, BankValidationReviewRequestDTO dto, Long reviewedBy) throws ResourceNotFoundException;
 	

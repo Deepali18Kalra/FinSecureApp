@@ -17,6 +17,21 @@ import org.springframework.validation.FieldError;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+	
+	 @ExceptionHandler(EmployeeNotFoundException.class)
+	    public ResponseEntity<String> handleEmployeeNotFound(EmployeeNotFoundException ex) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+	    }
+	 
+	  @ExceptionHandler(TrainingNotFoundException.class)
+	    public ResponseEntity<String> handleTrainingNotFound(TrainingNotFoundException ex) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+	    }
+
+	    @ExceptionHandler(TrainingNotCompleteException.class)
+	    public ResponseEntity<String> handleTrainingNotCompleted(TrainingNotCompleteException ex) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+	    }
 
 
     // ✅ 1. Validation Errors (@Valid)

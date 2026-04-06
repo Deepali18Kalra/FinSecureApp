@@ -124,7 +124,7 @@ public class TrainingController {
     }
 
     // GET ALL TRAININGS
-    @PreAuthorize("hasAnyAuthority('HR','EMPLOYEE')")
+    @PreAuthorize("hasAuthority('HR')")
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<Page<TrainingResponseDTO>>> getAllTrainings(
             @RequestParam(defaultValue = "0") int page,

@@ -15,6 +15,14 @@ import com.ds.app.entity.Certification;
 public interface CertificationRepository extends JpaRepository<Certification, Long>{
 
 	List<Certification> findByVerifiedByHrFalse();
+	
+	
+	
+//	 @Query("SELECT CASE WHEN COUNT(et) > 0 THEN TRUE ELSE FALSE END " +
+//	           "FROM EmployeeTraining et " +
+//	           "WHERE et.employee.userId = :userId AND et.training.trainingId = :trainingId")
+//	    boolean existsByEmployeeAndTraining(@Param("userId") Long userId,
+//	                                        @Param("trainingId") Long trainingId);
 
 	boolean existsByEmployee_UserIdAndTraining_TrainingId(Long userId, Long trainingId);
 

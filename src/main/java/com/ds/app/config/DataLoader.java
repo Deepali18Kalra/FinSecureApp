@@ -89,6 +89,23 @@ public class DataLoader {
                 employeeRepo.save(emp);
                 System.out.println("Employee user created!");
             }
+            if (!employeeRepo.existsByUsername("mayank")) {
+                Employee emp = new Employee();
+                emp.setUsername("mayank");
+                emp.setPassword(passwordEncoder.encode("mayank123"));
+                emp.setEmail("saurabhkumar.mca24@bvicam.in");
+                emp.setFirstName("mayank");
+                emp.setLastName("tiwari");
+                emp.setRole(UserRole.EMPLOYEE); 
+
+                // Optional fields
+                emp.setEmployeeExperience(EmployeeExperience.FRESHER);
+                emp.setCertificationStatus(CertificationStatus.NON_CERTIFIED);
+                emp.setSkillStatus(SkillStatus.NON_SKILLED);
+
+                employeeRepo.save(emp);
+                System.out.println("Employee user created!");
+            }
             
 //            if (!employeeRepo.existsByUsername("ohn")) {
 //                Employee emp = new Employee();

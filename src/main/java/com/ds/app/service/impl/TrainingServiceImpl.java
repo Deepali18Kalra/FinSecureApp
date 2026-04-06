@@ -25,6 +25,8 @@ import com.ds.app.entity.Training;
 import com.ds.app.enums.EnrollmentStatus;
 import com.ds.app.enums.TrainingStatus;
 import com.ds.app.exception.CustomException;
+import com.ds.app.exception.EmployeeNotFoundException;
+import com.ds.app.exception.TrainingNotFoundException;
 import com.ds.app.repository.EmployeeRepository;
 import com.ds.app.repository.EmployeeTrainingRepository;
 import com.ds.app.repository.TrainingRepository;
@@ -106,12 +108,10 @@ public class TrainingServiceImpl implements TrainingService{
 
 	    log.info("START: enrollEmployee | TrainingId: {}", request.getTrainingId());
 
-
+	    log.error("Training not found: {}", request.getTrainingId());
 	    Training training = trainingRepo.findById(request.getTrainingId())
-	            .orElseThrow(() -> {
-	                log.error("Training not found: {}", request.getTrainingId());
-	                return new CustomException("Training not found");
-	            });
+	        .orElseThrow(() -> new TrainingNotFoundException("Training not found"));
+
 
 
 	    if (training.getStatus() != TrainingStatus.NOT_STARTED) {
@@ -133,11 +133,10 @@ public class TrainingServiceImpl implements TrainingService{
 	    for (Long empId : request.getEmployeeIds()) {
 
 
-	        Employee emp = employeeRepo.findById(empId.intValue())
-	                .orElseThrow(() -> {
-	                    log.error("Employee not found: {}", empId);
-	                    return new CustomException("Employee not found");
-	                });
+	    	log.error("Employee not found: {}", empId);
+	    	Employee emp = employeeRepo.findById(empId.intValue())
+	    	    .orElseThrow(() -> new EmployeeNotFoundException("Employee not found"));
+
 
 
 	        boolean alreadyEnrolled = empTrainingRepo
@@ -207,7 +206,7 @@ public class TrainingServiceImpl implements TrainingService{
 	    Training training = trainingRepo.findById(trainingId)
 	            .orElseThrow(() -> {
 	                log.error("Training not found: {}", trainingId);
-	                return new CustomException("Training not found");
+	                return new TrainingNotFoundException("Training not found");
 	            });
 
 
@@ -264,7 +263,7 @@ public class TrainingServiceImpl implements TrainingService{
 	    Training training = trainingRepo.findById(trainingId)
 	            .orElseThrow(() -> {
 	                log.error("Training not found: {}", trainingId);
-	                return new CustomException("Training not found");
+	                return new TrainingNotFoundException("Training not found");
 	            });
 
 
@@ -340,10 +339,10 @@ public class TrainingServiceImpl implements TrainingService{
 	@Override
 	public TrainingResponseDTO getTrainingById(Long trainingId) {
 		Training training = trainingRepo.findById(trainingId)
-				.orElseThrow(() -> new CustomException("Training not found"));
+				.orElseThrow(() -> new TrainingNotFoundException("Training not found"));
 		
 		if(Boolean.TRUE.equals(training.isDeleted())) {
-			throw new CustomException("Training not found");
+			throw new TrainingNotFoundException("Training not found");
 		}
 		
 		return mapToResponseDTO(training);
@@ -355,7 +354,7 @@ public class TrainingServiceImpl implements TrainingService{
                 Sort.by("createdAt").descending());
 		
 		Training training = trainingRepo.findById(trainingId)
-				.orElseThrow(() -> new CustomException("Training not found"));
+				.orElseThrow(() -> new TrainingNotFoundException("Training not found"));
 		
 		if(Boolean.TRUE.equals(training.isDeleted())) {
 			throw new CustomException("Training not availabel");

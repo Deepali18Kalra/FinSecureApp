@@ -43,6 +43,8 @@ public interface TrainingService {
 	// delete training
 	String deleteTraining(Long trainingId);
 	
+	Boolean isEmployeeCertified(Long employeeId);
+	
 	
 	
 	

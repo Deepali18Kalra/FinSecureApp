@@ -164,7 +164,7 @@ class TrainingServiceImplTest {
     }
     @Test
     void testStartTraining_Success() {
-        // Arrange
+        
         Training training = new Training();
         training.setTrainingId(1L);
         training.setTrainingName("Java Basics");

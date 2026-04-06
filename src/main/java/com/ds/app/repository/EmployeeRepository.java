@@ -13,7 +13,7 @@ import com.ds.app.entity.Training;
 
 
 
-public interface EmployeeRepository extends JpaRepository<Employee, Integer>{
+public interface EmployeeRepository extends JpaRepository<Employee, Long>{
 
 	Optional<Employee> findByUsername(String username);
 	boolean existsByUsername(String string);

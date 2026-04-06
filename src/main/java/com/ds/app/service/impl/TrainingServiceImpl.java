@@ -22,6 +22,7 @@ import com.ds.app.dto.response.TrainingResponseDTO;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.EmployeeTraining;
 import com.ds.app.entity.Training;
+import com.ds.app.enums.CertificationStatus;
 import com.ds.app.enums.EnrollmentStatus;
 import com.ds.app.enums.TrainingStatus;
 import com.ds.app.exception.CustomException;
@@ -134,7 +135,7 @@ public class TrainingServiceImpl implements TrainingService{
 
 
 	    	log.error("Employee not found: {}", empId);
-	    	Employee emp = employeeRepo.findById(empId.intValue())
+	    	Employee emp = employeeRepo.findById(empId)
 	    	    .orElseThrow(() -> new EmployeeNotFoundException("Employee not found"));
 
 
@@ -459,9 +460,27 @@ public class TrainingServiceImpl implements TrainingService{
         dto.setDepartmentId(e.getDepartmentId());
         return dto;
     }
+    
+    @Override
+    public Boolean isEmployeeCertified(Long employeeId) {
 
+        log.info("START: isEmployeeCertified | EmployeeId: {}", employeeId);
 
+        Employee employee = employeeRepo.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found: " + employeeId));
 
+        boolean result = employee.getCertificationStatus() == CertificationStatus.CERTIFIED;
+
+        log.info("END: isEmployeeCertified | EmployeeId: {} | Result: {}", employeeId, result);
+
+        return result;
+    }
 
 
 }
+
+
+
+
+
+

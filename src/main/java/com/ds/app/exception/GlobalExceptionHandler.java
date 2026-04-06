@@ -1,6 +1,5 @@
 package com.ds.app.exception;
 
-import com.ds.app.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

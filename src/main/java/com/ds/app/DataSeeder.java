@@ -6,7 +6,6 @@ import com.ds.app.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,6 @@ import java.util.Random;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile("dev")
 public class DataSeeder implements CommandLineRunner {
 
     private final IEmployeeRepository employeeRepo;
@@ -50,16 +48,16 @@ public class DataSeeder implements CommandLineRunner {
         seedHolidays();
 
         // 2. Create Employees with Realistic Names
-        Employee hr = createEmployee("Emily", "Chen", "echen@company.com", "echen_hr", defaultPass, UserRole.HR, null);
+        Employee hr = createEmployee("Shruti", "Mehra", "shruti@gmail.com", "shruti_hr", defaultPass, UserRole.HR, null);
 
-        Employee mgr1 = createEmployee("David", "Miller", "dmiller@company.com", "dmiller", defaultPass, UserRole.MANAGER, hr);
-        Employee mgr2 = createEmployee("Sarah", "Jenkins", "sjenkins@company.com", "sjenkins", defaultPass, UserRole.MANAGER, hr);
+        Employee mgr1 = createEmployee("Manish", "Sharma", "manish@gmail.com", "manish_mngr", defaultPass, UserRole.MANAGER, hr);
+        Employee mgr2 = createEmployee("Dev", "Kumar", "dev@gmail.com", "dev_mngr", defaultPass, UserRole.MANAGER, hr);
 
-        Employee emp1 = createEmployee("Michael", "Ross", "mross@company.com", "mross", defaultPass, UserRole.EMPLOYEE, mgr1);
-        Employee emp2 = createEmployee("Rachel", "Zane", "rzane@company.com", "rzane", defaultPass, UserRole.EMPLOYEE, mgr1);
+        Employee emp1 = createEmployee("Mayank", "Sharma", "mayank@gmail.com", "mayank", defaultPass, UserRole.EMPLOYEE, mgr1);
+        Employee emp2 = createEmployee("Harsh", "Sharma", "harsh@gmail.com", "harsh", defaultPass, UserRole.EMPLOYEE, mgr1);
 
-        Employee emp3 = createEmployee("Harvey", "Specter", "hspecter@company.com", "hspecter", defaultPass, UserRole.EMPLOYEE, mgr2);
-        Employee emp4 = createEmployee("Donna", "Paulsen", "dpaulsen@company.com", "dpaulsen", defaultPass, UserRole.EMPLOYEE, mgr2);
+        Employee emp3 = createEmployee("Viresh", "Raghav", "viresh@gmail.com", "viresh", defaultPass, UserRole.EMPLOYEE, mgr2);
+        Employee emp4 = createEmployee("Tanya", "Singh", "tanya@gmail.com", "tanya", defaultPass, UserRole.EMPLOYEE, mgr2);
 
         List<Employee> allStaff = List.of(hr, mgr1, mgr2, emp1, emp2, emp3, emp4);
 

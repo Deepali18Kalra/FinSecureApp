@@ -139,6 +139,7 @@ public class TrainingServiceImpl implements TrainingService{
 	    	    .orElseThrow(() -> new EmployeeNotFoundException("Employee not found"));
 
 
+	    	
 
 	        boolean alreadyEnrolled = empTrainingRepo
 	                .existsByEmployee_UserIdAndTraining_TrainingId(

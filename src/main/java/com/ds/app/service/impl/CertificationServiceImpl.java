@@ -108,9 +108,7 @@ public class CertificationServiceImpl implements CertificationService {
 		certRepo.save(cert);
 		log.info("Certification saved with id: {}", cert.getCertificationId());
 
-		// update employee status
-		employee.setCertificationStatus(CertificationStatus.CERTIFIED);
-		employeeRepo.save(employee);
+		
 
 		// send email to HR
 		Long hrId = training.getCreatedByHrId();
@@ -156,6 +154,8 @@ public class CertificationServiceImpl implements CertificationService {
 		certRepo.save(cert);
 
 		Employee emp = cert.getEmployee();
+		
+		emp.setCertificationStatus(CertificationStatus.CERTIFIED);
 		emp.setSkillStatus(SkillStatus.SKILLED);
 		employeeRepo.save(emp);
 

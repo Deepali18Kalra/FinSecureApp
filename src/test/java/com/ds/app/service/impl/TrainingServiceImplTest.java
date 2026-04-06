@@ -125,7 +125,7 @@ class TrainingServiceImplTest {
         request.setEmployeeIds(Arrays.asList(10L));
 
         when(trainingRepo.findById(1L)).thenReturn(Optional.of(training));
-        when(employeeRepo.findById(10)).thenReturn(Optional.empty());
+        when(employeeRepo.findById((long) 10)).thenReturn(Optional.empty());
 
         assertThrows(EmployeeNotFoundException.class,
                 () -> trainingService.enrollEmployee(request));
@@ -149,7 +149,7 @@ class TrainingServiceImplTest {
         request.setEmployeeIds(Arrays.asList(10L));
 
         when(trainingRepo.findById(1L)).thenReturn(Optional.of(training));
-        when(employeeRepo.findById(10)).thenReturn(Optional.of(emp));
+        when(employeeRepo.findById((long) 10)).thenReturn(Optional.of(emp));
         when(empTrainingRepo.existsByEmployee_UserIdAndTraining_TrainingId(10L, 1L))
                 .thenReturn(false);
 

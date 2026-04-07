@@ -6,5 +6,6 @@ public enum LeaveStatus {
 	REJECTED,
 	WITHDRAWN,
     CANCELLATION_PENDING,
-    CANCELLED
+    CANCELLED,
+    EXPIRED,
 }

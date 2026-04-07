@@ -54,7 +54,7 @@ public class LeaveController {
 
     // MANAGER endpoints
     @PreAuthorize("hasAuthority('MANAGER')")
-    @PatchMapping("/{leaveId}/decision")
+    @PatchMapping("/{leaveId}/process")
     public ResponseEntity<LeaveResponse> processLeaveRequest(
             @PathVariable Long leaveId,
             @RequestBody ApprovalRequest approvalRequest
@@ -64,7 +64,7 @@ public class LeaveController {
     }
     
     @PreAuthorize("hasAuthority('MANAGER')")
-    @PatchMapping("/{leaveId}/cancel-request")
+    @PatchMapping("/{leaveId}/process-cancel-request")
     public ResponseEntity<LeaveResponse> processCancellationRequest(
     		@PathVariable Long leaveId,
     		@RequestBody ApprovalRequest approvalRequest

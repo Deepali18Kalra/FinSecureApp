@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,6 +37,7 @@ public class EmailServiceImpl implements IEmailService {
     // =========================
 
     @Override
+    @Async
     public void notifyManagerForNewLeave(Employee employee, Leave leave) {
         Employee manager = employee.getManager();
         if (manager == null || manager.getEmail() == null || manager.getEmail().isBlank()) return;
@@ -53,6 +55,7 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     @Override
+    @Async
     public void notifyEmployeeForLeaveDecision(Employee employee, Leave leave) {
         if (employee.getEmail() == null || employee.getEmail().isBlank()) return;
 
@@ -70,6 +73,7 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     @Override
+    @Async
     public void notifyManagerForCancellationRequest(Employee employee, Leave leave) {
         Employee manager = employee.getManager();
         if (manager == null || manager.getEmail() == null || manager.getEmail().isBlank()) return;
@@ -87,6 +91,7 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     @Override
+    @Async
     public void notifyEmployeeForCancellationDecision(Employee employee, Leave leave, ApprovalStatus decision, String reason) {
         if (employee.getEmail() == null || employee.getEmail().isBlank()) return;
 
@@ -104,6 +109,7 @@ public class EmailServiceImpl implements IEmailService {
     // Regularization notifications
 
     @Override
+    @Async
     public void notifyManagerForNewRegularization(Employee employee, RegularizationRequest regularizationRequest) {
         Employee manager = employee.getManager();
         if (manager == null || manager.getEmail() == null || manager.getEmail().isBlank()) return;
@@ -121,6 +127,7 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     @Override
+    @Async
     public void notifyEmployeeForRegularizationDecision(Employee employee, RegularizationRequest regularizationRequest) {
         if (employee.getEmail() == null || employee.getEmail().isBlank()) return;
 
@@ -142,6 +149,7 @@ public class EmailServiceImpl implements IEmailService {
     // Timesheet notifications
 
     @Override
+    @Async
     public void notifyManagerForTimesheetSubmission(Employee employee, Timesheet timesheet) {
         Employee manager = employee.getManager();
         if (manager == null || manager.getEmail() == null || manager.getEmail().isBlank()) return;
@@ -157,6 +165,7 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     @Override
+    @Async
     public void notifyEmployeeForTimesheetDecision(Employee employee, Timesheet timesheet) {
         if (employee.getEmail() == null || employee.getEmail().isBlank()) return;
 

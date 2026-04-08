@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetUtilizationReportServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">FinSecureProject</a> &gt; <a href="index.source.html" class="el_package">com.ds.app.service.impl</a> &gt; <span class="el_source">AssetUtilizationReportServiceImpl.java</span></div><h1>AssetUtilizationReportServiceImpl.java</h1><pre class="source lang-java linenums">package com.ds.app.service.impl;
+
+import org.springframework.stereotype.Service;
+
+import com.ds.app.dto.AssetUtilizationReportDTO;
+import com.ds.app.entity.Asset;
+import com.ds.app.exception.ResourceNotFoundException;
+import com.ds.app.repository.AssetRepository;
+import com.ds.app.service.AssetUtilizationReportService;
+
+@Service
+public class AssetUtilizationReportServiceImpl implements AssetUtilizationReportService {
+
+	private final AssetRepository assetRepository;
+	
+	public AssetUtilizationReportServiceImpl(AssetRepository assetRepository) {
+<span class="fc" id="L17">		super();</span>
+<span class="fc" id="L18">		this.assetRepository = assetRepository;</span>
+<span class="fc" id="L19">	}</span>
+
+
+	@Override
+	public AssetUtilizationReportDTO getAssetUtilization(Long assetId) {
+<span class="nc" id="L24">		Asset asset= assetRepository.findById(assetId)</span>
+<span class="nc" id="L25">				.orElseThrow(()-&gt; new ResourceNotFoundException(&quot;Asset not found with Id:&quot;+ assetId));</span>
+		
+<span class="nc" id="L27">		Integer totalUnits=asset.getTotalUnits();</span>
+<span class="nc" id="L28">		Integer allocatedUnits=asset.getAllocatedUnits();</span>
+<span class="nc" id="L29">		Integer availableUnits=asset.getAvailableUnits();</span>
+		
+<span class="nc" id="L31">		double utilization=0.0;</span>
+<span class="nc bnc" id="L32" title="All 4 branches missed.">		if(totalUnits!=null &amp;&amp; totalUnits&gt;0)</span>
+		{
+<span class="nc" id="L34">			utilization=((double)allocatedUnits/totalUnits)*100;</span>
+		}
+		
+<span class="nc" id="L37">		AssetUtilizationReportDTO report=new AssetUtilizationReportDTO();</span>
+<span class="nc" id="L38">		report.setAssetId(asset.getAssetId());</span>
+<span class="nc" id="L39">		report.setAssetName(asset.getName());</span>
+<span class="nc" id="L40">		report.setCategory(asset.getCategory());</span>
+		
+		
+<span class="nc" id="L43">		report.setTotalUnits(totalUnits);</span>
+<span class="nc" id="L44">		report.setAllocatedUnits(allocatedUnits);</span>
+<span class="nc" id="L45">		report.setAvaialableUnits(availableUnits);</span>
+<span class="nc" id="L46">		report.setUtilizationPercentage(utilization);</span>
+		
+<span class="nc" id="L48">		return report;</span>
+		
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

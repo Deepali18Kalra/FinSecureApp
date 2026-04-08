@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,12 +17,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "app_user")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class AppUser {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer userId;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long userId;
 	private String username;
 	private String password;
 	

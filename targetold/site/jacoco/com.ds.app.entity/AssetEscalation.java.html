@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetEscalation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">FinSecureProject</a> &gt; <a href="index.source.html" class="el_package">com.ds.app.entity</a> &gt; <span class="el_source">AssetEscalation.java</span></div><h1>AssetEscalation.java</h1><pre class="source lang-java linenums">package com.ds.app.entity;
+
+import java.time.LocalDateTime;
+
+import com.ds.app.enums.EscalationStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = &quot;asset_escalations&quot;)
+<span class="fc" id="L23">public class AssetEscalation {</span>
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long escalationId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;asset_id&quot;)
+    private Asset asset;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name=&quot;employee_id&quot;)
+    private Employee employee;//FK-Employee(employee who misused the asset)
+    
+
+    @ManyToOne
+    @JoinColumn(name = &quot;raised_by&quot;)
+    private AppUser raisedBy;
+
+//    private Integer raisedBy;//FK-HR/Admin who raised escalation
+    private String reason;
+
+    @Enumerated(EnumType.STRING)
+    private EscalationStatus status;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    
+    @PrePersist
+    public void prePersist()
+    {
+<span class="nc" id="L54">    	createdAt=LocalDateTime.now();</span>
+<span class="nc" id="L55">    	status=EscalationStatus.OPEN;</span>
+<span class="nc" id="L56">    }</span>
+    
+    @PreUpdate
+    public void preUpdate()
+    {
+<span class="nc" id="L61">    	updatedAt=LocalDateTime.now();</span>
+<span class="nc" id="L62">    }</span>
+
+    
+	public Long getEscalationId() {
+<span class="fc" id="L66">		return escalationId;</span>
+	}
+
+	public void setEscalationId(Long escalationId) {
+<span class="fc" id="L70">		this.escalationId = escalationId;</span>
+<span class="fc" id="L71">	}</span>
+
+	public Asset getAsset() {
+<span class="fc" id="L74">		return asset;</span>
+	}
+
+	public void setAsset(Asset asset) {
+<span class="fc" id="L78">		this.asset = asset;</span>
+<span class="fc" id="L79">	}</span>
+
+	public Employee getEmployee() {
+<span class="fc" id="L82">		return employee;</span>
+	}
+
+	public void setEmployee(Employee employee) {
+<span class="fc" id="L86">		this.employee = employee;</span>
+<span class="fc" id="L87">	}</span>
+
+	public AppUser getRaisedBy() {
+<span class="fc" id="L90">		return raisedBy;</span>
+	}
+
+	public void setRaisedBy(AppUser raisedBy) {
+<span class="fc" id="L94">		this.raisedBy = raisedBy;</span>
+<span class="fc" id="L95">	}</span>
+
+	public String getReason() {
+<span class="fc" id="L98">		return reason;</span>
+	}
+
+	public void setReason(String reason) {
+<span class="fc" id="L102">		this.reason = reason;</span>
+<span class="fc" id="L103">	}</span>
+
+	public EscalationStatus getStatus() {
+<span class="fc" id="L106">		return status;</span>
+	}
+
+	public void setStatus(EscalationStatus status) {
+<span class="fc" id="L110">		this.status = status;</span>
+<span class="fc" id="L111">	}</span>
+
+	public LocalDateTime getCreatedAt() {
+<span class="fc" id="L114">		return createdAt;</span>
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+<span class="fc" id="L118">		this.createdAt = createdAt;</span>
+<span class="fc" id="L119">	}</span>
+
+	public LocalDateTime getUpdatedAt() {
+<span class="nc" id="L122">		return updatedAt;</span>
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+<span class="nc" id="L126">		this.updatedAt = updatedAt;</span>
+<span class="nc" id="L127">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

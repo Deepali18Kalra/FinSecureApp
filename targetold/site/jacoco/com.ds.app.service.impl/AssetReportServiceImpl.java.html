@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetReportServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">FinSecureProject</a> &gt; <a href="index.source.html" class="el_package">com.ds.app.service.impl</a> &gt; <span class="el_source">AssetReportServiceImpl.java</span></div><h1>AssetReportServiceImpl.java</h1><pre class="source lang-java linenums">package com.ds.app.service.impl;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.ds.app.dto.AssetAvailabilityReportDTO;
+import com.ds.app.dto.AssetAvailabilityReportDTO.AllocationDetail;
+import com.ds.app.dto.EscalationReportDTO;
+import com.ds.app.entity.Asset;
+import com.ds.app.entity.AssetAllocation;
+import com.ds.app.enums.AllocationStatus;
+import com.ds.app.exception.ResourceNotFoundException;
+import com.ds.app.repository.AssetAllocationRepository;
+import com.ds.app.repository.AssetEscalationRepository;
+import com.ds.app.repository.AssetRepository;
+import com.ds.app.service.AssetReportService;
+
+@Service
+public class AssetReportServiceImpl implements AssetReportService {
+
+    private final AssetRepository assetRepository;
+    private final AssetAllocationRepository allocationRepository;
+    
+    private final AssetEscalationRepository escalationRepository;
+
+
+    
+
+    public AssetReportServiceImpl(AssetRepository assetRepository, AssetAllocationRepository allocationRepository,
+			AssetEscalationRepository escalationRepository) {
+<span class="fc" id="L35">		super();</span>
+<span class="fc" id="L36">		this.assetRepository = assetRepository;</span>
+<span class="fc" id="L37">		this.allocationRepository = allocationRepository;</span>
+<span class="fc" id="L38">		this.escalationRepository = escalationRepository;</span>
+<span class="fc" id="L39">	}</span>
+
+	@Override
+    public AssetAvailabilityReportDTO getAssetAvailabilityReport(Long assetId) {
+<span class="nc" id="L43">        Asset asset = assetRepository.findById(assetId)</span>
+<span class="nc" id="L44">                .orElseThrow(() -&gt;</span>
+<span class="nc" id="L45">                        new ResourceNotFoundException(&quot;Asset not found with id: &quot; + assetId));</span>
+
+<span class="nc" id="L47">        List&lt;AssetAllocation&gt; activeAllocations =</span>
+<span class="nc" id="L48">                allocationRepository.findByAssetAndStatus(</span>
+                        asset, AllocationStatus.ACTIVE);
+
+<span class="nc" id="L51">        List&lt;AllocationDetail&gt; allocationDetails =</span>
+<span class="nc" id="L52">                activeAllocations.stream()</span>
+<span class="nc" id="L53">                        .map(allocation -&gt; {</span>
+<span class="nc" id="L54">                            AllocationDetail detail = new AllocationDetail();</span>
+<span class="nc" id="L55">                            detail.setEmployeeId(</span>
+<span class="nc" id="L56">                                    allocation.getEmployee().getUserId());</span>
+<span class="nc" id="L57">                            detail.setAllocatedDate(</span>
+<span class="nc" id="L58">                                    allocation.getAllocatedDate());</span>
+<span class="nc" id="L59">                            return detail;</span>
+                        })
+<span class="nc" id="L61">                        .collect(Collectors.toList());</span>
+
+<span class="nc" id="L63">        AssetAvailabilityReportDTO report = new AssetAvailabilityReportDTO();</span>
+<span class="nc" id="L64">        report.setAssetId(asset.getAssetId());</span>
+<span class="nc" id="L65">        report.setAssetName(asset.getName());</span>
+<span class="nc" id="L66">        report.setCategory(asset.getCategory());</span>
+
+<span class="nc" id="L68">        report.setTotalUnits(asset.getTotalUnits());</span>
+<span class="nc" id="L69">        report.setAllocatedUnits(asset.getAllocatedUnits());</span>
+<span class="nc" id="L70">        report.setAvailableUnits(asset.getAvailableUnits());</span>
+
+<span class="nc" id="L72">        report.setAllocatedTo(allocationDetails);</span>
+
+<span class="nc" id="L74">        return report;</span>
+    }
+	
+	
+
+@Override
+    public List&lt;EscalationReportDTO&gt; getEscalationsOnDate(LocalDate date) {
+<span class="fc" id="L81">        return escalationRepository.findEscalationsOnDate(date);</span>
+    }
+    @Override
+    public List&lt;EscalationReportDTO&gt; getEscalationsBetweenDates(
+            LocalDateTime from,
+            LocalDateTime to) {
+<span class="fc" id="L87">        return escalationRepository.findEscalationsOnDate(from, to);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

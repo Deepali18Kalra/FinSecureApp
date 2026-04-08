@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetIssue.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">FinSecureProject</a> &gt; <a href="index.source.html" class="el_package">com.ds.app.entity</a> &gt; <span class="el_source">AssetIssue.java</span></div><h1>AssetIssue.java</h1><pre class="source lang-java linenums">package com.ds.app.entity;
+
+import java.time.LocalDateTime;
+
+import com.ds.app.enums.IssueStatus;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = &quot;asset_issues&quot;)
+<span class="fc" id="L22">public class AssetIssue {</span>
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long issueId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;asset_id&quot;)
+    private Asset asset;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name=&quot;employee_id&quot;)
+    private Employee employee;//FK-Employee module(who raised the issue)
+    
+    private String issueType;//DAMAGE, LOST, SOFTWARE_ISSUE
+    
+    private String description;
+    
+    @Enumerated(EnumType.STRING)
+    private IssueStatus status;
+    
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+        
+    @PrePersist
+    public void prePersist()
+    {
+<span class="nc" id="L49">    	createdAt=LocalDateTime.now();</span>
+<span class="nc" id="L50">    	status=IssueStatus.OPEN;</span>
+<span class="nc" id="L51">    }</span>
+        
+    @PreUpdate
+    public void preUpdate()
+    {
+<span class="nc" id="L56">    	updatedAt=LocalDateTime.now();</span>
+<span class="nc" id="L57">    }</span>
+
+    
+	public Long getIssueId() {
+<span class="nc" id="L61">		return issueId;</span>
+	}
+
+	public void setIssueId(Long issueId) {
+<span class="fc" id="L65">		this.issueId = issueId;</span>
+<span class="fc" id="L66">	}</span>
+
+	public Asset getAsset() {
+<span class="nc" id="L69">		return asset;</span>
+	}
+
+	public void setAsset(Asset asset) {
+<span class="nc" id="L73">		this.asset = asset;</span>
+<span class="nc" id="L74">	}</span>
+
+	public Employee getEmployee() {
+<span class="nc" id="L77">		return employee;</span>
+	}
+
+	public void setEmployee(Employee employee) {
+<span class="nc" id="L81">		this.employee = employee;</span>
+<span class="nc" id="L82">	}</span>
+
+	public String getIssueType() {
+<span class="nc" id="L85">		return issueType;</span>
+	}
+
+	public void setIssueType(String issueType) {
+<span class="nc" id="L89">		this.issueType = issueType;</span>
+<span class="nc" id="L90">	}</span>
+
+	public String getDescription() {
+<span class="fc" id="L93">		return description;</span>
+	}
+
+	public void setDescription(String description) {
+<span class="fc" id="L97">		this.description = description;</span>
+<span class="fc" id="L98">	}</span>
+
+	public IssueStatus getStatus() {
+<span class="nc" id="L101">		return status;</span>
+	}
+
+	public void setStatus(IssueStatus status) {
+<span class="nc" id="L105">		this.status = status;</span>
+<span class="nc" id="L106">	}</span>
+
+	public LocalDateTime getCreatedAt() {
+<span class="nc" id="L109">		return createdAt;</span>
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+<span class="fc" id="L113">		this.createdAt = createdAt;</span>
+<span class="fc" id="L114">	}</span>
+
+	public LocalDateTime getUpdatedAt() {
+<span class="nc" id="L117">		return updatedAt;</span>
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+<span class="nc" id="L121">		this.updatedAt = updatedAt;</span>
+<span class="nc" id="L122">	}</span>
+
+	
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

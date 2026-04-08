@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetEscalationServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">FinSecureProject</a> &gt; <a href="index.source.html" class="el_package">com.ds.app.service.impl</a> &gt; <span class="el_source">AssetEscalationServiceImpl.java</span></div><h1>AssetEscalationServiceImpl.java</h1><pre class="source lang-java linenums">package com.ds.app.service.impl;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.ds.app.dto.AssetEscalationDTO;
+import com.ds.app.dto.RaiseEscalationRequestDTO;
+import com.ds.app.entity.AppUser;
+import com.ds.app.entity.Asset;
+import com.ds.app.entity.AssetEscalation;
+import com.ds.app.entity.Employee;
+import com.ds.app.enums.EscalationStatus;
+import com.ds.app.exception.ResourceNotFoundException;
+import com.ds.app.repository.AssetEscalationRepository;
+import com.ds.app.repository.AssetRepository;
+import com.ds.app.repository.EmployeeRepository;
+import com.ds.app.repository.iAppUserRepository;
+import com.ds.app.service.AssetEscalationService;
+import com.ds.app.exception.BadRequestException;
+
+@Service
+public class AssetEscalationServiceImpl implements AssetEscalationService {
+	
+	private final AssetRepository assetRepository;
+	private final AssetEscalationRepository assetEscalationRepository;
+	private final iAppUserRepository appUserRepository;
+	private final EmployeeRepository employeeRepository;
+	
+	public AssetEscalationServiceImpl(AssetRepository assetRepository,
+			AssetEscalationRepository assetEscalationRepository, iAppUserRepository appUserRepository,EmployeeRepository employeeRepository) {
+<span class="fc" id="L35">		super();</span>
+<span class="fc" id="L36">		this.assetRepository = assetRepository;</span>
+<span class="fc" id="L37">		this.assetEscalationRepository = assetEscalationRepository;</span>
+<span class="fc" id="L38">		this.appUserRepository = appUserRepository;</span>
+<span class="fc" id="L39">		this.employeeRepository = employeeRepository;</span>
+<span class="fc" id="L40">	}</span>
+	
+	
+
+@Override
+    public AssetEscalationDTO raiseEscalation(RaiseEscalationRequestDTO request,Long hrOrAdminUserId) {
+
+
+<span class="nc" id="L48">        Asset asset = assetRepository.findById(request.getAssetId())</span>
+<span class="nc" id="L49">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Asset not found&quot;));</span>
+
+<span class="nc" id="L51">        AppUser user = appUserRepository.findById(request.getEmployeeId())</span>
+<span class="nc" id="L52">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Employee user not found&quot;));</span>
+
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (!(user instanceof Employee employee)) {</span>
+<span class="nc" id="L55">            throw new BadRequestException(&quot;Selected user is not an Employee&quot;);</span>
+        }
+
+<span class="nc" id="L58">        AppUser raisedByUser = appUserRepository.findById(hrOrAdminUserId)</span>
+<span class="nc" id="L59">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Raiser user not found&quot;));</span>
+
+//        if (!(raisedByUser instanceof Employee raisedBy)) {
+//            throw new BadRequestException(&quot;Invalid HR/Admin account&quot;);
+//        }
+
+<span class="nc" id="L65">        AssetEscalation esc = new AssetEscalation();</span>
+<span class="nc" id="L66">        esc.setAsset(asset);</span>
+<span class="nc" id="L67">        esc.setEmployee(employee);         //Employeemisused the asset</span>
+<span class="nc" id="L68">        esc.setRaisedBy(raisedByUser);         //HR/Admin raising escalation</span>
+<span class="nc" id="L69">        esc.setReason(request.getReason());</span>
+<span class="nc" id="L70">        esc.setStatus(EscalationStatus.OPEN);</span>
+<span class="nc" id="L71">        esc.setCreatedAt(LocalDateTime.now());</span>
+        
+
+        
+<span class="nc" id="L75">        assetEscalationRepository.save(esc);</span>
+
+
+<span class="nc" id="L78">employee.setHasActiveAssetEscalation(true);</span>
+<span class="nc" id="L79">employeeRepository.save(employee);</span>
+
+<span class="nc" id="L81">        AssetEscalationDTO dto = new AssetEscalationDTO();</span>
+<span class="nc" id="L82">        dto.setEscalationId(esc.getEscalationId());</span>
+<span class="nc" id="L83">        dto.setAssetId(asset.getAssetId());</span>
+<span class="nc" id="L84">        dto.setEmployeeId(employee.getUserId());</span>
+<span class="nc" id="L85">        dto.setRaisedBy(raisedByUser.getUserId());</span>
+<span class="nc" id="L86">        dto.setReason(esc.getReason());</span>
+<span class="nc" id="L87">        dto.setStatus(esc.getStatus());</span>
+<span class="nc" id="L88">        dto.setCreatedAt(esc.getCreatedAt());</span>
+
+<span class="nc" id="L90">        return dto;</span>
+    }
+
+	
+
+@Override
+   public AssetEscalationDTO updateEscalationStatus(Long escalationId,String status,Long hrOrAdminUserId) {
+
+<span class="nc" id="L98">       AssetEscalation esc = assetEscalationRepository.findById(escalationId)</span>
+<span class="nc" id="L99">               .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Escalation not found&quot;));</span>
+
+<span class="nc" id="L101">       esc.setStatus(EscalationStatus.valueOf(status));</span>
+<span class="nc" id="L102">       esc.setUpdatedAt(LocalDateTime.now());</span>
+
+<span class="nc" id="L104">       assetEscalationRepository.save(esc);</span>
+
+       
+<span class="nc" id="L107">       assetEscalationRepository.save(esc);</span>
+
+<span class="nc" id="L109">    Employee employee = esc.getEmployee();</span>
+
+<span class="nc" id="L111">    boolean hasActiveEscalations =</span>
+<span class="nc" id="L112">            assetEscalationRepository.existsByEmployeeAndStatus(</span>
+                    employee, EscalationStatus.OPEN
+            );
+
+<span class="nc" id="L116">    employee.setHasActiveAssetEscalation(hasActiveEscalations);</span>
+<span class="nc" id="L117">    employeeRepository.save(employee);</span>
+       
+<span class="nc" id="L119">       AssetEscalationDTO dto = new AssetEscalationDTO();</span>
+<span class="nc" id="L120">       dto.setEscalationId(esc.getEscalationId());</span>
+<span class="nc" id="L121">       dto.setStatus(esc.getStatus());</span>
+
+<span class="nc" id="L123">       return dto;</span>
+}
+
+
+@Override
+public List&lt;AssetEscalationDTO&gt; getAllEscalations() {
+
+<span class="fc" id="L130">    return assetEscalationRepository.findAll()</span>
+<span class="fc" id="L131">            .stream()</span>
+<span class="fc" id="L132">            .map(escalation -&gt; {</span>
+<span class="fc" id="L133">                AssetEscalationDTO dto = new AssetEscalationDTO();</span>
+<span class="fc" id="L134">                dto.setEscalationId(escalation.getEscalationId());</span>
+<span class="fc" id="L135">                dto.setAssetId(escalation.getAsset().getAssetId());</span>
+<span class="fc" id="L136">                dto.setEmployeeId(escalation.getEmployee().getUserId());</span>
+<span class="fc" id="L137">                dto.setRaisedBy(escalation.getRaisedBy().getUserId());</span>
+<span class="fc" id="L138">                dto.setReason(escalation.getReason());</span>
+<span class="fc" id="L139">                dto.setStatus(escalation.getStatus());</span>
+<span class="fc" id="L140">                dto.setCreatedAt(escalation.getCreatedAt());</span>
+<span class="fc" id="L141">                return dto;</span>
+            })
+<span class="fc" id="L143">            .toList(); </span>
+}
+
+
+
+
+	@Override
+	public Page&lt;AssetEscalationDTO&gt; getAllEscalationsPaginated(Pageable pageable) {
+
+<span class="nc" id="L152">		return assetEscalationRepository.findAll(pageable)</span>
+<span class="nc" id="L153">            .map(escalation -&gt; {</span>
+<span class="nc" id="L154">                AssetEscalationDTO dto = new AssetEscalationDTO();</span>
+<span class="nc" id="L155">                dto.setEscalationId(escalation.getEscalationId());</span>
+<span class="nc" id="L156">                dto.setAssetId(escalation.getAsset().getAssetId());</span>
+<span class="nc" id="L157">                dto.setEmployeeId(escalation.getEmployee().getUserId());</span>
+<span class="nc" id="L158">                dto.setRaisedBy(escalation.getRaisedBy().getUserId());</span>
+<span class="nc" id="L159">                dto.setReason(escalation.getReason());</span>
+<span class="nc" id="L160">                dto.setStatus(escalation.getStatus());</span>
+<span class="nc" id="L161">                dto.setCreatedAt(escalation.getCreatedAt());</span>
+<span class="nc" id="L162">                return dto;</span>
+            });
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

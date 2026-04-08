@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetEscalationDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">FinSecureProject</a> &gt; <a href="index.source.html" class="el_package">com.ds.app.dto</a> &gt; <span class="el_source">AssetEscalationDTO.java</span></div><h1>AssetEscalationDTO.java</h1><pre class="source lang-java linenums">package com.ds.app.dto;
+
+import java.time.LocalDateTime;
+import com.ds.app.enums.EscalationStatus;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+<span class="nc" id="L13">public class AssetEscalationDTO {</span>
+
+    private Long escalationId;
+    @NotNull
+    private Long assetId;
+    @NotNull
+    private Long employeeId;
+    
+    private Long raisedBy;
+    private String raisedByName;
+    
+    @NotBlank
+    private String reason;
+    
+    private EscalationStatus status;
+    private LocalDateTime createdAt;
+
+<span class="nc" id="L30">    public Long getEscalationId() { return escalationId; }</span>
+<span class="nc" id="L31">    public void setEscalationId(Long escalationId) { this.escalationId = escalationId; }</span>
+
+<span class="nc" id="L33">    public Long getAssetId() { return assetId; }</span>
+<span class="nc" id="L34">    public void setAssetId(Long assetId) { this.assetId = assetId; }</span>
+
+<span class="nc" id="L36">    public Long getEmployeeId() { return employeeId; }</span>
+<span class="nc" id="L37">    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }</span>
+
+<span class="nc" id="L39">    public Long getRaisedBy() { return raisedBy; }</span>
+<span class="nc" id="L40">    public void setRaisedBy(Long raisedBy) { this.raisedBy = raisedBy; }</span>
+
+    public String getRaisedByName() {
+<span class="nc" id="L43">		return raisedByName;</span>
+	}
+	public void setRaisedByName(String raisedByName) {
+<span class="nc" id="L46">		this.raisedByName = raisedByName;</span>
+<span class="nc" id="L47">	}</span>
+<span class="nc" id="L48">	public String getReason() { return reason; }</span>
+<span class="nc" id="L49">    public void setReason(String reason) { this.reason = reason; }</span>
+
+<span class="nc" id="L51">    public EscalationStatus getStatus() { return status; }</span>
+<span class="nc" id="L52">    public void setStatus(EscalationStatus status) { this.status = status; }</span>
+
+<span class="nc" id="L54">    public LocalDateTime getCreatedAt() { return createdAt; }</span>
+<span class="nc" id="L55">    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

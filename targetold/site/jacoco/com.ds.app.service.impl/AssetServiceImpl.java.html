@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">FinSecureProject</a> &gt; <a href="index.source.html" class="el_package">com.ds.app.service.impl</a> &gt; <span class="el_source">AssetServiceImpl.java</span></div><h1>AssetServiceImpl.java</h1><pre class="source lang-java linenums">package com.ds.app.service.impl;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Pageable;
+
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+
+import com.ds.app.dto.AssetDTO;
+import com.ds.app.entity.Asset;
+import com.ds.app.enums.AssetStatus;
+import com.ds.app.exception.ResourceNotFoundException;
+import com.ds.app.repository.AssetRepository;
+import com.ds.app.service.AssetService;
+
+
+@Service
+public class AssetServiceImpl implements AssetService {
+
+	private final AssetRepository assetReposository;
+
+	public AssetServiceImpl(AssetRepository assetReposository) {
+<span class="fc" id="L25">		super();</span>
+<span class="fc" id="L26">		this.assetReposository = assetReposository;</span>
+<span class="fc" id="L27">	}</span>
+	
+	@Override
+	public AssetDTO createAsset(AssetDTO dto,Long creatorUserId) {
+<span class="nc" id="L31">		Asset asset=new Asset();</span>
+		
+<span class="nc" id="L33">		asset.setTotalUnits(dto.getTotalUnits());</span>
+		
+<span class="nc" id="L35">		asset.setAssetTag(dto.getAssetTag());</span>
+<span class="nc" id="L36">		asset.setCategory(dto.getCategory());</span>
+<span class="nc" id="L37">		asset.setName(dto.getName());</span>
+<span class="nc" id="L38">		asset.setCreatedBy(creatorUserId);</span>
+<span class="nc" id="L39">		asset.setStatus(AssetStatus.AVAILABLE);</span>
+		
+<span class="nc" id="L41">		Asset saved=assetReposository.save(asset);</span>
+		
+<span class="nc" id="L43">		AssetDTO response=new AssetDTO();</span>
+<span class="nc" id="L44">		response.setAssetId(saved.getAssetId());</span>
+<span class="nc" id="L45">		response.setAssetTag(saved.getAssetTag());</span>
+<span class="nc" id="L46">		response.setCategory(saved.getCategory());</span>
+<span class="nc" id="L47">		response.setName(saved.getName());</span>
+<span class="nc" id="L48">		response.setStatus(saved.getStatus());</span>
+<span class="nc" id="L49">		response.setCreatedBy(saved.getCreatedBy());</span>
+		
+<span class="nc" id="L51">		response.setTotalUnits(asset.getTotalUnits());</span>
+<span class="nc" id="L52">		response.setAllocatedUnits(asset.getAllocatedUnits());</span>
+<span class="nc" id="L53">		response.setAvailableUnits(asset.getAvailableUnits());</span>
+		
+		
+<span class="nc" id="L56">		return response;</span>
+		
+	}
+
+	@Override
+	public AssetDTO updateAsset(Long assetId, AssetDTO dto,Long updaterUserId) {
+<span class="nc" id="L62">		Asset asset=assetReposository.findById(assetId).orElseThrow(()-&gt;new ResourceNotFoundException(&quot;Asset Not Found&quot;));</span>
+<span class="nc" id="L63">		asset.setCategory(dto.getCategory());</span>
+<span class="nc" id="L64">		asset.setName(dto.getName());</span>
+<span class="nc" id="L65">		assetReposository.save(asset);</span>
+		
+<span class="nc" id="L67">		AssetDTO response=new AssetDTO();</span>
+<span class="nc" id="L68">		response.setAssetId(asset.getAssetId());</span>
+<span class="nc" id="L69">		response.setAssetTag(asset.getAssetTag());</span>
+<span class="nc" id="L70">		response.setCategory(asset.getCategory());</span>
+<span class="nc" id="L71">		response.setName(asset.getName());</span>
+<span class="nc" id="L72">		response.setStatus(asset.getStatus());</span>
+<span class="nc" id="L73">		response.setCreatedBy(asset.getCreatedBy());</span>
+<span class="nc" id="L74">		return response;</span>
+				
+	}
+
+	@Override
+	public AssetDTO getAssetById(Long assetId) {
+<span class="fc" id="L80">		Asset asset=assetReposository.findById(assetId).orElseThrow(()-&gt;new ResourceNotFoundException(&quot;Asset Not Found&quot;));</span>
+<span class="fc" id="L81">		AssetDTO dto=new AssetDTO();</span>
+<span class="fc" id="L82">		dto.setAssetId(asset.getAssetId());</span>
+<span class="fc" id="L83">		dto.setAssetTag(asset.getAssetTag());</span>
+<span class="fc" id="L84">		dto.setCategory(asset.getCategory());</span>
+<span class="fc" id="L85">		dto.setName(asset.getName());</span>
+<span class="fc" id="L86">		dto.setStatus(asset.getStatus());</span>
+<span class="fc" id="L87">		dto.setCreatedBy(asset.getCreatedBy());</span>
+<span class="fc" id="L88">		dto.setAllocatedUnits(asset.getAllocatedUnits());</span>
+<span class="fc" id="L89">		dto.setAvailableUnits(asset.getAvailableUnits());</span>
+<span class="fc" id="L90">		dto.setTotalUnits(asset.getTotalUnits());</span>
+<span class="fc" id="L91">		return dto;</span>
+	}
+
+	@Override
+	public List&lt;AssetDTO&gt; getAllAssets() {
+		
+<span class="fc" id="L97">		return assetReposository.findAll()</span>
+<span class="fc" id="L98">				.stream().map(asset-&gt;{</span>
+<span class="fc" id="L99">						AssetDTO dto=new AssetDTO();</span>
+<span class="fc" id="L100">						dto.setAssetId(asset.getAssetId());</span>
+<span class="fc" id="L101">						dto.setAssetTag(asset.getAssetTag());</span>
+<span class="fc" id="L102">						dto.setCategory(asset.getCategory());</span>
+<span class="fc" id="L103">						dto.setName(asset.getName());</span>
+<span class="fc" id="L104">						dto.setStatus(asset.getStatus());</span>
+<span class="fc" id="L105">						dto.setCreatedBy(asset.getCreatedBy());</span>
+<span class="fc" id="L106">						dto.setAllocatedUnits(asset.getAllocatedUnits());</span>
+<span class="fc" id="L107">						dto.setAvailableUnits(asset.getAvailableUnits());</span>
+<span class="fc" id="L108">						dto.setTotalUnits(asset.getTotalUnits());</span>
+<span class="fc" id="L109">						return dto;</span>
+<span class="fc" id="L110">				}).collect(Collectors.toList());</span>
+	
+	}
+
+	@Override
+	public void deleteAsset(Long assetId, Long deleterUserId) {
+
+<span class="nc bnc" id="L117" title="All 2 branches missed.">		if(!assetReposository.existsById(assetId))</span>
+		{
+<span class="nc" id="L119">			throw new ResourceNotFoundException(&quot;Asset Not Found&quot;);</span>
+		}
+		
+<span class="nc" id="L122">		assetReposository.deleteById(assetId);</span>
+		
+<span class="nc" id="L124">	}</span>
+	
+	@Override
+	public Page&lt;AssetDTO&gt; getAllAssetsPaginated(Pageable pageable)
+	{	
+<span class="nc" id="L129">		return assetReposository.findAll(pageable)</span>
+<span class="nc" id="L130">				.map(asset-&gt;{</span>
+<span class="nc" id="L131">					AssetDTO dto=new AssetDTO();</span>
+<span class="nc" id="L132">					dto.setAssetId(asset.getAssetId());</span>
+<span class="nc" id="L133">					dto.setAssetTag(asset.getAssetTag());</span>
+<span class="nc" id="L134">					dto.setCategory(asset.getCategory());</span>
+<span class="nc" id="L135">					dto.setName(asset.getName());</span>
+<span class="nc" id="L136">					dto.setAssetId(asset.getAssetId());</span>
+<span class="nc" id="L137">					dto.setAllocatedUnits(asset.getAllocatedUnits());</span>
+<span class="nc" id="L138">					dto.setAvailableUnits(asset.getAvailableUnits());</span>
+<span class="nc" id="L139">					dto.setTotalUnits(asset.getTotalUnits());</span>
+<span class="nc" id="L140">					dto.setStatus(asset.getStatus());</span>
+<span class="nc" id="L141">					dto.setCreatedBy(asset.getCreatedBy());</span>
+					
+<span class="nc" id="L143">					return dto;</span>
+					
+				});
+		
+		
+	}
+
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

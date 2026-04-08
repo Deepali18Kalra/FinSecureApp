@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">FinSecureProject</a> &gt; <a href="index.source.html" class="el_package">com.ds.app.dto</a> &gt; <span class="el_source">AssetDTO.java</span></div><h1>AssetDTO.java</h1><pre class="source lang-java linenums">package com.ds.app.dto;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+import com.ds.app.enums.AssetStatus;
+
+
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+<span class="fc" id="L14">public class AssetDTO {</span>
+
+    private Long assetId;
+
+    @NotNull(message=&quot;Asset tag cannot be null&quot;)
+    @Size(min=2,max=30)
+    private String assetTag;
+    
+    @NotNull(message=&quot;Category cannot be null&quot;)
+    private String category;
+
+    @NotNull(message=&quot;Name tag cannot be null&quot;)
+    private String name;
+    
+    
+    
+    //new
+    @NotNull(message=&quot;Total units must be provided&quot;)
+    @Min(value=1,message=&quot;Total units must be atleast 1&quot;)
+    private Integer totalUnits;
+    private Integer allocatedUnits;
+    private Integer availableUnits;
+    
+    
+    //new
+    
+    
+    //response
+    private AssetStatus status;
+    
+    private Long createdBy;
+
+<span class="nc" id="L46">    public Long getAssetId() { return assetId; }</span>
+<span class="fc" id="L47">    public void setAssetId(Long assetId) { this.assetId = assetId; }</span>
+
+<span class="nc" id="L49">    public String getAssetTag() { return assetTag; }</span>
+<span class="fc" id="L50">    public void setAssetTag(String assetTag) { this.assetTag = assetTag; }</span>
+
+<span class="fc" id="L52">    public String getCategory() { return category; }</span>
+<span class="fc" id="L53">    public void setCategory(String category) { this.category = category; }</span>
+
+<span class="fc" id="L55">    public String getName() { return name; }</span>
+<span class="fc" id="L56">    public void setName(String name) { this.name = name; }</span>
+
+    public Integer getTotalUnits() {
+<span class="nc" id="L59">		return totalUnits;</span>
+	}
+	public void setTotalUnits(Integer totalUnits) {
+<span class="fc" id="L62">		this.totalUnits = totalUnits;</span>
+<span class="fc" id="L63">	}</span>
+	public Integer getAllocatedUnits() {
+<span class="nc" id="L65">		return allocatedUnits;</span>
+	}
+	public void setAllocatedUnits(Integer allocatedUnits) {
+<span class="fc" id="L68">		this.allocatedUnits = allocatedUnits;</span>
+<span class="fc" id="L69">	}</span>
+	public Integer getAvailableUnits() {
+<span class="nc" id="L71">		return availableUnits;</span>
+	}
+	public void setAvailableUnits(Integer availableUnits) {
+<span class="fc" id="L74">		this.availableUnits = availableUnits;</span>
+<span class="fc" id="L75">	}</span>
+<span class="nc" id="L76">	public AssetStatus getStatus() { return status; }</span>
+<span class="fc" id="L77">    public void setStatus(AssetStatus status) { this.status = status; }</span>
+
+<span class="nc" id="L79">    public Long getCreatedBy() { return createdBy; }</span>
+<span class="fc" id="L80">    public void setCreatedBy(Long createdBy) { this.createdBy = createdBy; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetAllocationServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">FinSecureProject</a> &gt; <a href="index.source.html" class="el_package">com.ds.app.service.impl</a> &gt; <span class="el_source">AssetAllocationServiceImpl.java</span></div><h1>AssetAllocationServiceImpl.java</h1><pre class="source lang-java linenums">package com.ds.app.service.impl;
+
+import java.time.LocalDate;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.ds.app.dto.AllocateAssetRequestDTO;
+import com.ds.app.dto.AssetAllocationDTO;
+import com.ds.app.entity.AppUser;
+import com.ds.app.entity.Asset;
+import com.ds.app.entity.AssetAllocation;
+import com.ds.app.entity.Employee;
+import com.ds.app.enums.AllocationStatus;
+import com.ds.app.enums.AssetStatus;
+import com.ds.app.exception.BadRequestException;
+import com.ds.app.exception.ResourceNotFoundException;
+import com.ds.app.repository.AssetAllocationRepository;
+import com.ds.app.repository.AssetRepository;
+import com.ds.app.repository.iAppUserRepository;
+import com.ds.app.service.AssetAllocationService;
+
+@Service
+public class AssetAllocationServiceImpl implements AssetAllocationService{
+	
+	private final AssetRepository assetRepository;
+	private final AssetAllocationRepository assetAllocationRepository;
+	private final iAppUserRepository appUserRepository;
+	
+
+	public AssetAllocationServiceImpl(AssetRepository assetRepository,
+			AssetAllocationRepository assetAllocationRepository, iAppUserRepository appUserRepository) {
+<span class="fc" id="L34">		super();</span>
+<span class="fc" id="L35">		this.assetRepository = assetRepository;</span>
+<span class="fc" id="L36">		this.assetAllocationRepository = assetAllocationRepository;</span>
+<span class="fc" id="L37">		this.appUserRepository = appUserRepository;</span>
+<span class="fc" id="L38">	}</span>
+
+	@Override
+	public AssetAllocationDTO allocateAsset(AllocateAssetRequestDTO request,Long hrOrAdminUserId) {
+<span class="nc" id="L42">		Asset asset=assetRepository.findById(request.getAssetId()).orElseThrow(()-&gt;new ResourceNotFoundException(&quot;Asset not found&quot;));</span>
+//		if(asset.getStatus()!=AssetStatus.AVAILABLE)
+//		{
+//			throw new BadRequestException(&quot;Asset not available&quot;);
+//		}
+//		
+<span class="nc bnc" id="L48" title="All 2 branches missed.">		if(asset.getAvailableUnits()&lt;=0)</span>
+		{
+<span class="nc" id="L50">			throw new BadRequestException(&quot;Asset not available&quot;);</span>
+		}
+		
+		
+//		AssetAllocation allocation=new AssetAllocation();
+//		allocation.setAsset(asset);
+//		
+		
+
+
+<span class="nc" id="L60">		AppUser user = appUserRepository.findById(request.getEmployeeId())</span>
+<span class="nc" id="L61">				.orElseThrow(() -&gt; new ResourceNotFoundException(&quot;User not found&quot;));</span>
+
+<span class="nc bnc" id="L63" title="All 2 branches missed.">		if (!(user instanceof Employee employee)) {</span>
+<span class="nc" id="L64">			throw new ResourceNotFoundException(&quot;User is not an Employee&quot;);</span>
+		}
+
+		
+<span class="nc" id="L68">		AssetAllocation allocation=new AssetAllocation();</span>
+<span class="nc" id="L69">		allocation.setAsset(asset);</span>
+<span class="nc" id="L70">		allocation.setEmployee(employee);</span>
+<span class="nc" id="L71">		allocation.setAllocatedBy(hrOrAdminUserId);</span>
+//		allocation.setAllocatedBy(request.getEmployeeId());
+<span class="nc" id="L73">		allocation.setAllocatedDate(LocalDate.now());</span>
+<span class="nc" id="L74">		allocation.setStatus(AllocationStatus.ACTIVE);</span>
+	//new
+<span class="nc bnc" id="L76" title="All 2 branches missed.">		if(asset.getAvailableUnits()&lt;=0)</span>
+		{
+<span class="nc" id="L78">			throw new BadRequestException(&quot;No units available to allocate.&quot;);</span>
+		}
+		
+<span class="nc" id="L81">		asset.setAllocatedUnits(asset.getAllocatedUnits()+1);</span>
+<span class="nc" id="L82">		asset.setAvailableUnits(asset.getAvailableUnits()-1);</span>
+<span class="nc" id="L83">		assetAllocationRepository.save(allocation);</span>
+		//new
+<span class="nc" id="L85">		asset.setStatus(AssetStatus.ALLOCATED);</span>
+<span class="nc" id="L86">		assetRepository.save(asset);</span>
+		
+<span class="nc" id="L88">		AssetAllocationDTO dto=new AssetAllocationDTO();</span>
+<span class="nc" id="L89">		dto.setAllocationId(allocation.getAllocationId());</span>
+<span class="nc" id="L90">		dto.setAssetId(asset.getAssetId());</span>
+//		dto.setEmployeeId(allocation.getEmployeeId());
+<span class="nc" id="L92">		dto.setEmployeeId(employee.getUserId());</span>
+<span class="nc" id="L93">		dto.setAllocatedBy(allocation.getAllocatedBy());</span>
+<span class="nc" id="L94">		dto.setAllocatedDate(allocation.getAllocatedDate());</span>
+<span class="nc" id="L95">		dto.setStatus(allocation.getStatus());</span>
+
+<span class="nc" id="L97">		dto.setAllocatedByName(appUserRepository.findById(allocation.getAllocatedBy())</span>
+<span class="nc" id="L98">        .map(c-&gt;c.getUsername())</span>
+<span class="nc" id="L99">        .orElse(null)</span>
+				);
+	
+<span class="nc" id="L102">		return dto;</span>
+	}
+
+	@Override
+	public AssetAllocationDTO deallocateAsset(Long allocationId,Long hrOrAdminUserId) {
+<span class="nc" id="L107">		AssetAllocation allocation=assetAllocationRepository.findById(allocationId)</span>
+<span class="nc" id="L108">				.orElseThrow(()-&gt; new ResourceNotFoundException(&quot;Allocation not found&quot;));</span>
+		
+<span class="nc" id="L110">		allocation.setDeallocatedDate(LocalDate.now());</span>
+<span class="nc" id="L111">		allocation.setStatus(AllocationStatus.RETURNED);</span>
+		
+<span class="nc" id="L113">		assetAllocationRepository.save(allocation);</span>
+		
+<span class="nc" id="L115">		Asset asset=allocation.getAsset();</span>
+<span class="nc" id="L116">		asset.setStatus(AssetStatus.AVAILABLE);</span>
+		
+<span class="nc" id="L118">		asset.setAllocatedUnits(asset.getAllocatedUnits()-1);</span>
+<span class="nc" id="L119">		asset.setAvailableUnits(asset.getAvailableUnits()+1);</span>
+<span class="nc" id="L120">		assetRepository.save(asset);</span>
+		
+
+<span class="nc" id="L123">		AssetAllocationDTO dto = new AssetAllocationDTO();</span>
+<span class="nc" id="L124">        dto.setAllocationId(allocation.getAllocationId());</span>
+<span class="nc" id="L125">        dto.setAssetId(asset.getAssetId());</span>
+<span class="nc" id="L126">        dto.setEmployeeId(allocation.getEmployee().getUserId());</span>
+<span class="nc" id="L127">        dto.setAllocatedBy(allocation.getAllocatedBy());</span>
+<span class="nc" id="L128">        dto.setAllocatedDate(allocation.getAllocatedDate());</span>
+<span class="nc" id="L129">        dto.setDeallocatedDate(allocation.getDeallocatedDate());</span>
+<span class="nc" id="L130">        dto.setStatus(allocation.getStatus());</span>
+
+<span class="nc" id="L132">        dto.setAllocatedByName(</span>
+<span class="nc" id="L133">        		appUserRepository.findById(allocation.getAllocatedBy())</span>
+<span class="nc" id="L134">        		.map(user -&gt; user.getUsername())</span>
+<span class="nc" id="L135">        		.orElse(null));</span>
+
+        
+        
+<span class="nc" id="L139">        return dto;</span>
+
+		
+		//		AssetAllocationDTO dto=new AssetAllocationDTO();
+//		
+//		dto.setAssetId(asset.getAssetId());
+//		dto.setEmployeeId(allocation.getEmployee().getUserId());
+//		
+//		
+//		dto.setAllocationId(allocation.getAllocationId());
+//		dto.setAssetId(asset.getAssetId());
+//		dto.setEmployeeId(allocation.getEmployee().getUserId());
+//		dto.setAllocatedBy(allocation.getAllocatedBy());
+//		dto.setAllocatedDate(allocation.getAllocatedDate());
+//		dto.setDeallocatedDate(allocation.getDeallocatedDate());
+//		dto.setStatus(allocation.getStatus());
+//		
+//		
+//		return dto;
+	}
+
+	@Override
+	public Page&lt;AssetAllocationDTO&gt; getAllAllocationsPaginated(Pageable pageable) {
+
+<span class="nc" id="L163">		return assetAllocationRepository.findAll(pageable)</span>
+<span class="nc" id="L164">				.map(allocation-&gt;{</span>
+<span class="nc" id="L165">					AssetAllocationDTO dto=new AssetAllocationDTO();</span>
+<span class="nc" id="L166">					dto.setAllocationId(allocation.getAllocationId());</span>
+<span class="nc" id="L167">					dto.setAssetId(allocation.getAsset().getAssetId());</span>
+<span class="nc" id="L168">					dto.setEmployeeId(allocation.getEmployee().getUserId());</span>
+<span class="nc" id="L169">					dto.setAllocatedBy(allocation.getAllocatedBy());</span>
+<span class="nc" id="L170">					dto.setAllocatedDate(allocation.getAllocatedDate());</span>
+<span class="nc" id="L171">					dto.setDeallocatedDate(allocation.getDeallocatedDate());</span>
+<span class="nc" id="L172">					dto.setStatus(allocation.getStatus());</span>
+<span class="nc" id="L173">					dto.setAllocatedByName(</span>
+<span class="nc" id="L174">						    appUserRepository.findById(allocation.getAllocatedBy())</span>
+<span class="nc" id="L175">						        .map(user -&gt; user.getUsername())</span>
+<span class="nc" id="L176">						        .orElse(null)</span>
+						);
+					
+					
+<span class="nc" id="L180">					return dto;</span>
+					
+				});
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

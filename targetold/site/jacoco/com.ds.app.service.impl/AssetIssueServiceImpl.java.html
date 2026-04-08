@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetIssueServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">FinSecureProject</a> &gt; <a href="index.source.html" class="el_package">com.ds.app.service.impl</a> &gt; <span class="el_source">AssetIssueServiceImpl.java</span></div><h1>AssetIssueServiceImpl.java</h1><pre class="source lang-java linenums">package com.ds.app.service.impl;
+
+import java.time.LocalDateTime;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.ds.app.dto.AssetIssueDTO;
+import com.ds.app.dto.RaiseIssueRequestDTO;
+import com.ds.app.entity.AppUser;
+import com.ds.app.entity.Asset;
+import com.ds.app.entity.AssetIssue;
+import com.ds.app.entity.Employee;
+import com.ds.app.enums.IssueStatus;
+import com.ds.app.exception.BadRequestException;
+import com.ds.app.exception.ResourceNotFoundException;
+import com.ds.app.repository.AssetIssueRepository;
+import com.ds.app.repository.AssetRepository;
+import com.ds.app.repository.iAppUserRepository;
+import com.ds.app.service.AssetIssueService;
+
+@Service
+public class AssetIssueServiceImpl implements AssetIssueService {
+	
+	private final iAppUserRepository appUserRepository;
+	private final AssetRepository assetRepository;
+	private final AssetIssueRepository issueRepository;
+	
+	
+	
+	public AssetIssueServiceImpl(iAppUserRepository appUserRepository, AssetRepository assetRepository,
+			AssetIssueRepository issueRepository) {
+<span class="fc" id="L34">		super();</span>
+<span class="fc" id="L35">		this.appUserRepository = appUserRepository;</span>
+<span class="fc" id="L36">		this.assetRepository = assetRepository;</span>
+<span class="fc" id="L37">		this.issueRepository = issueRepository;</span>
+<span class="fc" id="L38">	}</span>
+	
+	@Override
+	public AssetIssueDTO raiseIssue(RaiseIssueRequestDTO request,Long loggedInUserId) {
+<span class="nc" id="L42">		Asset asset=assetRepository.findById(request.getAssetId()).orElseThrow(()-&gt;new ResourceNotFoundException(&quot;Asset not found&quot;));</span>
+		
+//		AssetIssue issue=new AssetIssue();
+//		issue.setAsset(asset);
+
+<span class="nc" id="L47">		AppUser appUser = appUserRepository.findById(loggedInUserId).orElseThrow(()-&gt;new ResourceNotFoundException(&quot;User not found&quot;));</span>
+
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		if (!(appUser instanceof Employee employee)) {</span>
+<span class="nc" id="L50">			throw new BadRequestException(&quot;Only Employees/Hr/Admin can raise issues&quot;);</span>
+		}
+
+<span class="nc" id="L53">		AssetIssue issue=new AssetIssue();</span>
+<span class="nc" id="L54">		issue.setAsset(asset);</span>
+<span class="nc" id="L55">		issue.setEmployee(employee);</span>
+<span class="nc" id="L56">		issue.setIssueType(request.getIssueType());</span>
+<span class="nc" id="L57">		issue.setDescription(request.getDescription());</span>
+<span class="nc" id="L58">		issue.setStatus(IssueStatus.OPEN);</span>
+<span class="nc" id="L59">		issue.setCreatedAt(LocalDateTime.now());</span>
+<span class="nc" id="L60">		issueRepository.save(issue);</span>
+		
+		
+<span class="nc" id="L63">		AssetIssueDTO dto=new AssetIssueDTO();</span>
+		
+<span class="nc" id="L65">		dto.setIssueId(issue.getIssueId());</span>
+<span class="nc" id="L66">		dto.setAssetId(asset.getAssetId());</span>
+		//dto.setEmployeeId(issue.getEmployeeId());
+<span class="nc" id="L68">		dto.setEmployeeId(employee.getUserId());</span>
+<span class="nc" id="L69">		dto.setIssueType(issue.getIssueType());</span>
+<span class="nc" id="L70">		dto.setDescription(issue.getDescription());</span>
+<span class="nc" id="L71">		dto.setStatus(issue.getStatus());</span>
+<span class="nc" id="L72">		dto.setCreatedAt(issue.getCreatedAt());</span>
+		
+<span class="nc" id="L74">		return dto;</span>
+	}
+	@Override
+	public AssetIssueDTO updateIssueStatus(Long issueId, String status,Long hrOrAdminUserId) {
+		
+<span class="nc" id="L79">		AssetIssue issue=issueRepository.findById(issueId).orElseThrow(()-&gt; new ResourceNotFoundException(&quot;Issue not found&quot;));</span>
+<span class="nc" id="L80">		issue.setStatus(IssueStatus.valueOf(status));</span>
+<span class="nc" id="L81">		issue.setUpdatedAt(LocalDateTime.now());</span>
+		
+<span class="nc" id="L83">		issueRepository.save(issue);</span>
+		
+<span class="nc" id="L85">		AssetIssueDTO dto=new AssetIssueDTO();</span>
+<span class="nc" id="L86">		dto.setIssueId(issue.getIssueId());</span>
+<span class="nc" id="L87">		dto.setStatus(issue.getStatus());</span>
+<span class="nc" id="L88">		return dto;</span>
+	}
+
+	@Override
+	public Page&lt;AssetIssueDTO&gt; getAllIssuesPaginated(Pageable pageable) {
+
+<span class="nc" id="L94">		return issueRepository.findAll(pageable)</span>
+<span class="nc" id="L95">            .map(issue -&gt; {</span>
+<span class="nc" id="L96">                AssetIssueDTO dto = new AssetIssueDTO();</span>
+<span class="nc" id="L97">                dto.setIssueId(issue.getIssueId());</span>
+<span class="nc" id="L98">                dto.setAssetId(issue.getAsset().getAssetId());</span>
+<span class="nc" id="L99">                dto.setEmployeeId(issue.getEmployee().getUserId());</span>
+<span class="nc" id="L100">                dto.setIssueType(issue.getIssueType());</span>
+<span class="nc" id="L101">                dto.setDescription(issue.getDescription());</span>
+<span class="nc" id="L102">                dto.setStatus(issue.getStatus());</span>
+<span class="nc" id="L103">                dto.setCreatedAt(issue.getCreatedAt());</span>
+<span class="nc" id="L104">                return dto;</span>
+            });
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

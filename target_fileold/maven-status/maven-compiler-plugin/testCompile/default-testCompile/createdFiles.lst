@@ -1,0 +1,11 @@
+com\ds\app\dto\DTOAndExceptionTest.class
+com\ds\app\service\AssetReportServiceDelegationTest.class
+com\ds\app\service\AssetServiceEmptyTest.class
+com\ds\app\service\AssetServiceTestGetAllAsset.class
+com\ds\app\entity\AssetEscalationEntityTest.class
+com\ds\app\dto\DTOSmokeTest.class
+com\ds\app\FinSecureProjectApplicationTests.class
+com\ds\app\service\AssetServiceTest.class
+com\ds\app\service\AssetReportServiceTest.class
+com\ds\app\entity\EntitySmokeTest.class
+com\ds\app\entity\EntityCoverageTest.class

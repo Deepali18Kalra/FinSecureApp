@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JWTUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">FinSecureProject</a> &gt; <a href="index.source.html" class="el_package">com.ds.app.jwtutil</a> &gt; <span class="el_source">JWTUtil.java</span></div><h1>JWTUtil.java</h1><pre class="source lang-java linenums">package com.ds.app.jwtutil;
+
+import java.util.Date;
+import java.util.List;
+import java.util.function.Function;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.stereotype.Component;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+
+@Component
+<span class="fc" id="L16">public class JWTUtil {</span>
+
+    // ✅ Simple secret (must match across services later)
+    private static final String SECRET_KEY =
+            &quot;descartesdescartesdescartes12345&quot;;
+
+<span class="fc" id="L22">    private final SecretKey key =</span>
+<span class="fc" id="L23">            Keys.hmacShaKeyFor(SECRET_KEY.getBytes());</span>
+
+    // ✅ Extract username → becomes Principal name
+    public String extractUsername(String token) {
+<span class="nc" id="L27">        return extractClaim(token, Claims::getSubject);</span>
+    }
+
+    // ✅ Extract expiration
+    public Date extractExpiration(String token) {
+<span class="nc" id="L32">        return extractClaim(token, Claims::getExpiration);</span>
+    }
+
+    // ✅ Extract roles
+    public List&lt;String&gt; extractRoles(String token) {
+<span class="nc" id="L37">        Claims claims = extractAllClaims(token);</span>
+<span class="nc" id="L38">        return claims.get(&quot;roles&quot;, List.class);</span>
+    }
+
+    // ✅ Generic claim extractor
+    public &lt;T&gt; T extractClaim(
+            String token,
+            Function&lt;Claims, T&gt; resolver) {
+
+<span class="nc" id="L46">        Claims claims = extractAllClaims(token);</span>
+<span class="nc" id="L47">        return resolver.apply(claims);</span>
+    }
+
+    private Claims extractAllClaims(String token) {
+<span class="nc" id="L51">        return Jwts.parser()</span>
+<span class="nc" id="L52">                .verifyWith(key)</span>
+<span class="nc" id="L53">                .build()</span>
+<span class="nc" id="L54">                .parseSignedClaims(token)</span>
+<span class="nc" id="L55">                .getPayload();</span>
+    }
+
+    private boolean isTokenExpired(String token) {
+<span class="nc" id="L59">        return extractExpiration(token).before(new Date());</span>
+    }
+
+    public String generateToken(String username, List&lt;String&gt; roles) {
+<span class="nc" id="L63">        return Jwts.builder()</span>
+<span class="nc" id="L64">                .setSubject(username)                 // principal name</span>
+<span class="nc" id="L65">                .claim(&quot;roles&quot;, roles)                // authorities</span>
+<span class="nc" id="L66">                .setIssuedAt(new Date())</span>
+<span class="nc" id="L67">                .setExpiration(</span>
+<span class="nc" id="L68">                        new Date(System.currentTimeMillis()</span>
+                                + 24 * 60 * 60 * 1000) // 24h
+                )
+<span class="nc" id="L71">                .signWith(key)</span>
+<span class="nc" id="L72">                .compact();</span>
+    }
+
+    public boolean validateToken(String token, String username) {
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        return extractUsername(token).equals(username)</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">                &amp;&amp; !isTokenExpired(token);</span>
+    }
+}
+
+
+
+//package com.ds.app.jwtutil;
+//
+//import java.util.Date;
+//import java.util.Map;
+//import java.util.function.Function;
+//
+//import javax.crypto.SecretKey;
+//
+//import org.springframework.stereotype.Component;
+//
+//import com.ds.app.entity.AppUser;
+//
+//import io.jsonwebtoken.Claims;
+//import io.jsonwebtoken.Jwts;
+//import io.jsonwebtoken.SignatureAlgorithm;
+//import io.jsonwebtoken.security.Keys;
+//
+//@Component
+//public class JWTUtil {
+//
+//    private final String SECRET_KEY = &quot;rtytrtyuytrabcdeghijklmnwerty12345&quot;;
+//    private final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+//
+//    public String extractUsername(String token) {
+//        return extractClaim(token, Claims::getSubject);
+//    }
+//
+//    public Integer extractUserId(String token) {
+//        return extractAllClaims(token).get(&quot;userId&quot;, Integer.class);
+//    }
+//
+//    public String extractRole(String token) {
+//        return extractAllClaims(token).get(&quot;role&quot;, String.class);
+//    }
+//
+//    public Date extractExpiration(String token) {
+//        return extractClaim(token, Claims::getExpiration);
+//    }
+//
+//    public &lt;T&gt; T extractClaim(String token, Function&lt;Claims, T&gt; claimResolver) {
+//        return claimResolver.apply(extractAllClaims(token));
+//    }
+//
+//    public Claims extractAllClaims(String token) {
+//        return Jwts.parser()
+//                .verifyWith(key)
+//                .build()
+//                .parseSignedClaims(token)
+//                .getPayload();
+//    }
+//
+//    public String generateToken(AppUser user) {
+//
+//        Map&lt;String, Object&gt; claims = Map.of(
+//                &quot;userId&quot;, user.getUserId(),
+//                &quot;role&quot;, user.getRole().toString()
+//        );
+//
+//        return Jwts.builder()
+//                .claims(claims)
+//                .subject(user.getUsername())
+//                .issuedAt(new Date(System.currentTimeMillis()))
+//                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour expiry
+//                .signWith(key, SignatureAlgorithm.HS256)
+//                .compact();
+//    }
+//
+//    //validation
+//    public boolean validateToken(String token, String username) {
+//        String extractedUsername = extractUsername(token);
+//        return extractedUsername.equals(username) &amp;&amp; !isTokenExpired(token);
+//    }
+//
+//    private boolean isTokenExpired(String token) {
+//        return extractExpiration(token).before(new Date());
+//    }
+//}
+//
+//
+//
+////package com.ds.app.jwtutil;
+////
+////import java.util.Date;
+////import java.util.function.Function;
+////
+////import javax.crypto.SecretKey;
+////
+////import org.springframework.stereotype.Component;
+////
+////import io.jsonwebtoken.Claims;
+////import io.jsonwebtoken.Jwts;
+////import io.jsonwebtoken.security.Keys;
+////
+////@Component
+////public class JWTUtil {
+////
+////    private final String SECRET_KEY = &quot;descartesdescartesdescartes12345&quot;;
+////    
+////    private final SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+////    
+////    public String extractUsername(String token) {
+////    	return extractClaim(token, claims-&gt;claims.getSubject());
+////    }
+////    
+////    public Date extractExpiration(String token) {
+////    	return extractClaim(token, claims-&gt;claims.getExpiration());
+////    }
+////    
+////    private Claims extractAllClaims(String token) {
+////    	return Jwts.parser()
+////                .verifyWith(key)
+////                .build()
+////                .parseSignedClaims(token)
+////                .getPayload();
+////    }
+////    
+////    private Boolean isTokenExpired(String token) {
+////    	return extractExpiration(token).before(new Date());
+////    }
+////    public &lt;T&gt; T extractClaim(String token,Function&lt;Claims,T&gt; claimresolver) {
+////    	Claims cliams = extractAllClaims(token);
+////    	
+////    	return claimresolver.apply(cliams);
+////    }
+////    
+////    public String generateToken(String username) {
+////        return Jwts.builder()
+////                .setSubject(username)
+////                .setIssuedAt(new Date())
+////                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+////                .signWith(key)
+////                .compact();
+////    }
+////
+////    public boolean validateToken(String token, String username) {
+////        return (extractUsername(token).equals(username) &amp;&amp; !isTokenExpired(token));
+////    }
+////}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

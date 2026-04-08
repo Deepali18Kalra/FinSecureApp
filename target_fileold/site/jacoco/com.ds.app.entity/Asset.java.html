@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Asset.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">FinSecureProject</a> &gt; <a href="index.source.html" class="el_package">com.ds.app.entity</a> &gt; <span class="el_source">Asset.java</span></div><h1>Asset.java</h1><pre class="source lang-java linenums">package com.ds.app.entity;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import com.ds.app.enums.AssetStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+    
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = &quot;assets&quot;)
+public class Asset {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long assetId;
+ 
+    @Column(unique = true,nullable = false)
+    private String assetTag;//LAP-101
+    
+    private String category;
+    
+    private String name;
+    
+    private Integer totalUnits;
+    private Integer allocatedUnits;
+    private Integer availableUnits;
+    
+    
+    @Enumerated(EnumType.STRING)
+    private AssetStatus status;
+    
+    private Long createdBy;//employeeId of HR/Admin
+  
+    private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = &quot;asset&quot;, cascade = CascadeType.ALL)
+    private List&lt;AssetAllocation&gt; allocations;
+
+    @OneToMany(mappedBy = &quot;asset&quot;, cascade = CascadeType.ALL)
+    private List&lt;AssetIssue&gt; issues;
+
+    @OneToMany(mappedBy = &quot;asset&quot;, cascade = CascadeType.ALL)
+    private List&lt;AssetEscalation&gt; escalations;
+    
+    @PrePersist
+    public void prePersist()
+    {
+
+<span class="nc bnc" id="L68" title="All 2 branches missed.">    	if (allocatedUnits == null) {</span>
+<span class="nc" id="L69">            allocatedUnits = 0;</span>
+        }
+<span class="nc bnc" id="L71" title="All 4 branches missed.">        if (availableUnits == null &amp;&amp; totalUnits != null) {</span>
+<span class="nc" id="L72">            availableUnits = totalUnits;</span>
+        }
+
+<span class="nc" id="L75">    	createdAt=LocalDateTime.now();</span>
+<span class="nc" id="L76">    	status=AssetStatus.AVAILABLE;</span>
+<span class="nc" id="L77">    }</span>
+      
+	public Long getAssetId() {
+<span class="fc" id="L80">		return assetId;</span>
+	}
+
+	public void setAssetId(Long assetId) {
+<span class="fc" id="L84">		this.assetId = assetId;</span>
+<span class="fc" id="L85">	}</span>
+
+	public String getAssetTag() {
+<span class="fc" id="L88">		return assetTag;</span>
+	}
+
+	public void setAssetTag(String assetTag) {
+<span class="nc" id="L92">		this.assetTag = assetTag;</span>
+<span class="nc" id="L93">	}</span>
+
+	public String getCategory() {
+<span class="fc" id="L96">		return category;</span>
+	}
+
+	public void setCategory(String category) {
+<span class="fc" id="L100">		this.category = category;</span>
+<span class="fc" id="L101">	}</span>
+
+	public String getName() {
+<span class="fc" id="L104">		return name;</span>
+	}
+
+	public void setName(String name) {
+<span class="fc" id="L108">		this.name = name;</span>
+<span class="fc" id="L109">	}</span>
+
+	public AssetStatus getStatus() {
+<span class="fc" id="L112">		return status;</span>
+	}
+
+	public void setStatus(AssetStatus status) {
+<span class="nc" id="L116">		this.status = status;</span>
+<span class="nc" id="L117">	}</span>
+
+	public Long getCreatedBy() {
+<span class="fc" id="L120">		return createdBy;</span>
+	}
+
+	public void setCreatedBy(Long createdBy) {
+<span class="nc" id="L124">		this.createdBy = createdBy;</span>
+<span class="nc" id="L125">	}</span>
+
+	public LocalDateTime getCreatedAt() {
+<span class="nc" id="L128">		return createdAt;</span>
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+<span class="nc" id="L132">		this.createdAt = createdAt;</span>
+<span class="nc" id="L133">	}</span>
+
+	public List&lt;AssetAllocation&gt; getAllocations() {
+<span class="nc" id="L136">		return allocations;</span>
+	}
+
+	public void setAllocations(List&lt;AssetAllocation&gt; allocations) {
+<span class="nc" id="L140">		this.allocations = allocations;</span>
+<span class="nc" id="L141">	}</span>
+
+	public List&lt;AssetIssue&gt; getIssues() {
+<span class="nc" id="L144">		return issues;</span>
+	}
+
+	public void setIssues(List&lt;AssetIssue&gt; issues) {
+<span class="nc" id="L148">		this.issues = issues;</span>
+<span class="nc" id="L149">	}</span>
+
+	public List&lt;AssetEscalation&gt; getEscalations() {
+<span class="nc" id="L152">		return escalations;</span>
+	}
+
+	public void setEscalations(List&lt;AssetEscalation&gt; escalations) {
+<span class="nc" id="L156">		this.escalations = escalations;</span>
+<span class="nc" id="L157">	}</span>
+
+	public Integer getTotalUnits() {
+<span class="fc" id="L160">		return totalUnits;</span>
+	}
+
+	public void setTotalUnits(Integer totalUnits) {
+<span class="fc" id="L164">		this.totalUnits = totalUnits;</span>
+<span class="fc" id="L165">	}</span>
+
+	public Integer getAllocatedUnits() {
+<span class="fc" id="L168">		return allocatedUnits;</span>
+	}
+
+	public void setAllocatedUnits(Integer allocatedUnits) {
+<span class="fc" id="L172">		this.allocatedUnits = allocatedUnits;</span>
+<span class="fc" id="L173">	}</span>
+
+	public Integer getAvailableUnits() {
+<span class="fc" id="L176">		return availableUnits;</span>
+	}
+
+	public void setAvailableUnits(Integer availableUnits) {
+<span class="fc" id="L180">		this.availableUnits = availableUnits;</span>
+<span class="fc" id="L181">	}</span>
+	
+	
+	
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

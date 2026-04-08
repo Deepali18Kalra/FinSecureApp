@@ -29,18 +29,7 @@ public class TrainingController {
     @Autowired
     private IEmailService emailService;
 
-    // TEST EMAIL ENDPOINT
-    @GetMapping("/test-email")
-    public String testEmail() {
-        log.info("START: testEmail endpoint called");
-        emailService.sendEnrollmentEmail(
-                "saurabhkumar.mca24@bvicam.in",
-                "Saurabh",
-                "spring training"
-        );
-        log.info("END: testEmail | Email sent successfully");
-        return "Email sent";
-    }
+ 
 
     // CREATE TRAINING
     @PreAuthorize("hasAuthority('HR')")

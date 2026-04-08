@@ -1,7 +1,7 @@
 package com.ds.app.mapper;
 
-import com.ds.app.dto.TimesheetEntryRequest;
-import com.ds.app.dto.TimesheetEntryResponse;
+import com.ds.app.dto.request.TimesheetEntryRequest;
+import com.ds.app.dto.response.TimesheetEntryResponse;
 import com.ds.app.entity.Timesheet;
 import com.ds.app.entity.TimesheetEntry;
 import org.springframework.stereotype.Component;

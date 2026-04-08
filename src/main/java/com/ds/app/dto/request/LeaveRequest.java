@@ -1,4 +1,4 @@
-package com.ds.app.dto;
+package com.ds.app.dto.request;
 
 import com.ds.app.enums.LeaveType;
 import jakarta.validation.constraints.FutureOrPresent;

@@ -1,8 +1,8 @@
 package com.ds.app.controller;
 
-import com.ds.app.dto.ApprovalRequest;
-import com.ds.app.dto.RegularizationRequestDTO;
-import com.ds.app.dto.RegularizationResponse;
+import com.ds.app.dto.request.ApprovalRequest;
+import com.ds.app.dto.request.RegularizationRequestDTO;
+import com.ds.app.dto.response.RegularizationResponse;
 import com.ds.app.enums.RegularizationRequestStatus;
 import com.ds.app.service.IRegularizationRequestService;
 import jakarta.validation.Valid;

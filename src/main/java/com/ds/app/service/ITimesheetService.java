@@ -1,8 +1,9 @@
 package com.ds.app.service;
 
-import com.ds.app.dto.ApprovalRequest;
-import com.ds.app.dto.AttendanceTimesheetDiscrepancyReport;
-import com.ds.app.dto.TimesheetResponse;
+import com.ds.app.dto.request.ApprovalRequest;
+import com.ds.app.dto.response.AttendanceTimesheetDiscrepancyReport;
+import com.ds.app.dto.response.TimesheetResponse;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

@@ -1,8 +1,8 @@
 package com.ds.app.mapper;
 
-import com.ds.app.dto.LeaveRequest;
-import com.ds.app.dto.LeaveResponse;
-import com.ds.app.dto.LeaveStatusResponse;
+import com.ds.app.dto.request.LeaveRequest;
+import com.ds.app.dto.response.LeaveResponse;
+import com.ds.app.dto.response.LeaveStatusResponse;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.Leave;
 import org.springframework.stereotype.Component;

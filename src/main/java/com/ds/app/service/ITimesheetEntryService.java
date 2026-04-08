@@ -1,7 +1,7 @@
 package com.ds.app.service;
 
-import com.ds.app.dto.TimesheetEntryRequest;
-import com.ds.app.dto.TimesheetEntryResponse;
+import com.ds.app.dto.request.TimesheetEntryRequest;
+import com.ds.app.dto.response.TimesheetEntryResponse;
 
 import java.time.LocalDate;
 import java.util.List;

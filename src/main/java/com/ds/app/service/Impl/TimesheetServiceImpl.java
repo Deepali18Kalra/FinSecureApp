@@ -1,9 +1,9 @@
 package com.ds.app.service.Impl;
 
-import com.ds.app.dto.ApprovalRequest;
-import com.ds.app.dto.AttendanceTimesheetDiscrepancyReport;
-import com.ds.app.dto.AttendanceTimesheetDiscrepancyRow;
-import com.ds.app.dto.TimesheetResponse;
+import com.ds.app.dto.request.ApprovalRequest;
+import com.ds.app.dto.response.AttendanceTimesheetDiscrepancyReport;
+import com.ds.app.dto.response.AttendanceTimesheetDiscrepancyRow;
+import com.ds.app.dto.response.TimesheetResponse;
 import com.ds.app.entity.Attendance;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.Timesheet;

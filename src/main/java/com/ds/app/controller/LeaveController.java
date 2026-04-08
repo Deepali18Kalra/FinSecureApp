@@ -1,9 +1,9 @@
 package com.ds.app.controller;
 
-import com.ds.app.dto.ApprovalRequest;
-import com.ds.app.dto.LeaveRequest;
-import com.ds.app.dto.LeaveResponse;
-import com.ds.app.dto.LeaveStatusResponse;
+import com.ds.app.dto.request.ApprovalRequest;
+import com.ds.app.dto.request.LeaveRequest;
+import com.ds.app.dto.response.LeaveResponse;
+import com.ds.app.dto.response.LeaveStatusResponse;
 import com.ds.app.enums.LeaveStatus;
 import com.ds.app.service.ILeaveService;
 import lombok.RequiredArgsConstructor;

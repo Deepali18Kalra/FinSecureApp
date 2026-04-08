@@ -1,7 +1,7 @@
 package com.ds.app.service;
 
-import com.ds.app.dto.HolidayRequest;
-import com.ds.app.dto.HolidayResponse;
+import com.ds.app.dto.request.HolidayRequest;
+import com.ds.app.dto.response.HolidayResponse;
 
 import java.time.LocalDate;
 import java.util.List;

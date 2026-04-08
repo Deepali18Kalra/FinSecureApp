@@ -1,8 +1,8 @@
 package com.ds.app.service.Impl;
 
-import com.ds.app.dto.ApprovalRequest;
-import com.ds.app.dto.RegularizationRequestDTO;
-import com.ds.app.dto.RegularizationResponse;
+import com.ds.app.dto.request.ApprovalRequest;
+import com.ds.app.dto.request.RegularizationRequestDTO;
+import com.ds.app.dto.response.RegularizationResponse;
 import com.ds.app.entity.Attendance;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.RegularizationRequest;
@@ -119,7 +119,7 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
                 .orElseThrow(() -> new ResourceNotFoundException("Regularization request not found with id: " + requestId));
 
         if (regularizationReq.getEmployee().getManager() == null || !regularizationReq.getEmployee().getManager().getUserId().equals(loggedInManager.getUserId())) {
-            throw new ForbiddenException("You are not authorised to review this timesheet");
+            throw new ForbiddenException("You are not authorised to process this regularization request");
         }
 
         if (regularizationReq.getStatus() != RegularizationRequestStatus.PENDING) {

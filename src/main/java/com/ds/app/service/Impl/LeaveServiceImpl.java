@@ -1,9 +1,9 @@
 package com.ds.app.service.Impl;
 
-import com.ds.app.dto.ApprovalRequest;
-import com.ds.app.dto.LeaveRequest;
-import com.ds.app.dto.LeaveResponse;
-import com.ds.app.dto.LeaveStatusResponse;
+import com.ds.app.dto.request.ApprovalRequest;
+import com.ds.app.dto.request.LeaveRequest;
+import com.ds.app.dto.response.LeaveResponse;
+import com.ds.app.dto.response.LeaveStatusResponse;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.Leave;
 import com.ds.app.enums.ApprovalStatus;
@@ -20,7 +20,7 @@ import com.ds.app.service.ILeaveBalanceService;
 import com.ds.app.service.ILeaveService;
 import com.ds.app.utils.DateUtil;
 import com.ds.app.utils.SecurityUtils;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,6 +1,6 @@
 package com.ds.app.mapper;
 
-import com.ds.app.dto.RegularizationResponse;
+import com.ds.app.dto.response.RegularizationResponse;
 import com.ds.app.entity.RegularizationRequest;
 import org.springframework.stereotype.Component;
 

@@ -1,8 +1,8 @@
 package com.ds.app.service.Impl;
 
-import com.ds.app.dto.AttendanceResponse;
-import com.ds.app.dto.MonthlyAttendanceReport;
-import com.ds.app.dto.TeamAttendanceReportRow;
+import com.ds.app.dto.response.AttendanceResponse;
+import com.ds.app.dto.response.MonthlyAttendanceReport;
+import com.ds.app.dto.response.TeamAttendanceReportRow;
 import com.ds.app.entity.Attendance;
 import com.ds.app.entity.Employee;
 import com.ds.app.enums.AttendanceStatus;

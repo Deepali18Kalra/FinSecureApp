@@ -1,6 +1,6 @@
 package com.ds.app.controller;
 
-import com.ds.app.dto.LeaveBalanceResponse;
+import com.ds.app.dto.response.LeaveBalanceResponse;
 import com.ds.app.service.ILeaveBalanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ public class LeaveBalanceController {
 
     private final ILeaveBalanceService leaveBalanceService;
 
-    // ── EMPLOYEE / MANAGER — view own balance ──
+    // Employee endpoints
 
     @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @GetMapping("/my")
@@ -26,7 +26,7 @@ public class LeaveBalanceController {
         return ResponseEntity.ok(response);
     }
 
-    // ── MANAGER — view a specific employee's balance ──
+    // Manager endpoints
 
     @PreAuthorize("hasAuthority('MANAGER')")
     @GetMapping("/employee/{employeeId}")
@@ -38,7 +38,6 @@ public class LeaveBalanceController {
         return ResponseEntity.ok(response);
     }
 
-    // ── MANAGER — view all team members' balances ──
 
     @PreAuthorize("hasAuthority('MANAGER')")
     @GetMapping("/team")

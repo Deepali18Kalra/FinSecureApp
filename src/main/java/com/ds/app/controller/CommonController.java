@@ -1,8 +1,8 @@
 package com.ds.app.controller;
 
-import com.ds.app.dto.AppUserRequestBodyDTO;
-import com.ds.app.dto.JWTResponseDTO;
-import com.ds.app.dto.SignUpUserResponseDTO;
+import com.ds.app.dto.request.AppUserRequestBodyDTO;
+import com.ds.app.dto.response.JWTResponseDTO;
+import com.ds.app.dto.response.SignUpUserResponseDTO;
 import com.ds.app.entity.AppUser;
 import com.ds.app.jwtutil.JWTUtil;
 import com.ds.app.service.AppUserService;

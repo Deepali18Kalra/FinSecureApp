@@ -1,5 +1,6 @@
-package com.ds.app.dto;
+package com.ds.app.dto.response;
 
+import com.ds.app.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AppUserRequestBodyDTO {
+public class SignUpUserResponseDTO {
 
 	private String username;
-	private String password;
+	private UserRole role;
 }

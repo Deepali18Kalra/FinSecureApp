@@ -1,7 +1,7 @@
 package com.ds.app.mapper;
 
-import com.ds.app.dto.TimesheetEntryResponse;
-import com.ds.app.dto.TimesheetResponse;
+import com.ds.app.dto.response.TimesheetEntryResponse;
+import com.ds.app.dto.response.TimesheetResponse;
 import com.ds.app.entity.Timesheet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

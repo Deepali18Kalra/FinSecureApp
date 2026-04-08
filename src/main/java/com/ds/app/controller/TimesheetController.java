@@ -1,8 +1,8 @@
 package com.ds.app.controller;
 
-import com.ds.app.dto.ApprovalRequest;
-import com.ds.app.dto.AttendanceTimesheetDiscrepancyReport;
-import com.ds.app.dto.TimesheetResponse;
+import com.ds.app.dto.request.ApprovalRequest;
+import com.ds.app.dto.response.AttendanceTimesheetDiscrepancyReport;
+import com.ds.app.dto.response.TimesheetResponse;
 import com.ds.app.service.ITimesheetService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;

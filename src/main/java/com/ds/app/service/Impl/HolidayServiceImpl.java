@@ -1,7 +1,7 @@
 package com.ds.app.service.Impl;
 
-import com.ds.app.dto.HolidayRequest;
-import com.ds.app.dto.HolidayResponse;
+import com.ds.app.dto.request.HolidayRequest;
+import com.ds.app.dto.response.HolidayResponse;
 import com.ds.app.entity.Holiday;
 import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.mapper.HolidayMapper;

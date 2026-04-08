@@ -1,6 +1,6 @@
-package com.ds.app.dto;
+package com.ds.app.dto.response;
 
-import com.ds.app.enums.RegularizationRequestStatus;
+import com.ds.app.enums.AttendanceStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,15 +13,16 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegularizationResponse {
-    private Long requestId;
+public class AttendanceResponse {
+    private Long attendanceId;
     private Long employeeId;
     private String employeeName;
     private LocalDate date;
     private LocalTime punchInTime;
     private LocalTime punchOutTime;
-    private String reason;
-    private RegularizationRequestStatus status;
-    private String approvedByName;
-    private String rejectionReason;
+    private AttendanceStatus status;
+    private Integer totalMinutesWorked;
+    private String formattedTotalHoursWorked;
+    private boolean isLate;
+    private Boolean isRegularized;
 }

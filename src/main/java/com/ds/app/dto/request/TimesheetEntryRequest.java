@@ -1,4 +1,4 @@
-package com.ds.app.dto;
+package com.ds.app.dto.request;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

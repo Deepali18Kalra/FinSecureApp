@@ -1,8 +1,8 @@
 package com.ds.app.controller;
 
-import com.ds.app.dto.AttendanceResponse;
-import com.ds.app.dto.MonthlyAttendanceReport;
-import com.ds.app.dto.TeamAttendanceReportRow;
+import com.ds.app.dto.response.AttendanceResponse;
+import com.ds.app.dto.response.MonthlyAttendanceReport;
+import com.ds.app.dto.response.TeamAttendanceReportRow;
 import com.ds.app.service.IAttendanceService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

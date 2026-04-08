@@ -1,6 +1,6 @@
 package com.ds.app.repository;
 
-import com.ds.app.dto.LeaveStatusResponse;
+import com.ds.app.dto.response.LeaveStatusResponse;
 import com.ds.app.entity.Leave;
 import com.ds.app.enums.LeaveStatus;
 import com.ds.app.enums.LeaveType;

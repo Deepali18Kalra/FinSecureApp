@@ -1,6 +1,6 @@
 package com.ds.app.mapper;
 
-import com.ds.app.dto.LeaveBalanceResponse;
+import com.ds.app.dto.response.LeaveBalanceResponse;
 import com.ds.app.entity.LeaveBalance;
 import org.springframework.stereotype.Component;
 

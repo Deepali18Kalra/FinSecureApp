@@ -1,8 +1,9 @@
 package com.ds.app.service;
 
-import com.ds.app.dto.AttendanceResponse;
-import com.ds.app.dto.MonthlyAttendanceReport;
-import com.ds.app.dto.TeamAttendanceReportRow;
+import com.ds.app.dto.response.AttendanceResponse;
+import com.ds.app.dto.response.MonthlyAttendanceReport;
+import com.ds.app.dto.response.TeamAttendanceReportRow;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

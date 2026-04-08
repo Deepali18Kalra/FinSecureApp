@@ -1,6 +1,6 @@
 package com.ds.app.service;
 
-import com.ds.app.dto.LeaveBalanceResponse;
+import com.ds.app.dto.response.LeaveBalanceResponse;
 import com.ds.app.enums.LeaveType;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.ds.app.mapper;
 
-import com.ds.app.dto.HolidayRequest;
-import com.ds.app.dto.HolidayResponse;
+import com.ds.app.dto.request.HolidayRequest;
+import com.ds.app.dto.response.HolidayResponse;
 import com.ds.app.entity.Holiday;
 import org.springframework.stereotype.Component;
 

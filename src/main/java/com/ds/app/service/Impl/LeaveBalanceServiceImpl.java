@@ -1,6 +1,6 @@
 package com.ds.app.service.Impl;
 
-import com.ds.app.dto.LeaveBalanceResponse;
+import com.ds.app.dto.response.LeaveBalanceResponse;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.LeaveBalance;
 import com.ds.app.enums.LeaveType;

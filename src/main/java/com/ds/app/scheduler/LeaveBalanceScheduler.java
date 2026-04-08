@@ -7,7 +7,7 @@ import com.ds.app.entity.Timesheet;
 import com.ds.app.enums.LeaveStatus;
 import com.ds.app.enums.LeaveType;
 import com.ds.app.repository.*;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

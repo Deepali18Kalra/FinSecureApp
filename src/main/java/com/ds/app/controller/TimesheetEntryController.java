@@ -1,7 +1,7 @@
 package com.ds.app.controller;
 
-import com.ds.app.dto.TimesheetEntryRequest;
-import com.ds.app.dto.TimesheetEntryResponse;
+import com.ds.app.dto.request.TimesheetEntryRequest;
+import com.ds.app.dto.response.TimesheetEntryResponse;
 import com.ds.app.service.ITimesheetEntryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

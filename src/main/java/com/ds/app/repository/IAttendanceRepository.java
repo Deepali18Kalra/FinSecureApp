@@ -28,7 +28,7 @@ public interface IAttendanceRepository extends JpaRepository<Attendance, Long>{
 			and MONTH(a.date) =:month
 			and YEAR(a.date) =:year
 			""")
-	List<Attendance> findAttendanceByEmployeeUserIdAndMonthAndYear(Long employeeId, Integer month, Integer year);
+	List<Attendance> findAttendanceByEmployeeUserIdAndMonthAndYear(@Param("employeeId") Long employeeId, @Param("month") Integer month, @Param("year") Integer year);
 	
 	@Query("""
 			select a 
@@ -37,12 +37,12 @@ public interface IAttendanceRepository extends JpaRepository<Attendance, Long>{
 			and (:month is null or MONTH(a.date) =:month)
 			and (:year is null or YEAR(a.date) =:year)
 			""")
-	Page<Attendance> findAttendanceByEmployeeUserIdAndMonthAndYear(Long employeeId, Integer month, Integer year, Pageable pageable);
+	Page<Attendance> findAttendanceByEmployeeUserIdAndMonthAndYear(@Param("employeeId") Long employeeId, @Param("month") Integer month, @Param("year") Integer year, Pageable pageable);
 	
 	Page<Attendance> findByEmployee_Manager_UserIdAndDate(Long managerId, LocalDate date, Pageable pageable);
 
     @Query("""
-    select new com.ds.app.dto.MonthlyAttendanceReport(
+    select new com.ds.app.dto.response.MonthlyAttendanceReport(
        a.employee.userId,
        concat(a.employee.firstName, ' ', a.employee.lastName),
        :month,
@@ -68,7 +68,7 @@ public interface IAttendanceRepository extends JpaRepository<Attendance, Long>{
     );
 
     @Query("""
-    select new com.ds.app.dto.TeamAttendanceReportRow(
+    select new com.ds.app.dto.response.TeamAttendanceReportRow(
         e.userId,
         concat(e.firstName, ' ', e.lastName),
         :date,

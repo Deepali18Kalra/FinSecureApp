@@ -20,7 +20,7 @@ public interface ILeaveRepository extends JpaRepository<Leave, Long> {
     Page<Leave> findByEmployee_Manager_UserId(Long managerId, Pageable pageable);
 
     @Query("""
-    select new com.ds.app.dto.LeaveStatusResponse(
+    select new com.ds.app.dto.response.LeaveStatusResponse(
         l.leaveId,
         l.startDate,
         l.endDate,

@@ -6,6 +6,8 @@ import com.ds.app.dto.response.LeaveResponse;
 import com.ds.app.dto.response.LeaveStatusResponse;
 import com.ds.app.enums.LeaveStatus;
 import com.ds.app.service.ILeaveService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +28,7 @@ public class LeaveController {
     // Employee endpoints
     @PreAuthorize("hasAnyAuthority('EMPLOYEE','MANAGER')")
     @PostMapping
-    public ResponseEntity<LeaveResponse> applyLeave(@RequestBody LeaveRequest leaveRequest) {
+    public ResponseEntity<LeaveResponse> applyLeave(@Valid @RequestBody LeaveRequest leaveRequest) {
         LeaveResponse response = leaveService.applyLeave(leaveRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -57,7 +59,7 @@ public class LeaveController {
     @PatchMapping("/{leaveId}/process")
     public ResponseEntity<LeaveResponse> processLeaveRequest(
             @PathVariable Long leaveId,
-            @RequestBody ApprovalRequest approvalRequest
+            @Valid @RequestBody ApprovalRequest approvalRequest
     ) {
         LeaveResponse response = leaveService.processLeaveRequest(leaveId, approvalRequest);
         return ResponseEntity.ok(response);
@@ -67,7 +69,7 @@ public class LeaveController {
     @PatchMapping("/{leaveId}/process-cancel-request")
     public ResponseEntity<LeaveResponse> processCancellationRequest(
     		@PathVariable Long leaveId,
-    		@RequestBody ApprovalRequest approvalRequest
+    		@Valid @RequestBody ApprovalRequest approvalRequest
     		) {
     	LeaveResponse response = leaveService.processCancellationRequest(leaveId, approvalRequest);
     	return ResponseEntity.ok(response);

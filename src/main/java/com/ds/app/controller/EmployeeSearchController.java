@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ds.app.dto.request.*;
 import com.ds.app.dto.response.*;
-import com.ds.app.dto.*;
 import com.ds.app.service.EmployeePhotoService;
 import com.ds.app.service.EmployeeSearchService;
 import com.ds.app.service.impl.EmployeePhotoServiceImpl;
@@ -47,7 +46,7 @@ public class EmployeeSearchController {
 	                      "Pagination: ?page=0&size=10&sort=createdAt,desc. " +
 	                      "Primary use: find userId from results, then call HR update or Admin delete."
 	    )
-	    public ResponseEntity<PagedResponseDTO<EmployeeResponseDTO>> searchEmployees(@ParameterObject
+	    public ResponseEntity<PagedResponseDTO<EmployeeProfileResponseDTO>> searchEmployees(@ParameterObject
 	            EmployeeFilterRequestDTO filter,@ParameterObject
 	            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
 	            Pageable pageable) {
@@ -55,7 +54,7 @@ public class EmployeeSearchController {
 	        return ResponseEntity.ok(employeeSearchService.filterUsers(filter, pageable));
 	    }
 	   
-	   @GetMapping("/count")
+	   @GetMapping("/count/report")
 	    @PreAuthorize("hasAnyAuthority('HR', 'ADMIN')")
 	    @Operation(
 	        summary = "Employee count report (HR / Admin)",
@@ -87,7 +86,7 @@ public class EmployeeSearchController {
 	                      "Results sorted by joining date — newest first.\n" +
 	                      "Email and phone are masked in response."
 	    )
-	    public ResponseEntity<PagedResponseDTO<EmployeeResponseDTO>> getRecentlyJoined(
+	    public ResponseEntity<PagedResponseDTO<EmployeeProfileResponseDTO>> getRecentlyJoined(
 	            @RequestParam(defaultValue = "30") int days,
 	            @ParameterObject
 	            @PageableDefault(page = 0, size = 10,
@@ -110,7 +109,7 @@ public class EmployeeSearchController {
 	                      "Email and phone are masked in response.\n" +
 	                      "Pagination: ?page=0&size=10&sort=userId,desc"
 	    )
-	    public ResponseEntity<PagedResponseDTO<EmployeeResponseDTO>> getEmployeesWithoutPhoto(
+	    public ResponseEntity<PagedResponseDTO<EmployeeSimpleResponseDTO>> getEmployeesWithoutPhoto(
 	            @ParameterObject @PageableDefault(
 	                page = 0, size = 10, sort = "userId",direction = Sort.Direction.DESC
 	            ) Pageable pageable) {
@@ -127,7 +126,7 @@ public class EmployeeSearchController {
 	            "isProfileComplete will be false for all results.\n" +
 	            "Pagination: ?page=0&size=10&sort=userId,desc"
 	    )
-	    public ResponseEntity<PagedResponseDTO<EmployeeResponseDTO>> getIncompleteProfiles(@ParameterObject 
+	    public ResponseEntity<PagedResponseDTO<EmployeeIncompleteResponseDTO>> getIncompleteProfiles(@ParameterObject 
 	    		@PageableDefault(page = 0,size = 10, sort = "userId", direction = Sort.Direction.DESC)
 	            Pageable pageable) {
 
@@ -140,7 +139,7 @@ public class EmployeeSearchController {
 	    @GetMapping("/stats/monthly")
 	    @PreAuthorize("hasAnyAuthority('HR', 'ADMIN')")
 	    @Operation(
-	        summary = "Monthly joining statistics (HR / Admin)",
+	    	summary = "Monthly joining statistics (HR / Admin)",
 	        description =
 	            "Returns employee joining count for each month of a given year.\n\n" +
 	            "**How to use:**\n" +
@@ -156,26 +155,22 @@ public class EmployeeSearchController {
 	        return ResponseEntity.ok(employeeSearchService.getMonthlyStats(year));
 	    }
 	     
-	    //   Returns employee joining count for each year.
-	    //   No params needed — returns all years automatically.
-	    //   Sorted by year DESC — most recent first.
 	    
 	    @GetMapping("/stats/yearly")
 	    @PreAuthorize("hasAnyAuthority('HR', 'ADMIN')")
-	    @Operation(summary = "Yearly joining statistics (HR / Admin)", description =
+	    @Operation(
+	    		summary = "Yearly joining statistics (HR / Admin)", description =
 	            "Returns employee joining count for each year.\n\n" +
 	            "No params needed — returns all years automatically.\n" +
 	            "Sorted by year descending — most recent year first.")
+	    
 	    public ResponseEntity<List<YearlyStatDTO>> getYearlyStats() {
 	    	
-	        logger.info("Yearly stats requested");
+	    logger.info("Yearly stats requested");
 	        
-	        return ResponseEntity.ok(employeeSearchService.getYearlyStats());
+	    return ResponseEntity.ok(employeeSearchService.getYearlyStats());
 	        
 	    }
 	     
-
-
-
 
 }//ENDCLASS

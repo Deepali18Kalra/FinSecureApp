@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ds.app.dto.request.EmployeeDocumentRequestDTO;
 import com.ds.app.dto.response.EmployeeDocumentResponseDTO;
-import com.ds.app.repository.IEmployeeRepository;
+import com.ds.app.repository.EmployeeRepository;
 import com.ds.app.service.EmployeeDocumentService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,7 +39,7 @@ public class EmployeeDocumentController {
 	    EmployeeDocumentService employeeDocumentService;
 	    
 	    @Autowired
-	    IEmployeeRepository iEmployeeRepo;
+	    EmployeeRepository iEmployeeRepo;
 	
 	    private Long getUserId(String username) {
 	        return iEmployeeRepo.findByUsername(username)
@@ -47,7 +47,6 @@ public class EmployeeDocumentController {
 	                .getUserId();
 	    }
 	
-	    // POST /finsecure/employee/documents
 	    @PostMapping(value = "/finsecure/employee/documents",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	    @PreAuthorize("hasAuthority('EMPLOYEE')")
 	    @Operation(summary = "Upload document (Employee)",description = 
@@ -71,7 +70,6 @@ public class EmployeeDocumentController {
 	        return new ResponseEntity<>(employeeDocumentService.uploadDocument(dto, file, userId), HttpStatus.CREATED);
 	    }
 	
-	    // GET /finsecure/employee/documents
 	    @GetMapping("/finsecure/employee/documents")
 	    @PreAuthorize("hasAuthority('EMPLOYEE')")
 	    @Operation(summary = "Get my documents (Employee)", description = "Employee views own documents — unmasked.")
@@ -81,8 +79,7 @@ public class EmployeeDocumentController {
 	    	Long userId = getUserId(userDetails.getUsername());
 	        return ResponseEntity.ok( employeeDocumentService.getMyDocuments(userId));
 	    }
-	
-	    // DELETE /finsecure/employee/documents/{documentId}
+
 	    @DeleteMapping("/finsecure/employee/documents/{documentId}")
 	    @PreAuthorize("hasAuthority('EMPLOYEE')")
 	    @Operation(summary = "Delete document (Employee)", description = "Permanently deletes document file and record.")
@@ -94,7 +91,6 @@ public class EmployeeDocumentController {
 	        return ResponseEntity.ok( "Document deleted: " + documentId);
 	    }
 	
-	    // GET /finsecure/hr/employee/{userId}/documents
 	    @GetMapping("/finsecure/hr/employee/{userId}/documents")
 	    @PreAuthorize("hasAnyAuthority('HR', 'ADMIN')")
 	    @Operation(summary = "Get employee documents (HR / Admin)", description = "HR views documents — document number masked.")
@@ -104,7 +100,6 @@ public class EmployeeDocumentController {
 	        return ResponseEntity.ok(employeeDocumentService.getDocumentsByUserId(userId));
 	    }
 	
-	    // PUT /finsecure/hr/documents/{documentId}/verify
 	    @PutMapping("/finsecure/hr/documents/{documentId}/verify")
 	    @PreAuthorize("hasAnyAuthority('HR', 'ADMIN')")
 	    @Operation(summary = "Verify document (HR / Admin)", description = "HR marks document as verified " + "after physical check.")
@@ -114,4 +109,4 @@ public class EmployeeDocumentController {
 	        return ResponseEntity.ok( employeeDocumentService.verifyDocument(documentId));
 	    }
 	    
-}
+}//end class

@@ -1,3 +1,4 @@
+
 package com.ds.app.exception;
 
 import java.time.LocalDate;
@@ -7,157 +8,71 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-@ControllerAdvice
+
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler
-	public ResponseEntity<?> handleException(Exception e){
-		return new ResponseEntity<String>(e.toString(), HttpStatus.BAD_REQUEST);
-	} 
-	
-	 @ExceptionHandler
-	    public ResponseEntity<ExceptionResponse> handleEmployeeCodeException(EmployeeCodeAlreadyExistsException ex) {
+   // ── Employee Not Found ─────────────────────────────────────────
+   @ExceptionHandler(EmployeeNotFoundException1.class)
+   public ResponseEntity<String> handleEmployeeNotFoundException(EmployeeNotFoundException1 ex) {
+       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+   }
 
-	        System.out.println("Inside EmployeeCodeAlreadyExistsException");
+   // ── Employee Code Already Exists ───────────────────────────────
+   @ExceptionHandler(EmployeeCodeAlreadyExistsException.class)
+   public ResponseEntity<String> handleEmployeeCodeAlreadyExists(EmployeeCodeAlreadyExistsException ex) {
+       return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+   }
 
-	        ExceptionResponse response = new ExceptionResponse();
+   // ── Duplicate Email ────────────────────────────────────────────
+   @ExceptionHandler(DuplicateEmailException.class)
+   public ResponseEntity<String> handleDuplicateEmail(DuplicateEmailException ex) {
+       return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+   }
 
-	        response.setDate(LocalDate.now());
-	        response.setTime(LocalTime.now());
-	        response.setUrl("/finsecure/employee");
-	        response.setClassName("EmployeeController");
-	        response.setErrorMsg(ex.getMessage());
-	        response.setSolution("Verify Employee Code");
+   // ── Duplicate Phone ────────────────────────────────────────────
+   @ExceptionHandler(DuplicatePhoneException.class)
+   public ResponseEntity<String> handleDuplicatePhone(DuplicatePhoneException ex) {
+       return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+   }
 
-	        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-	    }
-	  
+   // ── Profile Deleted ────────────────────────────────────────────
+   @ExceptionHandler(ProfileDeletedException.class)
+   public ResponseEntity<String> handleProfileDeleted(ProfileDeletedException ex) {
+       return ResponseEntity.status(HttpStatus.GONE).body(ex.getMessage());
+   }
 
-	 @ExceptionHandler
-	 public ResponseEntity<ExceptionResponse> handleAccountLockedException(AccountLockedException ex) {
+   // ── Profile Already Exists ─────────────────────────────────────
+   @ExceptionHandler(ProfileAlreadyExistsException.class)
+   public ResponseEntity<String> handleProfileAlreadyExists(ProfileAlreadyExistsException ex) {
+       return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+   }
 
-	     System.out.println("Inside AccountLockedException");
+   // ── Account Locked ─────────────────────────────────────────────
+   @ExceptionHandler(AccountLockedException.class)
+   public ResponseEntity<String> handleAccountLocked(AccountLockedException ex) {
+       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+   }
 
-	     ExceptionResponse response = new ExceptionResponse();
+   // ── File Storage ───────────────────────────────────────────────
+   @ExceptionHandler(FileStorageException.class)
+   public ResponseEntity<String> handleFileStorage(FileStorageException ex) {
+       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+   }
 
-	     response.setDate(LocalDate.now());
-	     response.setTime(LocalTime.now());
-	     response.setUrl("/finsecure/employee");
-	     response.setClassName("EmployeeController");
-	     response.setErrorMsg(ex.getMessage());
-	     response.setSolution("Please verify userId and try again");
+   
 
-	     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-	 }
-	 
-	 
 
-	 @ExceptionHandler
-	 public ResponseEntity<ExceptionResponse> handleDuplicateEmailException(DuplicateEmailException ex) {
-
-	     System.out.println("Inside DuplicateEmailException");
-
-	     ExceptionResponse response = new ExceptionResponse();
-
-	     response.setDate(LocalDate.now());
-	     response.setTime(LocalTime.now());
-	     response.setUrl("/finsecure/employee");
-	     response.setClassName("EmployeeController");
-	     response.setErrorMsg(ex.getMessage());
-	     response.setSolution("Please enter different emailId. this email already exists");
-
-	     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-	 }
-	 
-
-	 @ExceptionHandler
-	 public ResponseEntity<ExceptionResponse> handleDuplicatePhoneException(DuplicatePhoneException ex) {
-
-	     System.out.println("Inside DuplicatePhoneException");
-
-	     ExceptionResponse response = new ExceptionResponse();
-
-	     response.setDate(LocalDate.now());
-	     response.setTime(LocalTime.now());
-	     response.setUrl("/finsecure/employee");
-	     response.setClassName("EmployeeController");
-	     response.setErrorMsg(ex.getMessage());
-	     response.setSolution("Please enter different phone number. This phone number already exists");
-
-	     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-	 }
-	 
-
-	 @ExceptionHandler
-	 public ResponseEntity<ExceptionResponse> handleEmployeeNotFoundException(EmployeeNotFoundException ex, HttpServletRequest request) {
-
-	     System.out.println("Inside EmployeeNotFoundException");
-
-	     ExceptionResponse response = new ExceptionResponse();
-
-	     response.setDate(LocalDate.now());
-	     response.setTime(LocalTime.now());
-	     response.setUrl("/finsecure/employee");
-	     response.setClassName("EmployeeController");
-	     response.setErrorMsg(ex.getMessage());
-	     response.setSolution("Please enter valid username. Employee is not found with entered username");
-
-	     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-	 }
-	 
-
-	 @ExceptionHandler
-	 public ResponseEntity<ExceptionResponse> handleProfileAlreadyExistsException(ProfileAlreadyExistsException ex) {
-
-	     System.out.println("Inside ProfileAlreadyExistsException");
-
-	     ExceptionResponse response = new ExceptionResponse();
-
-	     response.setDate(LocalDate.now());
-	     response.setTime(LocalTime.now());
-	     response.setUrl("/finsecure/employee");
-	     response.setClassName("EmployeeController");
-	     response.setErrorMsg(ex.getMessage());
-	     response.setSolution("Please try again with different useriD this profile already exists");
-
-	     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-	 }
-	 
-	 @ExceptionHandler
-	 public ResponseEntity<ExceptionResponse> handleProfileDeletedException(ProfileDeletedException ex) {
-
-	     System.out.println("Inside ProfileDeletedException ");
-
-	     ExceptionResponse response = new ExceptionResponse();
-
-	     response.setDate(LocalDate.now());
-	     response.setTime(LocalTime.now());
-	     response.setUrl("/finsecure/employee");
-	     response.setClassName("EmployeeController");
-	     response.setErrorMsg(ex.getMessage());
-	     response.setSolution("Please find the valid profile");
-
-	     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-	 }
-	 	
-	 @ExceptionHandler
-	 public ResponseEntity<ExceptionResponse> handleFileStorageException(FileStorageException ex) {
-
-	     System.out.println("Inside FileStorageException");
-
-	     ExceptionResponse response = new ExceptionResponse();
-
-	     response.setDate(LocalDate.now());
-	     response.setTime(LocalTime.now());
-	     response.setUrl("/finsecure/employee/profile/photo");
-	     response.setClassName("EmployeeController");
-	     response.setErrorMsg(ex.getMessage());
-	     response.setSolution("Please upload a valid image file and try again");
-
-	     return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-	 }
+   // ── Generic Exception ──────────────────────────────────────────
+   @ExceptionHandler(Exception.class)
+   public ResponseEntity<String> handleException(Exception ex) {
+       return ResponseEntity
+               .status(HttpStatus.INTERNAL_SERVER_ERROR)
+               .body(ex.getMessage());
+   }
 	 
 }//end class

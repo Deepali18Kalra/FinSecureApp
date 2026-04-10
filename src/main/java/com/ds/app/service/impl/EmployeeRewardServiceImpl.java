@@ -12,9 +12,9 @@ import com.ds.app.dto.request.EmployeeRewardRequestDTO;
 import com.ds.app.dto.response.EmployeeRewardResponseDTO;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.EmployeeReward;
-import com.ds.app.exception.EmployeeNotFoundException;
-import com.ds.app.repository.IEmployeeRepository;
-import com.ds.app.repository.IEmployeeRewardRepository;
+import com.ds.app.exception.EmployeeNotFoundException1;
+import com.ds.app.repository.EmployeeRepository;
+import com.ds.app.repository.EmployeeRewardRepository;
 import com.ds.app.service.EmployeeRewardService;
 
 import jakarta.transaction.Transactional;
@@ -25,10 +25,10 @@ public class EmployeeRewardServiceImpl implements EmployeeRewardService {
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeRewardServiceImpl.class);
 	
 	@Autowired
-	IEmployeeRepository employeeRepo;
+	EmployeeRepository employeeRepo;
 	
 	@Autowired
-	IEmployeeRewardRepository employeeRewardRepo;
+	EmployeeRewardRepository employeeRewardRepo;
 	
 	@Override
 	public EmployeeRewardResponseDTO giveReward(Long userId, EmployeeRewardRequestDTO dto, String hrUsername) throws Exception {
@@ -37,7 +37,7 @@ public class EmployeeRewardServiceImpl implements EmployeeRewardService {
 		
 		Employee employee = employeeRepo
 				.findByUserIdAndIsDeletedFalse(userId)
-				.orElseThrow(() -> new EmployeeNotFoundException(userId));
+				.orElseThrow(() -> new EmployeeNotFoundException1(userId));
 		
 		EmployeeReward reward = new EmployeeReward();
 		reward.setEmployee(employee);

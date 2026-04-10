@@ -20,9 +20,12 @@ import com.ds.app.dto.response.*;
 import com.ds.app.entity.Employee;
 import com.ds.app.enums.CertificationStatus;
 import com.ds.app.enums.EmployeeExperience;
-import com.ds.app.jwtutil.MaskingUtil;
-import com.ds.app.repository.IEmployeeRepository;
-import com.ds.app.repository.iAppUserRepository;
+import com.ds.app.utils.MaskingUtil;
+import com.ds.app.repository.EmployeeRepository;
+import com.ds.app.repository.EmployeeRewardRepository;
+import com.ds.app.repository.AppUserRepository;
+import com.ds.app.repository.EmployeeDocumentRepository;
+import com.ds.app.repository.EmployeeEducationRepository;
 import com.ds.app.service.EmployeeSearchService;
 
 import jakarta.transaction.Transactional;
@@ -31,24 +34,32 @@ import jakarta.transaction.Transactional;
 public class EmployeeSearchServiceImpl implements EmployeeSearchService {
 	
 	@Autowired
-	IEmployeeRepository iEmployeeRepo;
+	EmployeeRepository iEmployeeRepo;
 	
 	@Autowired
-	iAppUserRepository appUserRepository;
+	AppUserRepository appUserRepository;
 	
 	
 	@Autowired
 	PasswordEncoder passwordEncoder;
 	
+	@Autowired
+	EmployeeEducationRepository educationRepo;
+	
+	@Autowired
+	EmployeeDocumentRepository documentRepo;
+	
+	@Autowired
+	EmployeeRewardRepository rewardRepo;
+	
 	private static final Logger logger = LoggerFactory.getLogger(EmployeeSearchServiceImpl.class);
 
 	@Override
-	public PagedResponseDTO<EmployeeResponseDTO> filterUsers(EmployeeFilterRequestDTO dto, Pageable pageable) {
+	public PagedResponseDTO<EmployeeProfileResponseDTO> filterUsers(EmployeeFilterRequestDTO dto, Pageable pageable) {
 		logger.info("Filtering employees — filter: {}", dto);
 		 
         Page<Employee> page = iEmployeeRepo.filterEmployees(
                 dto.getFirstName(),
-                dto.getDepartment(),
                 dto.getDesignation(),
                 dto.getEmploymentType(),
                 dto.getEmployeeExperience(),
@@ -56,7 +67,7 @@ public class EmployeeSearchServiceImpl implements EmployeeSearchService {
                 dto.getIsAccountLocked(),
                 pageable);
  
-        List<EmployeeResponseDTO> data = page.getContent()
+        List<EmployeeProfileResponseDTO> data = page.getContent()
                 .stream()
                 .map(this::mapToMaskedResponseDTO)
                 .toList();
@@ -67,8 +78,8 @@ public class EmployeeSearchServiceImpl implements EmployeeSearchService {
 
 
 
-	  private EmployeeResponseDTO mapToMaskedResponseDTO(Employee e) {
-	        EmployeeResponseDTO dto = new EmployeeResponseDTO();
+	  private EmployeeProfileResponseDTO mapToMaskedResponseDTO(Employee e) {
+	        EmployeeProfileResponseDTO dto = new EmployeeProfileResponseDTO();
 	        dto.setUserId(e.getUserId());
 	        dto.setUsername(e.getUsername());
 	        dto.setRole(e.getRole());
@@ -79,12 +90,10 @@ public class EmployeeSearchServiceImpl implements EmployeeSearchService {
 	        dto.setPhoneNumber(MaskingUtil.maskPhone(e.getPhoneNumber()));
 	        dto.setDateOfBirth(e.getDateOfBirth());
 	        dto.setGender(e.getGender());
-	        dto.setDepartment(e.getDepartment());
 	        dto.setDesignation(e.getDesignation());
 	        dto.setJoiningDate(e.getJoiningDate());
 	        dto.setEmploymentType(e.getEmploymentType());
-	        dto.setCertificationStatus(e.getCertificationStatus());
-	        dto.setCertificationName(e.getCertificationName());
+	     
 	        dto.setAddressLine(e.getAddressLine());
 	        dto.setCity(e.getCity());
 	        dto.setState(e.getState());
@@ -111,52 +120,45 @@ public class EmployeeSearchServiceImpl implements EmployeeSearchService {
 		        && e.getCity()        != null && !e.getCity().isBlank()
 		        && e.getState()       != null && !e.getState().isBlank()
 		        && e.getCountry()     != null && !e.getCountry().isBlank()
-		        && e.getPincode()     != null && !e.getPincode().isBlank();
+		        && e.getPincode()     != null && !e.getPincode().isBlank()
+		    	&& e.getProfilePhotoUrl() != null;
 		}
 	  
 	  
 
 	  @Override
 	  public CountReportDTO getCountReport() {
-		  logger.info("Generating count report");
-		  
-	        CountReportDTO report = CountReportDTO.builder()
-	
-	                .totalActive(
-	                        iEmployeeRepo.countByIsDeletedFalse())
-	                .totalDeleted(
-	                        iEmployeeRepo.countByIsDeletedTrue())
-	 
-	                .totalFreshers(
-	                        iEmployeeRepo.countByEmployeeExperience(
-	                                EmployeeExperience.FRESHER))
-	                .totalExperienced(
-	                        iEmployeeRepo.countByEmployeeExperience(
-	                                EmployeeExperience.EXPERIENCED))
-	 
-	                .totalCertified(
-	                        iEmployeeRepo.countByCertificationStatus(
-	                                CertificationStatus.CERTIFIED))
-	                .totalNonCertified(
-	                        iEmployeeRepo.countByCertificationStatus(
-	                                CertificationStatus.NON_CERTIFIED))
+	      logger.info("Generating count report");
 
-	                .build();
-	 
-	        logger.info("Count report: active={}, deleted={}, freshers={}, " +
-	                    "experienced={}, certified={}, nonCertified={}, expired={}",
-	                report.getTotalActive(),
-	                report.getTotalDeleted(),
-	                report.getTotalFreshers(),
-	                report.getTotalExperienced(),
-	                report.getTotalCertified(),
-	                report.getTotalNonCertified());
-	 
-	        return report;
+	      long totalActive = iEmployeeRepo.countByIsDeletedFalse();
+
+	      CountReportDTO report = CountReportDTO.builder()
+
+	              // Employee status
+	              .totalDeleted(iEmployeeRepo.countByIsDeletedTrue())
+
+	              // Profile completion
+	              .incompleteProfiles(iEmployeeRepo.countIncompleteProfiles())
+	              .withoutPhoto(iEmployeeRepo.countByProfilePhotoUrlIsNullAndIsDeletedFalse())
+
+	              // Education
+	              .withEducation(educationRepo.countDistinctEmployees())
+	              .withoutEducation(totalActive - educationRepo.countDistinctEmployees())
+
+	              // Documents
+	              .withDocuments(documentRepo.countDistinctEmployees())
+	              .withoutDocuments(totalActive - documentRepo.countDistinctEmployees())
+
+	              // Rewards
+	              .withRewards(rewardRepo.countDistinctEmployees())
+	              .build();
+
+	      logger.info("Count report generated successfully");
+	      return report;
 	  }
 
 	  @Override
-	  public PagedResponseDTO<EmployeeResponseDTO> getRecentlyJoined(int days, Pageable pageable) {
+	  public PagedResponseDTO<EmployeeProfileResponseDTO> getRecentlyJoined(int days, Pageable pageable) {
 		  logger.info("Fetching employees joined in last {} days", days);
 		  
 	        LocalDate fromDate = LocalDate.now().minusDays(days);
@@ -165,7 +167,7 @@ public class EmployeeSearchServiceImpl implements EmployeeSearchService {
 	        Page<Employee> page = iEmployeeRepo.findRecentlyJoined(
 	                fromDate, pageable);
 	 
-	        List<EmployeeResponseDTO> data = page.getContent()
+	        List<EmployeeProfileResponseDTO> data = page.getContent()
 	                .stream()
 	                .map(this::mapToMaskedResponseDTO)
 	                .toList();
@@ -178,45 +180,118 @@ public class EmployeeSearchServiceImpl implements EmployeeSearchService {
 
 	  @Override
 	  @Transactional
-	  public PagedResponseDTO<EmployeeResponseDTO> getEmployeesWithoutPhoto(Pageable pageable) {
+	  public PagedResponseDTO<EmployeeSimpleResponseDTO> getEmployeesWithoutPhoto(Pageable pageable) {
 		  
-		 
-		      Page<Employee> page = iEmployeeRepo
-		              .findEmployeesWithoutPhoto(pageable);
-		      List<EmployeeResponseDTO> data = page.getContent()
-		              .stream()
-		              .map(this::mapToMaskedResponseDTO)
-		              .toList();
-		      return PagedResponseDTO.of(data, page);
+		  logger.info("Fetching employees without photo");
+		    Page<Employee> page = iEmployeeRepo.findEmployeesWithoutPhoto(pageable);
+		    List<EmployeeSimpleResponseDTO> data = page.getContent()
+		            .stream()
+		            .map(this::mapToSimpleDTO)  // ← simple mapper
+		            .toList();
+		    logger.info("Found {} employees without photo",data.size());
+		    return PagedResponseDTO.of(data, page);
+		    
 		  }
+	  
+	  private EmployeeSimpleResponseDTO mapToSimpleDTO( Employee e) {
+		    String fullName = null;
+		    if (e.getFirstName() != null && e.getLastName() != null)
+		        fullName = e.getFirstName() + " " + e.getLastName();
+		    else if (e.getFirstName() != null)
+		        fullName = e.getFirstName();
+
+		    return EmployeeSimpleResponseDTO.builder()
+		            .userId(e.getUserId())
+		            .employeeCode(e.getEmployeeCode())
+		            .fullName(fullName)
+		            .build();
+		}
 
 	  @Override
 	  @Transactional
-	  public PagedResponseDTO<EmployeeResponseDTO> getIncompleteProfiles(Pageable pageable) {
-		  logger.info("Fetching employees with incomplete profiles");
-
-		    Page<Employee> page =
-		            iEmployeeRepo.findIncompleteProfiles(pageable);
-
-		    List<EmployeeResponseDTO> data = page.getContent()
+	  public PagedResponseDTO<EmployeeIncompleteResponseDTO> getIncompleteProfiles(Pageable pageable) {
+		  
+		  logger.info("Fetching incomplete profiles");
+		    Page<Employee> page = iEmployeeRepo.findIncompleteProfiles(pageable);
+		    List<EmployeeIncompleteResponseDTO> data =
+		            page.getContent()
 		            .stream()
-		            .map(this::mapToMaskedResponseDTO)
+		            .map(this::mapToIncompleteDTO)  // ← simple mapper
 		            .toList();
-
-		    logger.info("Found {} employees with incomplete profiles",
-		            data.size());
-
+		    logger.info("Found {} incomplete profiles",data.size());
 		    return PagedResponseDTO.of(data, page);
 
 	  }
+	  
+	  private EmployeeIncompleteResponseDTO mapToIncompleteDTO(Employee e) {
+
+			  // Full name
+			  String fullName = null;
+			  if (e.getFirstName() != null &&
+			          e.getLastName() != null)
+			      fullName = e.getFirstName() + " " +
+			              e.getLastName();
+			  else if (e.getFirstName() != null)
+			      fullName = e.getFirstName();
+			
+			  // Missing profile fields
+			  List<String> missingFields = new ArrayList<>();
+			  if (e.getFirstName() == null ||
+			          e.getFirstName().isBlank())
+			      missingFields.add("firstName");
+			  if (e.getLastName() == null ||
+			          e.getLastName().isBlank())
+			      missingFields.add("lastName");
+			  if (e.getEmail() == null ||
+			          e.getEmail().isBlank())
+			      missingFields.add("email");
+			  if (e.getPhoneNumber() == null ||
+			          e.getPhoneNumber().isBlank())
+			      missingFields.add("phoneNumber");
+			  if (e.getDateOfBirth() == null)
+			      missingFields.add("dateOfBirth");
+			  if (e.getGender() == null)
+			      missingFields.add("gender");
+			  if (e.getAddressLine() == null ||
+			          e.getAddressLine().isBlank())
+			      missingFields.add("addressLine");
+			  if (e.getCity() == null ||
+			          e.getCity().isBlank())
+			      missingFields.add("city");
+			  if (e.getState() == null ||
+			          e.getState().isBlank())
+			      missingFields.add("state");
+			  if (e.getCountry() == null ||
+			          e.getCountry().isBlank())
+			      missingFields.add("country");
+			  if (e.getPincode() == null ||
+			          e.getPincode().isBlank())
+			      missingFields.add("pincode");
+			  if (e.getProfilePhotoUrl() == null)
+			      missingFields.add("profilePhoto");
+			
+			  // Education and document check
+			  boolean hasEducation = educationRepo
+			          .existsByEmployeeUserId(e.getUserId());
+			  boolean hasDocuments = documentRepo
+			          .existsByEmployeeUserId(e.getUserId());
+			
+			  return EmployeeIncompleteResponseDTO.builder()
+			          .userId(e.getUserId())
+			          .employeeCode(e.getEmployeeCode())
+			          .fullName(fullName)
+			          .missingFields(missingFields)
+			          .hasEducation(hasEducation)
+			          .hasDocuments(hasDocuments)
+			          .build();
+			}
 
 	  @Override
 	  @Transactional
 	  public List<MonthlyStatDTO> getMonthlyStats(int year) {
 	      logger.info("Fetching monthly stats for year: {}", year);
 	   
-	      List<Object[]> results =
-	              iEmployeeRepo.countByMonthAndYear(year);
+	      List<Object[]> results = iEmployeeRepo.countByMonthAndYear(year);
 	  
 	      Map<Integer, Long> monthCountMap = new HashMap<>();
 	      for (Object[] row : results) {
@@ -241,8 +316,7 @@ public class EmployeeSearchServiceImpl implements EmployeeSearchService {
 	                  .build());
 	      }
 	   
-	      logger.info("Monthly stats for {}: {} months returned",
-	              year, stats.size());
+	      logger.info("Monthly stats for {}: {} months returned",year, stats.size());
 	      return stats;
 	  }
 	   

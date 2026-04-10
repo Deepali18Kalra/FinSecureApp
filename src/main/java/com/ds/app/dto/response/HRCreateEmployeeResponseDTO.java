@@ -27,20 +27,11 @@ public class HRCreateEmployeeResponseDTO {
 	private String employeeCode;
 	private UserRole userRole;
 	
-	private String department;
-	private String designation;
-	
 	private LocalDate dateOfJoining;
-	  private EmploymentType employmentType;
+	private EmploymentType employmentType;
 
-	    private CertificationStatus certificationStatus;
-
-
-	    private String certificationName;
-
-	    private EmployeeExperience employeeExperience;
 	    
-	    private String message;
+	private String message;
 	    
 
 }

@@ -12,8 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EmployeeFilterRequestDTO {
 	
-	 private String firstName;
-	    private String department;
+	 	private String firstName;
 	    private String designation;
 	    private EmploymentType employmentType;
 	    private EmployeeExperience employeeExperience;

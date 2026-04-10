@@ -8,15 +8,15 @@ import com.ds.app.dto.response.*;
 
 public interface EmployeeSearchService {
 	
-    PagedResponseDTO<EmployeeResponseDTO> filterUsers(EmployeeFilterRequestDTO dto, Pageable pageable);
+    PagedResponseDTO<EmployeeProfileResponseDTO> filterUsers(EmployeeFilterRequestDTO dto, Pageable pageable);
    
     CountReportDTO getCountReport();
 
-    PagedResponseDTO<EmployeeResponseDTO> getRecentlyJoined( int days, Pageable pageable);
+    PagedResponseDTO<EmployeeProfileResponseDTO> getRecentlyJoined( int days, Pageable pageable);
     
-    PagedResponseDTO<EmployeeResponseDTO> getEmployeesWithoutPhoto(Pageable pageable);
+    PagedResponseDTO<EmployeeSimpleResponseDTO> getEmployeesWithoutPhoto(Pageable pageable);
     
-    PagedResponseDTO<EmployeeResponseDTO> getIncompleteProfiles(Pageable pageable);
+    PagedResponseDTO<EmployeeIncompleteResponseDTO> getIncompleteProfiles(Pageable pageable);
  
 	List<MonthlyStatDTO> getMonthlyStats(int year);
 

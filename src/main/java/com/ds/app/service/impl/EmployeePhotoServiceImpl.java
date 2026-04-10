@@ -14,20 +14,20 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ds.app.dto.response.ProfilePhotoResponseDTO;
 import com.ds.app.entity.Employee;
-import com.ds.app.exception.EmployeeNotFoundException;
+import com.ds.app.exception.EmployeeNotFoundException1;
 import com.ds.app.exception.FileStorageException;
-import com.ds.app.repository.IEmployeeRepository;
-import com.ds.app.repository.iAppUserRepository;
+import com.ds.app.repository.EmployeeRepository;
+import com.ds.app.repository.AppUserRepository;
 import com.ds.app.service.EmployeePhotoService;
 
 @Service
 public class EmployeePhotoServiceImpl implements EmployeePhotoService {
 	
 	@Autowired
-	IEmployeeRepository iEmployeeRepo;
+	EmployeeRepository iEmployeeRepo;
 	
 	@Autowired
-	iAppUserRepository appUserRepository;
+	AppUserRepository appUserRepository;
 	
 	@Autowired
 	PasswordEncoder passwordEncoder;
@@ -42,7 +42,7 @@ public class EmployeePhotoServiceImpl implements EmployeePhotoService {
 		
 		        logger.info("Photo upload for username: {}", username);
 		        Employee employee = iEmployeeRepo.findByUsername(username)
-		                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found: " + username));
+		                .orElseThrow(() -> new EmployeeNotFoundException1("Employee not found: " + username));
 		        validateFile(file);
 		        deleteOldPhoto(employee.getProfilePhotoUrl());
 		        String newPath = saveNewPhoto(file, employee.getUserId());

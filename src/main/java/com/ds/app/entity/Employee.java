@@ -61,9 +61,6 @@ public class Employee extends AppUser {
     @Column(nullable = true, length = 20)
     private Gender gender;
 
-   
-    private String department; 
-
     
     private String designation; 
     
@@ -73,16 +70,16 @@ public class Employee extends AppUser {
     private LocalDate joiningDate;
 
     @Enumerated(EnumType.STRING)
-    private EmploymentType employmentType; // similar to saurabh
+    private EmploymentType employmentType; 
         
    
     @Enumerated(EnumType.STRING)
-    private CertificationStatus certificationStatus; // similar to saurabh
+    private CertificationStatus certificationStatus; 
     
     
 
 	@Enumerated(EnumType.STRING)
-    private EmployeeExperience employeeExperience; // similar to bhawna and saurabh
+    private EmployeeExperience employeeExperience; 
 	
     @Column(length = 100)
     private String certificationName;
@@ -115,7 +112,7 @@ public class Employee extends AppUser {
     private LocalDateTime updatedAt;
     
     @Column(nullable = false)
-    private Boolean isEscalated = false; // similar to bhawna
+    private Boolean isEscalated = false; 
 
     @Size(max = 255, message = "Profile photo URL is too long")
     @Column(length = 255)
@@ -132,7 +129,7 @@ public class Employee extends AppUser {
         this.updatedAt = LocalDateTime.now();
     }
     
-    // In Employee.java
+    
  	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
  	private List<EmployeeDocument> documents;
  	

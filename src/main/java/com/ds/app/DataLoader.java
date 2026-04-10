@@ -14,10 +14,10 @@ import com.ds.app.entity.Employee;
 
 import com.ds.app.enums.UserRole;
 
-import com.ds.app.repository.iAppUserRepository;
+import com.ds.app.repository.AppUserRepository;
 
 
-import com.ds.app.repository.IEmployeeRepository;
+import com.ds.app.repository.EmployeeRepository;
  
 @Configuration
 
@@ -27,9 +27,9 @@ public class DataLoader {
 
     CommandLineRunner loadData(
 
-            iAppUserRepository userRepo,
+            AppUserRepository userRepo,
 
-            IEmployeeRepository employeeRepo,
+            EmployeeRepository employeeRepo,
 
             PasswordEncoder passwordEncoder
 
@@ -37,9 +37,9 @@ public class DataLoader {
 
         return args -> {
  
-            //  Create Admin User (base class AppUser)
+            //Create Admin User (base class AppUser)
 
-          /*  if (!userRepo.existsByUsername("admin")) {
+           if (!userRepo.existsByUsername("admin")) {
 
                 AppUser admin = new AppUser();
 
@@ -53,9 +53,9 @@ public class DataLoader {
 
                 System.out.println(" Admin user created!");
 
-            }*/
+            }
  
-            //  Create Employee User
+            // Create Employee User
 
             if (!employeeRepo.existsByUsername("suresh")) {
 

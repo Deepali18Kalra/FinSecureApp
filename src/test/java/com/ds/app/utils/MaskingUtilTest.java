@@ -1,4 +1,4 @@
-package com.ds.app.jwtutil;
+package com.ds.app.utils;
 
 import static org.junit.jupiter.api.Assertions.*;
 

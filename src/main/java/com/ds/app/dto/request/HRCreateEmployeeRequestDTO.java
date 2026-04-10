@@ -30,10 +30,6 @@ public class HRCreateEmployeeRequestDTO {
 	@Size(min = 6, max = 100, message = "Password must be atleast 6 characters")
 	private String password;
 
-	
-    @NotBlank(message = "Department is required")
-    @Size(max = 100, message = "Department cannot exceed 100 characters")
-    private String department;
 
     @NotBlank(message = "Designation is required")
     @Size(max = 100, message = "Designation cannot exceed 100 characters")

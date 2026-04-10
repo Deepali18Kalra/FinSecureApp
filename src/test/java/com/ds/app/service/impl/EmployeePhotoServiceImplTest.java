@@ -19,14 +19,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ds.app.dto.response.ProfilePhotoResponseDTO;
 import com.ds.app.entity.Employee;
 import com.ds.app.enums.UserRole;
-import com.ds.app.repository.IEmployeeRepository;
+import com.ds.app.repository.EmployeeRepository;
 import com.ds.app.service.impl.EmployeePhotoServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 class EmployeePhotoServiceImplTest {
 
     @Mock
-    private IEmployeeRepository iEmployeeRepo;
+    private EmployeeRepository iEmployeeRepo;
 
     @InjectMocks
     private EmployeePhotoServiceImpl photoService;

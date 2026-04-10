@@ -10,13 +10,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.ds.app.dto.response.EmployeeResponseDTO;
+import com.ds.app.dto.response.EmployeeProfileResponseDTO;
 import com.ds.app.dto.response.PagedResponseDTO;
 import com.ds.app.entity.Employee;
-import com.ds.app.exception.EmployeeNotFoundException;
-import com.ds.app.jwtutil.MaskingUtil;
-import com.ds.app.repository.IEmployeeRepository;
-import com.ds.app.repository.iAppUserRepository;
+import com.ds.app.exception.EmployeeNotFoundException1;
+import com.ds.app.utils.MaskingUtil;
+import com.ds.app.repository.EmployeeRepository;
+import com.ds.app.repository.AppUserRepository;
 import com.ds.app.service.EmployeeAdminService;
 
 import jakarta.transaction.Transactional;
@@ -26,21 +26,21 @@ import jakarta.transaction.Transactional;
 public class EmployeeAdminServiceImpl  implements EmployeeAdminService{
 	
 	@Autowired
-	IEmployeeRepository iEmployeeRepo;
+	EmployeeRepository iEmployeeRepo;
 	
 	@Autowired
-	iAppUserRepository appUserRepository;
+	AppUserRepository appUserRepository;
 	
 	@Autowired
 	PasswordEncoder passwordEncoder;
 	
-	private static final Logger logger = LoggerFactory.getLogger(EmployeePhotoServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(EmployeeAdminServiceImpl.class);
 
 			@Override
 			public void softDeleteEmployee(Long userId) throws Exception {
 					 logger.warn("Soft delete for userId: {}", userId);
 				        Employee employee = iEmployeeRepo.findByUserId(userId)
-				                .orElseThrow(() -> new EmployeeNotFoundException(userId));
+				                .orElseThrow(() -> new EmployeeNotFoundException1(userId));
 				        if (Boolean.TRUE.equals(employee.getIsDeleted())) {
 				            logger.info("userId: {} already deleted — no action", userId);
 				            return;
@@ -51,8 +51,8 @@ public class EmployeeAdminServiceImpl  implements EmployeeAdminService{
 				
 			}
 			
-		   private EmployeeResponseDTO mapToMaskedResponseDTO(Employee e) {
-		       EmployeeResponseDTO dto = new EmployeeResponseDTO();
+		   private EmployeeProfileResponseDTO mapToMaskedResponseDTO(Employee e) {
+		       EmployeeProfileResponseDTO dto = new EmployeeProfileResponseDTO();
 		       dto.setUserId(e.getUserId());
 		       dto.setUsername(e.getUsername());
 		       dto.setRole(e.getRole());
@@ -61,7 +61,6 @@ public class EmployeeAdminServiceImpl  implements EmployeeAdminService{
 		       dto.setLastName(e.getLastName());
 		       dto.setEmail(MaskingUtil.maskEmail(e.getEmail()));
 		       dto.setPhoneNumber(MaskingUtil.maskPhone(e.getPhoneNumber()));
-		       dto.setDepartment(e.getDepartment());
 		       dto.setDesignation(e.getDesignation());
 		       dto.setIsDeleted(e.getIsDeleted());
 		       dto.setIsAccountLocked(e.getIsAccountLocked());
@@ -73,10 +72,10 @@ public class EmployeeAdminServiceImpl  implements EmployeeAdminService{
 		    
 		    @Override
 		    @Transactional
-		    public void restoreEmployee(Long userId) throws EmployeeNotFoundException {
+		    public void restoreEmployee(Long userId) throws EmployeeNotFoundException1 {
 		        logger.info("Restoring employee for userId: {}", userId);
 		        Employee employee = iEmployeeRepo.findByUserId(userId)
-		                .orElseThrow(() -> new EmployeeNotFoundException(userId));
+		                .orElseThrow(() -> new EmployeeNotFoundException1(userId));
 		
 		        if (Boolean.FALSE.equals(employee.getIsDeleted())) {
 		            logger.info("Employee is not deleted for userId: {}", userId);
@@ -90,11 +89,11 @@ public class EmployeeAdminServiceImpl  implements EmployeeAdminService{
 		    
 		    @Override
 		    @Transactional
-		    public PagedResponseDTO<EmployeeResponseDTO> findDeletedEmployees(Pageable pageable) {
+		    public PagedResponseDTO<EmployeeProfileResponseDTO> findDeletedEmployees(Pageable pageable) {
 		        logger.info("Fetching deleted employees");
 		
 		        Page<Employee> page = iEmployeeRepo.findByIsDeletedTrue(pageable);
-		        List<EmployeeResponseDTO> data = page.getContent()
+		        List<EmployeeProfileResponseDTO> data = page.getContent()
 		                .stream()
 		                .map(this::mapToMaskedResponseDTO)
 		                .toList();

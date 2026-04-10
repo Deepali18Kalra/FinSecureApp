@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EmployeeResponseDTO {
+public class EmployeeProfileResponseDTO {
 
 	private Long userId;
 	private String username;
@@ -34,7 +34,6 @@ public class EmployeeResponseDTO {
 	private String phoneNumber;
 	private LocalDate dateOfBirth;
 	private Gender gender;
-	private String department;
 	private String designation;
 	private LocalDate joiningDate;
 	private String addressLine;
@@ -43,9 +42,6 @@ public class EmployeeResponseDTO {
 	private String country;
 	private String pincode;
 	private EmploymentType employmentType;
-	private String certificationName;
-	private CertificationStatus certificationStatus;
-	
 	private String profilePhotoUrl;
 	private Boolean isAccountLocked;
 	private Boolean isDeleted;

@@ -9,7 +9,7 @@ import com.ds.app.entity.AppUser;
 
 
 @Repository
-public interface iAppUserRepository extends JpaRepository<AppUser,Long>{
+public interface AppUserRepository extends JpaRepository<AppUser,Long>{
 
 	public Optional<AppUser> findByUsername(String username);
 

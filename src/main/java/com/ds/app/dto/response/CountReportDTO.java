@@ -15,16 +15,22 @@ import lombok.NoArgsConstructor;
 public class CountReportDTO {
 	
 	
-	 // ── Overall counts ─────────────────────────────────────────────
-    private Long totalActive;        // isDeleted = false
-    private Long totalDeleted;       // isDeleted = true
+	    // ── Employee status ────────────────────────────
+	    private Long totalDeleted;
 
-    // ── Experience counts ──────────────────────────────────────────
-    private Long totalFreshers;      // FRESHER
-    private Long totalExperienced;   // EXPERIENCED
+	    // ── Profile completion ─────────────────────────
+	    private Long incompleteProfiles;
+	    private Long withoutPhoto;
 
-    // ── Certification counts ───────────────────────────────────────
-    private Long totalCertified;     // CERTIFIED
-    private Long totalNonCertified;  // NON_CERTIFIED
+	    // ── Education ──────────────────────────────────
+	    private Long withEducation;
+	    private Long withoutEducation;
+
+	    // ── Documents ──────────────────────────────────
+	    private Long withDocuments;
+	    private Long withoutDocuments;
+
+	    // ── Rewards ────────────────────────────────────
+	    private Long withRewards;
 
 }

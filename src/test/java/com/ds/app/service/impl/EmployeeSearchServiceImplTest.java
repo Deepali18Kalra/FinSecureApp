@@ -20,22 +20,24 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import com.ds.app.dto.response.EmployeeResponseDTO;
+import com.ds.app.dto.response.EmployeeProfileResponseDTO;
+import com.ds.app.dto.response.EmployeeSimpleResponseDTO;
+import com.ds.app.dto.response.EmployeeIncompleteResponseDTO;
 import com.ds.app.dto.response.MonthlyStatDTO;
 import com.ds.app.dto.response.PagedResponseDTO;
 import com.ds.app.entity.Employee;
 import com.ds.app.enums.UserRole;
-import com.ds.app.repository.IEmployeeRepository;
-import com.ds.app.repository.iAppUserRepository;
+import com.ds.app.repository.EmployeeRepository;
+import com.ds.app.repository.AppUserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class EmployeeSearchServiceImplTest {
 	
 	@Mock
-	private IEmployeeRepository iEmployeeRepo;
+	private EmployeeRepository iEmployeeRepo;
 	
 	@Mock
-	private iAppUserRepository appUserRepo;
+	private AppUserRepository appUserRepo;
 	
 	
 	@InjectMocks
@@ -110,7 +112,7 @@ class EmployeeSearchServiceImplTest {
 		    when(iEmployeeRepo.findRecentlyJoined(any(LocalDate.class),any(Pageable.class))).thenReturn(mockPage);
 	
 		    // Call actual method
-		    PagedResponseDTO<EmployeeResponseDTO> result = employeeSearchService.getRecentlyJoined(days, pageable);
+		    PagedResponseDTO<EmployeeProfileResponseDTO> result = employeeSearchService.getRecentlyJoined(days, pageable);
 	
 		    // Assert
 		    assertNotNull(result);
@@ -138,7 +140,7 @@ class EmployeeSearchServiceImplTest {
 		    when(iEmployeeRepo.findEmployeesWithoutPhoto(any(Pageable.class))).thenReturn(mockPage);
 	
 		    // Call actual method
-		    PagedResponseDTO<EmployeeResponseDTO> result = employeeSearchService.getEmployeesWithoutPhoto(pageable);
+		    PagedResponseDTO<EmployeeSimpleResponseDTO> result = employeeSearchService.getEmployeesWithoutPhoto(pageable);
 	
 		    // Assert
 		    assertNotNull(result);

@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import com.ds.app.entity.AppUser;
 import com.ds.app.entity.Employee;
 import com.ds.app.enums.UserRole;
-import com.ds.app.repository.IEmployeeRepository;
-import com.ds.app.repository.iAppUserRepository;
+import com.ds.app.repository.EmployeeRepository;
+import com.ds.app.repository.AppUserRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -16,13 +16,13 @@ import jakarta.transaction.Transactional;
 public class AppUserServiceImpl implements AppUserService{
 
 	@Autowired
-	private iAppUserRepository appUserRepository;
+	private AppUserRepository appUserRepository;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
 	 @Autowired
-	 private IEmployeeRepository iEmployeeRepo;
+	 private EmployeeRepository iEmployeeRepo;
 
 	 
 	 @Override

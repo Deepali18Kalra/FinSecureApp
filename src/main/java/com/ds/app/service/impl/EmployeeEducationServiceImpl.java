@@ -12,9 +12,9 @@ import com.ds.app.dto.request.EmployeeEducationRequestDTO;
 import com.ds.app.dto.response.EmployeeEducationResponseDTO;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.EmployeeEducation;
-import com.ds.app.exception.EmployeeNotFoundException;
-import com.ds.app.repository.IEmployeeEducationRepository;
-import com.ds.app.repository.IEmployeeRepository;
+import com.ds.app.exception.EmployeeNotFoundException1;
+import com.ds.app.repository.EmployeeEducationRepository;
+import com.ds.app.repository.EmployeeRepository;
 import com.ds.app.service.EmployeeEducationService;
  
 @Service
@@ -25,9 +25,9 @@ public class EmployeeEducationServiceImpl implements EmployeeEducationService {
  
 		
 		@Autowired
-		IEmployeeEducationRepository educationRepo;
+		EmployeeEducationRepository educationRepo;
 		@Autowired
-		IEmployeeRepository iEmployeeRepo;
+		EmployeeRepository iEmployeeRepo;
  
   
 
@@ -36,7 +36,7 @@ public class EmployeeEducationServiceImpl implements EmployeeEducationService {
  
         logger.info("Adding education for userId: {}", userId);
         Employee employee = iEmployeeRepo.findByUserId(userId)
-                .orElseThrow(() -> new EmployeeNotFoundException(userId));
+                .orElseThrow(() -> new EmployeeNotFoundException1(userId));
  
         EmployeeEducation education = new EmployeeEducation();
         education.setEmployee(employee);          

@@ -19,15 +19,15 @@ import org.springframework.context.annotation.Description;
 
 import com.ds.app.entity.Employee;
 import com.ds.app.enums.UserRole;
-import com.ds.app.exception.EmployeeNotFoundException;
-import com.ds.app.repository.IEmployeeRepository;
+import com.ds.app.exception.EmployeeNotFoundException1;
+import com.ds.app.repository.EmployeeRepository;
 
 @ExtendWith(MockitoExtension.class)
 class EmployeeAdminServiceImplTest {
 	
 	
 	@Mock
-	private IEmployeeRepository iEmployeeRepo;
+	private EmployeeRepository iEmployeeRepo;
 	
 	@InjectMocks
 	private EmployeeAdminServiceImpl adminService;
@@ -69,7 +69,7 @@ class EmployeeAdminServiceImplTest {
 
 	@Test
 	@Description("restore delted employee method test")
-	void testRestoreEmployee() throws EmployeeNotFoundException {
+	void testRestoreEmployee() throws EmployeeNotFoundException1 {
 		
 		//sample uinput for actual method call
 

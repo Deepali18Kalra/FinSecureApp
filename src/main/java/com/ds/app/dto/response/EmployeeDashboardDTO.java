@@ -45,14 +45,10 @@ public class EmployeeDashboardDTO {
     private String fullAddress;     // complete address in one string
 
     // ── Professional info ──────────────────────────────────────────
-    private String department;
     private String designation;
     private LocalDate joiningDate;
     private EmploymentType employmentType;
-    private EmployeeExperience employeeExperience;
-    private CertificationStatus certificationStatus;
-    private String certificationName;
-
+  
     // ── Work duration ──────────────────────────────────────────────
     private Long daysWorked;        // total days since joining
     private Long monthsWorked;      // total months since joining

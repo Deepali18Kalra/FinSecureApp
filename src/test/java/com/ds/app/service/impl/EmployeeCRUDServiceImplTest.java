@@ -24,24 +24,24 @@ import org.springframework.context.annotation.Description;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.ds.app.dto.request.HRCreateEmployeeRequestDTO;
-import com.ds.app.dto.response.EmployeeResponseDTO;
+import com.ds.app.dto.response.EmployeeProfileResponseDTO;
 import com.ds.app.dto.response.HRCreateEmployeeResponseDTO;
 import com.ds.app.entity.Employee;
 import com.ds.app.enums.CertificationStatus;
 import com.ds.app.enums.EmployeeExperience;
 import com.ds.app.enums.EmploymentType;
 import com.ds.app.enums.UserRole;
-import com.ds.app.repository.IEmployeeRepository;
-import com.ds.app.repository.iAppUserRepository;
+import com.ds.app.repository.EmployeeRepository;
+import com.ds.app.repository.AppUserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class EmployeeCRUDServiceImplTest {
 	
 	@Mock
-	private IEmployeeRepository iEmployeeRepo;
+	private EmployeeRepository iEmployeeRepo;
 	
 	@Mock
-	private iAppUserRepository appUserRepo;
+	private AppUserRepository appUserRepo;
 	
 	@Mock
 	private PasswordEncoder passwordEncoder;
@@ -60,7 +60,6 @@ class EmployeeCRUDServiceImplTest {
 		dto.setUsername("john_doe");
 		dto.setPassword("emp1234");
 		dto.setRole(UserRole.EMPLOYEE);
-		dto.setDepartment("Engineering");
 		dto.setDesignation("Developer");
 		dto.setEmploymentType(EmploymentType.FULL_TIME);
 		dto.setEmployeeExperience(EmployeeExperience.FRESHER);
@@ -74,7 +73,6 @@ class EmployeeCRUDServiceImplTest {
 		saved.setUsername("john_doe");
 		saved.setPassword("hashedPassword");
 		saved.setRole(UserRole.EMPLOYEE);
-		saved.setDepartment("Engineering");
 		saved.setDesignation("Developer");
 		saved.setEmploymentType(EmploymentType.FULL_TIME);
 		saved.setEmployeeExperience(EmployeeExperience.FRESHER);
@@ -90,7 +88,6 @@ class EmployeeCRUDServiceImplTest {
 		savedWithCode.setUsername("john_doe");
 		savedWithCode.setEmployeeCode("EMP0013");
 		savedWithCode.setRole(UserRole.EMPLOYEE);
-		savedWithCode.setDepartment("Engineering");
 		
 		//code to configure save operation through mockito
 		//expected output from method
@@ -107,7 +104,6 @@ class EmployeeCRUDServiceImplTest {
 		assertEquals("john_doe", result.getUsername());
 		assertEquals("EMP0013", result.getEmployeeCode());
 		assertEquals(UserRole.EMPLOYEE, result.getUserRole());
-		assertEquals("Engineering", result.getDepartment());
 		
 		verify(iEmployeeRepo,times(2)).save(any(Employee.class));
 	
@@ -131,7 +127,6 @@ class EmployeeCRUDServiceImplTest {
 		        savedEmployee.setLastName("Doe");
 		        savedEmployee.setEmail("john@gmail.com");
 		        savedEmployee.setPhoneNumber("9876543210");
-		        savedEmployee.setDepartment("Engineering");
 		        savedEmployee.setDesignation("Developer");
 		        savedEmployee.setIsDeleted(false);
 		        savedEmployee.setIsAccountLocked(false);
@@ -142,7 +137,7 @@ class EmployeeCRUDServiceImplTest {
 		        when(iEmployeeRepo.findByUsername("john_doe")).thenReturn(Optional.of(savedEmployee));
 
 		        // Call actual method
-		        EmployeeResponseDTO result = employeeCRUDService.getOwnProfile(username);
+		        EmployeeProfileResponseDTO result = employeeCRUDService.getOwnProfile(username);
 
 		        // Assert
 		        assertNotNull(result);
@@ -151,7 +146,6 @@ class EmployeeCRUDServiceImplTest {
 		        assertEquals("John", result.getFirstName());
 		        assertEquals("Doe", result.getLastName());
 		        assertEquals("john@gmail.com", result.getEmail());
-		        assertEquals("Engineering", result.getDepartment());
 		        verify(iEmployeeRepo, times(1)).findByUsername("john_doe");
 
 	}
@@ -174,7 +168,6 @@ class EmployeeCRUDServiceImplTest {
 		    savedEmployee.setLastName("Doe");
 		    savedEmployee.setEmail("john@gmail.com");        // ← real email in entity
 		    savedEmployee.setPhoneNumber("9876543210");      // ← real phone in entity
-		    savedEmployee.setDepartment("Engineering");
 		    savedEmployee.setIsDeleted(false);
 		    savedEmployee.setIsAccountLocked(false);
 		    savedEmployee.setIsEscalated(false);
@@ -184,7 +177,7 @@ class EmployeeCRUDServiceImplTest {
 		    when(iEmployeeRepo.findByUserIdAndIsDeletedFalse(13L)).thenReturn(Optional.of(savedEmployee));
 
 		    // Call actual method
-		    EmployeeResponseDTO result = employeeCRUDService.getEmployeeById(userId);
+		    EmployeeProfileResponseDTO result = employeeCRUDService.getEmployeeById(userId);
 
 		    // Assert
 		    assertNotNull(result);
@@ -192,7 +185,6 @@ class EmployeeCRUDServiceImplTest {
 		    assertEquals("EMP0013", result.getEmployeeCode());
 		    assertEquals("joh***@gmail.com", result.getEmail()); // ← masked
 		    assertEquals("******3210", result.getPhoneNumber()); // ← masked
-		    assertEquals("Engineering", result.getDepartment());
 		    verify(iEmployeeRepo, times(1)).findByUserIdAndIsDeletedFalse(13L);
 		}
 

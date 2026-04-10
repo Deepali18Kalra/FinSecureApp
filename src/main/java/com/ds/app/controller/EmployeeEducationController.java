@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ds.app.dto.request.EmployeeEducationRequestDTO;
 import com.ds.app.dto.response.EmployeeEducationResponseDTO;
-import com.ds.app.repository.IEmployeeRepository;
+import com.ds.app.repository.EmployeeRepository;
 import com.ds.app.service.EmployeeEducationService;
 
 
@@ -38,7 +38,7 @@ public class EmployeeEducationController {
     EmployeeEducationService emEducationService;
     
     @Autowired
-    IEmployeeRepository iEmployeeRepo;
+    EmployeeRepository iEmployeeRepo;
  
 	    private Long getUserId(String username) {
 	    	
@@ -47,9 +47,6 @@ public class EmployeeEducationController {
 	                .getUserId();
 	    }
 	 
-	
-	    // POST /finsecure/employee/education
-	    // Employee adds new education record
 	    @PostMapping("/finsecure/employee/education")
 	    @PreAuthorize("hasAuthority('EMPLOYEE')")
 	    @Operation( summary = "Add education record (Employee)",description =
@@ -57,19 +54,17 @@ public class EmployeeEducationController {
 	            "One employee can add multiple records:\n" +
 	            "e.g. B.Tech + MBA = 2 separate records.\n\n" +
 	            "**Required:** degree, institution\n" +
-	            "**Optional:** fieldOfStudy, passingYear, " +
+	            "fieldOfStudy, passingYear, " +
 	            "percentage, grade, location")
 	    
-	    	public ResponseEntity<EmployeeEducationResponseDTO> addEducation( @Valid @RequestBody EmployeeEducationRequestDTO dto, @AuthenticationPrincipal UserDetails userDetails) throws Exception {
+	    public ResponseEntity<EmployeeEducationResponseDTO> addEducation( @Valid @RequestBody EmployeeEducationRequestDTO dto, 
+	    		@AuthenticationPrincipal UserDetails userDetails) throws Exception {
 	 
-	        Long userId = getUserId(userDetails.getUsername());
-	        logger.info("Add education for: {}", userDetails.getUsername());
-	        return new ResponseEntity<>(emEducationService.addEducation(dto, userId), HttpStatus.CREATED);
+	    Long userId = getUserId(userDetails.getUsername());
+	    logger.info("Add education for: {}", userDetails.getUsername());
+	    return new ResponseEntity<>(emEducationService.addEducation(dto, userId), HttpStatus.CREATED);
 	    }
 	 
-	   
-	    // GET /finsecure/employee/education
-	    // Employee views own education records
 	    @GetMapping("/finsecure/employee/education")
 	    @PreAuthorize("hasAuthority('EMPLOYEE')")
 	    @Operation(summary = "Get my education records (Employee)", description =
@@ -84,9 +79,7 @@ public class EmployeeEducationController {
 	        return ResponseEntity.ok( emEducationService.getMyEducation(userId));
 	    }
 	 
-	 
-	    // PUT /finsecure/employee/education/{eduId}
-	    // Employee updates own education record
+
 	    @PutMapping("/finsecure/employee/education/{eduId}")
 	    @PreAuthorize("hasAuthority('EMPLOYEE')")
 	    @Operation(summary = "Update education record (Employee)",description =
@@ -103,9 +96,7 @@ public class EmployeeEducationController {
 	        return ResponseEntity.ok( emEducationService.updateEducation( eduId, dto, userId));
 	    }
 	 
-	  
-	    // DELETE /finsecure/employee/education/{eduId}
-	    // Employee deletes own education record
+
 	    @DeleteMapping("/finsecure/employee/education/{eduId}")
 	    @PreAuthorize("hasAuthority('EMPLOYEE')")
 	    @Operation( summary = "Delete education record (Employee)", description =
@@ -121,9 +112,7 @@ public class EmployeeEducationController {
 	        return ResponseEntity.ok( "Education record deleted: " + eduId);
 	    }
 	 
-	   
-	    // GET /finsecure/hr/employee/{userId}/education
-	    // HR views any employee education records
+	
 	    @GetMapping("/finsecure/hr/employee/{userId}/education")
 	    @PreAuthorize("hasAnyAuthority('HR', 'ADMIN')")
 	    @Operation(summary = "Get employee education records (HR / Admin)", description =

@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.ds.app.dto.response.EmployeeDocumentResponseDTO;
 import com.ds.app.dto.response.EmployeeEducationResponseDTO;
-import com.ds.app.dto.response.EmployeeResponseDTO;
+import com.ds.app.dto.response.EmployeeProfileResponseDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class EmployeeExportDTO {
  
     // ── Complete employee profile ──────────────────────────────────
-    private EmployeeResponseDTO profile;
+    private EmployeeProfileResponseDTO profile;
  
   
     // Empty list if no education records added yet

@@ -19,10 +19,10 @@ import com.ds.app.dto.response.EmployeeDocumentResponseDTO;
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.EmployeeDocument;
 import com.ds.app.exception.FileStorageException;
-import com.ds.app.repository.IEmployeeDocumentRepository;
-import com.ds.app.repository.IEmployeeRepository;
+import com.ds.app.repository.EmployeeDocumentRepository;
+import com.ds.app.repository.EmployeeRepository;
 import com.ds.app.service.EmployeeDocumentService;
-import com.ds.app.jwtutil.MaskingUtil;
+import com.ds.app.utils.MaskingUtil;
 
 @Service
 @Transactional
@@ -35,10 +35,10 @@ public class EmployeeDocumentServiceImpl implements EmployeeDocumentService {
     private static final List<String> ALLOWED = List.of("image/jpeg", "image/png", "image/jpg", "application/pdf");
 
    @Autowired
-   IEmployeeDocumentRepository documentRepo;
+   EmployeeDocumentRepository documentRepo;
    
    @Autowired
-   IEmployeeRepository iEmployeeRepository;
+   EmployeeRepository iEmployeeRepository;
 
 
        @Override

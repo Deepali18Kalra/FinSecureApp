@@ -8,13 +8,13 @@ public interface EmployeeCRUDService {
 	
 	HRCreateEmployeeResponseDTO createEmployeeByHR(HRCreateEmployeeRequestDTO dto, String hrUsername) throws Exception;
 
-    EmployeeResponseDTO getOwnProfile(String username) throws Exception;
+    EmployeeProfileResponseDTO getOwnProfile(String username) throws Exception;
 
-    EmployeeResponseDTO updateOwnProfile(EmployeeUpdateRequestDTO dto, String username) throws Exception;
+    EmployeeProfileResponseDTO updateOwnProfile(EmployeeUpdateRequestDTO dto, String username) throws Exception;
 
-    EmployeeResponseDTO getEmployeeById(Long userId) throws Exception;
+    EmployeeProfileResponseDTO getEmployeeById(Long userId) throws Exception;
     
-	EmployeeResponseDTO updateEmployeeByHr(Long userId, EmployeeHRUpdateDTO dto, String hrUsername) throws Exception;
+	EmployeeProfileResponseDTO updateEmployeeByHr(Long userId, EmployeeHRUpdateDTO dto, String hrUsername) throws Exception;
 	
 	EmployeeDashboardDTO getEmployeeDashboard(String username) throws Exception;
 	

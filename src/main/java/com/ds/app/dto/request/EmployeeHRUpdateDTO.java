@@ -5,7 +5,9 @@ import java.time.LocalDate;
 import com.ds.app.enums.CertificationStatus;
 import com.ds.app.enums.EmployeeExperience;
 import com.ds.app.enums.EmploymentType;
+import com.ds.app.enums.UserRole;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -22,30 +24,22 @@ public class EmployeeHRUpdateDTO {
     // Service checks for duplicates before saving.
     @Size(max = 20, message = "Employee code cannot exceed 20 characters")
     private String employeeCode;
- 
-    // ── Professional assignment ────────────────────────────────────────
-    @Size(max = 100, message = "Department cannot exceed 100 characters")
-    private String department;
+    
+    
+    @NotNull(message = "Role is required")
+    private UserRole role;   // HR can pass EMPLOYEE, HR, FINANCE, ADMIN
  
     @Size(max = 100, message = "Designation cannot exceed 100 characters")
     private String designation;
  
     private EmploymentType employmentType;
  
-    private EmployeeExperience employeeExperience;
  
     // ── Joining date ───────────────────────────────────────────────────
     @PastOrPresent(message = "Joining date cannot be in the future")
     private LocalDate joiningDate;
  
-    // ── Certification ──────────────────────────────────────────────────
-    // Rule: if certificationStatus = CERTIFIED,
-    //       certificationName and certificationExpiryDate become mandatory.
-    //       The service enforces this — not the DTO.
-    private CertificationStatus certificationStatus;
- 
-    @Size(max = 100, message = "Certification name cannot exceed 100 characters")
-    private String certificationName;
+  
  
     
 }

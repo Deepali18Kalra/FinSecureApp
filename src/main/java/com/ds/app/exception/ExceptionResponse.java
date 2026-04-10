@@ -1,23 +1,20 @@
 package com.ds.app.exception;
-
-import java.time.LocalDate;
+ 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+ 
 public class ExceptionResponse {
-	
-	private String errorMsg;
-	private LocalDate date;
-	private LocalTime time;
-	private String url;
-	private String className;
-	private String solution;
-
+ 
+    private int status;
+    private String message;
+    private LocalDateTime timestamp;
+ 
+    public ExceptionResponse(int status, String message) {
+        this.status = status;
+        this.message = message;
+        this.timestamp = LocalDateTime.now();
+    }
+ 
+    public int getStatus() { return status; }
+    public String getMessage() { return message; }
+    public LocalDateTime getTimestamp() { return timestamp; }
 }

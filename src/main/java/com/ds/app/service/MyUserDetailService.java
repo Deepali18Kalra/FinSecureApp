@@ -8,14 +8,14 @@ import org.springframework.stereotype.Service;
 
 import com.ds.app.entity.AppUser;
 import com.ds.app.entity.MyUserDetails;
-import com.ds.app.repository.iAppUserRepository;
+import com.ds.app.repository.AppUserRepository;
 
 @Service
 public class MyUserDetailService implements UserDetailsService {
 
 	
 	@Autowired
-	private iAppUserRepository appUserRepository;
+	private AppUserRepository appUserRepository;
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{

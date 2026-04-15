@@ -1,4 +1,4 @@
-package com.ds.app.service.Impl;
+package com.ds.app.service.impl;
 
 import com.ds.app.dto.request.TimesheetEntryRequest;
 import com.ds.app.dto.response.TimesheetEntryResponse;

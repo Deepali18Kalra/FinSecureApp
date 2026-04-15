@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class TimesheetEntryMapper {
 
-    // inbound mapping (DTO -> Entity)
     public TimesheetEntry mapToEntity(TimesheetEntryRequest request, Timesheet timesheet) {
 
         int totalMinutes = (request.getHours() * 60) + request.getMinutes();

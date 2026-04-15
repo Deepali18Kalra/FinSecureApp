@@ -1,4 +1,4 @@
-package com.ds.app.service.Impl;
+package com.ds.app.service.impl;
 
 import com.ds.app.entity.Employee;
 import com.ds.app.entity.Leave;
@@ -32,9 +32,7 @@ public class EmailServiceImpl implements IEmailService {
         mailSender.send(msg);
     }
 
-    // =========================
     // Leave notifications
-    // =========================
 
     @Override
     @Async
@@ -154,11 +152,13 @@ public class EmailServiceImpl implements IEmailService {
         Employee manager = employee.getManager();
         if (manager == null || manager.getEmail() == null || manager.getEmail().isBlank()) return;
 
+        int mins = timesheet.getTotalMonthlyMinutes() != null ? timesheet.getTotalMonthlyMinutes() : 0;
+
         String subject = "Timesheet Submitted - " + employee.getFirstName() + " " + employee.getLastName();
         String body = "Hello " + manager.getFirstName() + ",\n\n"
                 + employee.getFirstName() + " " + employee.getLastName() + " has submitted a timesheet.\n\n"
                 + "Month/Year: " + timesheet.getMonth() + "/" + timesheet.getYear() + "\n"
-                + "Total Hours: " + timesheet.getTotalMonthlyMinutes()/60 + "\n"
+                + "Total Hours: " + String.format("%.1f", mins / 60.0) + "\n"
                 + "Status: " + timesheet.getStatus() + "\n\n"
                 + "Please review it in the portal.";
         sendPlainText(manager.getEmail(), subject, body);
@@ -169,11 +169,13 @@ public class EmailServiceImpl implements IEmailService {
     public void notifyEmployeeForTimesheetDecision(Employee employee, Timesheet timesheet) {
         if (employee.getEmail() == null || employee.getEmail().isBlank()) return;
 
+        int mins = timesheet.getTotalMonthlyMinutes() != null ? timesheet.getTotalMonthlyMinutes() : 0;
+
         String subject = "Timesheet " + timesheet.getStatus();
         String body = "Hello " + employee.getFirstName() + ",\n\n"
                 + "Your timesheet has been " + timesheet.getStatus() + ".\n\n"
                 + "Month/Year: " + timesheet.getMonth() + "/" + timesheet.getYear() + "\n"
-                + "Total Hours: " + timesheet.getTotalMonthlyMinutes()/60 + "\n"
+                + "Total Hours: " + String.format("%.1f", mins / 60.0) + "\n"
                 + (timesheet.getStatus().name().equals("REJECTED")
                 ? "Reason: " + (timesheet.getRejectionReason() == null ? "" : timesheet.getRejectionReason()) + "\n"
                 : "")

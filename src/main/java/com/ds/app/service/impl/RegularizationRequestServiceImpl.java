@@ -1,4 +1,4 @@
-package com.ds.app.service.Impl;
+package com.ds.app.service.impl;
 
 import com.ds.app.dto.request.ApprovalRequest;
 import com.ds.app.dto.request.RegularizationRequestDTO;
@@ -79,7 +79,6 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
 
         RegularizationRequest saved = regularizationRepository.save(rr);
 
-        // notify manager for new regularization request
         emailService.notifyManagerForNewRegularization(loggedInEmp, saved);
 
         return regularizationMapper.mapToResponse(saved);
@@ -167,7 +166,6 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
 
         RegularizationRequest saved = regularizationRepository.save(regularizationReq);
 
-        // notify employee for final decision
         emailService.notifyEmployeeForRegularizationDecision(saved.getEmployee(), saved);
 
         return regularizationMapper.mapToResponse(saved);

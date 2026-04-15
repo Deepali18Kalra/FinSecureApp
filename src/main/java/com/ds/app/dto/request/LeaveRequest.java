@@ -1,6 +1,7 @@
 package com.ds.app.dto.request;
 
 import com.ds.app.enums.LeaveType;
+import com.ds.app.validation.ValidDateRange;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ValidDateRange
 public class LeaveRequest {
 	
 	@NotNull(message = "Start date is required")

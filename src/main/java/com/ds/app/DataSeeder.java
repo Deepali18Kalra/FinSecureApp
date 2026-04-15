@@ -73,7 +73,7 @@ public class DataSeeder implements CommandLineRunner {
         List<Holiday> holidays = List.of(
                 Holiday.builder().date(LocalDate.of(2026, 1, 26)).name("Republic Day").type(HolidayType.NATIONAL).build(),
                 Holiday.builder().date(LocalDate.of(2026, 3, 3)).name("Holi").type(HolidayType.NATIONAL).build(),
-                Holiday.builder().date(LocalDate.of(2026, 3, 30)).name("Company Foundation Day").type(HolidayType.OPTIONAL).build()
+                Holiday.builder().date(LocalDate.of(2026, 3, 30)).name("Company Foundation Day").type(HolidayType.RELIGIOUS).build()
         );
         holidayRepo.saveAll(holidays);
     }

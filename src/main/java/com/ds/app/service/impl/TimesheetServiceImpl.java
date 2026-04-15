@@ -1,4 +1,4 @@
-package com.ds.app.service.Impl;
+package com.ds.app.service.impl;
 
 import com.ds.app.dto.request.ApprovalRequest;
 import com.ds.app.dto.response.AttendanceTimesheetDiscrepancyReport;
@@ -133,6 +133,7 @@ public class TimesheetServiceImpl implements ITimesheetService {
     }
 
     @Override
+    @Transactional
     public AttendanceTimesheetDiscrepancyReport getAttendanceTimesheetDiscrepancyReport(Long employeeId, Integer month, Integer year) {
         Employee loggedInManager = securityUtils.getLoggedInEmployee();
 

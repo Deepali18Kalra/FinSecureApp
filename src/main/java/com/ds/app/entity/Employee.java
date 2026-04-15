@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -20,6 +21,10 @@ public class Employee extends AppUser{
 	private String lastName;
     @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    private Boolean isActive = true;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "manager_id")

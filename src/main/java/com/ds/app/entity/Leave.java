@@ -24,20 +24,29 @@ public class Leave {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "employee_id", nullable = false)
 	private Employee employee;
-	
+
+    @Column(nullable = false)
 	private LocalDate startDate;
-	private LocalDate endDate;
-	private Integer totalDays;
-	private String reasonForLeave;
+
+    @Column(nullable = false)
+    private LocalDate endDate;
+
+    @Column(nullable = false)
+    private Integer totalDays;
+
+    @Column(nullable = false)
+    private String reasonForLeave;
 	
 	@Enumerated(EnumType.STRING)
-	private LeaveType leaveType;
+    @Column(nullable = false)
+    private LeaveType leaveType;
 	
 	private LocalDate approvalDate;
 	
 	@Enumerated(EnumType.STRING)
 	@Builder.Default
-	private LeaveStatus status = LeaveStatus.PENDING;
+    @Column(nullable = false)
+    private LeaveStatus status = LeaveStatus.PENDING;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "approved_by")

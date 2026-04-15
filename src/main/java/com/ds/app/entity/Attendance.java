@@ -21,9 +21,10 @@ public class Attendance {
 	private Long attendanceId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "employee_id")
+	@JoinColumn(name = "employee_id", nullable = false)
 	private Employee employee;
 
+    @Column(nullable = false)
 	private LocalDate date;
 	private LocalTime punchInTime;
 	private LocalTime punchOutTime;

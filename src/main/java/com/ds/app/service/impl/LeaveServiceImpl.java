@@ -1,4 +1,4 @@
-package com.ds.app.service.Impl;
+package com.ds.app.service.impl;
 
 import com.ds.app.dto.request.ApprovalRequest;
 import com.ds.app.dto.request.LeaveRequest;
@@ -50,8 +50,15 @@ public class LeaveServiceImpl implements ILeaveService {
         LocalDate startDate = leaveRequest.getStartDate();
         LocalDate endDate = leaveRequest.getEndDate();
 
+        DateUtil.validateRange(startDate, endDate);
+
         Set<LocalDate> holidays = holidayRepository.findDatesBetween(startDate, endDate);
         int workingDays = DateUtil.workingDaysExcludingHolidays(startDate, endDate, holidays);
+
+        if (workingDays == 0) {
+            throw new InvalidLeaveStateException(
+                    "No working days found in selected date range");
+        }
 
         int leaveYear = startDate.getYear();
         LeaveType type = leaveRequest.getLeaveType();

@@ -1,4 +1,4 @@
-package com.ds.app.service.Impl;
+package com.ds.app.service.impl;
 
 import com.ds.app.dto.response.LeaveBalanceResponse;
 import com.ds.app.entity.Employee;
@@ -14,6 +14,7 @@ import com.ds.app.service.ILeaveBalanceService;
 import com.ds.app.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Year;
@@ -29,6 +30,7 @@ public class LeaveBalanceServiceImpl implements ILeaveBalanceService {
     private final SecurityUtils securityUtils;
 
     @Override
+    @Transactional
     public void reserveLeaves(Long userId, int year, LeaveType type, int days) {
         if (type == LeaveType.UNPAID) return;
 
@@ -48,8 +50,9 @@ public class LeaveBalanceServiceImpl implements ILeaveBalanceService {
                 lb.setReservedCasualLeaves(lb.getReservedCasualLeaves() + days);
             }
             case EARNED -> {
-                int available = lb.getEarnedLeaveBalance().intValue() - lb.getReservedEarnedLeaves();
-                if (available < days)
+                BigDecimal available = lb.getEarnedLeaveBalance()
+                        .subtract(BigDecimal.valueOf(lb.getReservedEarnedLeaves()));
+                if (available.compareTo(BigDecimal.valueOf(days)) < 0)
                     throw new InsufficientLeaveBalanceException("Insufficient earned leave balance");
                 lb.setReservedEarnedLeaves(lb.getReservedEarnedLeaves() + days);
             }
@@ -58,6 +61,7 @@ public class LeaveBalanceServiceImpl implements ILeaveBalanceService {
     }
 
     @Override
+    @Transactional
     public void releaseReservedLeaves(Long userId, int year, LeaveType type, int days) {
         if (type == LeaveType.UNPAID) return;
 
@@ -72,6 +76,7 @@ public class LeaveBalanceServiceImpl implements ILeaveBalanceService {
     }
 
     @Override
+    @Transactional
     public void applyApproval(Long userId, int year, LeaveType type, int days) {
         if (type == LeaveType.UNPAID) return;
 
@@ -107,6 +112,7 @@ public class LeaveBalanceServiceImpl implements ILeaveBalanceService {
     }
 
     @Override
+    @Transactional
     public void applyCancellationApproval(Long userId, int year, LeaveType type, int days) {
         if (type == LeaveType.UNPAID) return;
 

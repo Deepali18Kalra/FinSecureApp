@@ -1,4 +1,4 @@
-package com.ds.app.service.Impl;
+package com.ds.app.service.impl;
 
 import com.ds.app.dto.response.AttendanceResponse;
 import com.ds.app.dto.response.MonthlyAttendanceReport;
@@ -256,5 +256,17 @@ public class AttendanceServiceImpl implements IAttendanceService {
                 employeeId, month, year);
 
         return report;
+    }
+
+    @Transactional
+    @Override
+    public void markEmployeeAbsent(Employee employee, LocalDate date) {
+        Attendance absentRecord = Attendance.builder()
+                .employee(employee)
+                .date(date)
+                .status(AttendanceStatus.ABSENT)
+                .build();
+
+        attendanceRepo.save(absentRecord);
     }
 }

@@ -30,17 +30,22 @@ public class Timesheet {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "employee_id", nullable = false)
 	private Employee employee;
-	
+
+    @Column(nullable = false)
 	private Integer month;
+
+    @Column(nullable = false)
 	private Integer year;
 	
 	@Enumerated(EnumType.STRING)
 	@Builder.Default
+    @Column(nullable = false)
 	private TimesheetStatus status = TimesheetStatus.DRAFT;
 	
 	private LocalDateTime submittedAt;
 	
 	@Builder.Default
+    @Column(nullable = false)
 	private Integer totalMonthlyMinutes = 0;
 	
 	@OneToMany(mappedBy = "timesheet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

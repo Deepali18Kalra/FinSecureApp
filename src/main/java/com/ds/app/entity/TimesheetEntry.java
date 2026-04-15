@@ -21,10 +21,19 @@ public class TimesheetEntry {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "timesheet_id", nullable = false)
 	private Timesheet timesheet;
-	
+
+    @Column(nullable = false)
 	private LocalDate date;
+
+    @Column(nullable = false)
 	private String taskDescription;
+
+    @Column(nullable = false)
 	private Integer totalMinutesWorked;
+
+    @Column(nullable = false)
 	private Long projectId;
+
+    @Column(nullable = false)
 	private String projectName;
 }

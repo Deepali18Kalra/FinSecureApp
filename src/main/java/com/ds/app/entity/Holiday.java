@@ -19,10 +19,13 @@ public class Holiday {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long holidayId;
 	
-	@Column(unique = true)
+	@Column(unique = true, nullable = false)
 	private LocalDate date;
+
+    @Column(nullable = false)
 	private String name;
 	
 	@Enumerated(EnumType.STRING)
+    @Column(nullable = false)
 	private HolidayType type;
 }

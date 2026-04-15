@@ -23,14 +23,19 @@ public class RegularizationRequest {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "employee_id", nullable = false)
 	private Employee employee;
-	
+
+    @Column(nullable = false)
 	private LocalDate date;
+
+    @Column(nullable = false)
 	private String reason;
+
 	private LocalTime punchInTime;
 	private LocalTime punchOutTime;
 	
 	@Enumerated(EnumType.STRING)
 	@Builder.Default
+    @Column(nullable = false)
 	private RegularizationRequestStatus status = RegularizationRequestStatus.PENDING;
 	
 	@ManyToOne(fetch = FetchType.LAZY)

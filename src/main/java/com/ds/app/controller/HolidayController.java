@@ -21,7 +21,7 @@ public class HolidayController {
 
     // ── HR only ──
 
-    @PreAuthorize("hasAuthority('HR')")
+    @PreAuthorize("hasAnyAuthority('HR')")
     @PostMapping
     public ResponseEntity<HolidayResponse> createHoliday(
             @Valid @RequestBody HolidayRequest request) {

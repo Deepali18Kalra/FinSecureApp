@@ -27,7 +27,8 @@ public class LeaveBalance {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "employee_id", nullable = false)
 	private Employee employee;
-	
+
+    @Column(nullable = false)
 	private Integer year;
 	
 	@Builder.Default

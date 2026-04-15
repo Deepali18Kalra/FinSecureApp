@@ -1,4 +1,4 @@
-package com.ds.app.service.Impl;
+package com.ds.app.service.impl;
 
 import com.ds.app.dto.response.AttendanceResponse;
 import com.ds.app.dto.response.TeamAttendanceReportRow;

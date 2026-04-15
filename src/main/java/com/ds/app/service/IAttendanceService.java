@@ -4,8 +4,10 @@ import com.ds.app.dto.response.AttendanceResponse;
 import com.ds.app.dto.response.MonthlyAttendanceReport;
 import com.ds.app.dto.response.TeamAttendanceReportRow;
 
+import com.ds.app.entity.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,4 +35,7 @@ public interface IAttendanceService {
 	MonthlyAttendanceReport getEmployeeMonthlyAttendanceReport(Long employeeId, Integer month, Integer year);
 
     List<TeamAttendanceReportRow> getTeamAttendanceReport(LocalDate date);
+
+    @Transactional
+    void markEmployeeAbsent(Employee employee, LocalDate date);
 }

@@ -65,5 +65,5 @@ public interface ILeaveRepository extends JpaRepository<Leave, Long> {
             @Param("toDate") LocalDate toDate
     );
 
-    List<Leave> findByStatusAndStartDateBefore(LeaveStatus status, LocalDate todayDate);
+    List<Leave> findByStatusAndStartDateLessThanEqual(LeaveStatus status, LocalDate todayDate);
 }

@@ -3,6 +3,8 @@ package com.ds.app.repository;
 import com.ds.app.dto.response.MonthlyAttendanceReport;
 import com.ds.app.dto.response.TeamAttendanceReportRow;
 import com.ds.app.entity.Attendance;
+import com.ds.app.enums.AttendanceStatus;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,8 +38,9 @@ public interface IAttendanceRepository extends JpaRepository<Attendance, Long>{
 			where a.employee.userId =:employeeId
 			and (:month is null or MONTH(a.date) =:month)
 			and (:year is null or YEAR(a.date) =:year)
+			and (:status is null or a.status =: status)
 			""")
-	Page<Attendance> findAttendanceByEmployeeUserIdAndMonthAndYear(@Param("employeeId") Long employeeId, @Param("month") Integer month, @Param("year") Integer year, Pageable pageable);
+	Page<Attendance> findAttendanceByEmployeeUserIdAndMonthAndYear(@Param("employeeId") Long employeeId, @Param("month") Integer month, @Param("year") Integer year,@Param("status") AttendanceStatus status, Pageable pageable);
 	
 	Page<Attendance> findByEmployee_Manager_UserIdAndDate(Long managerId, LocalDate date, Pageable pageable);
 

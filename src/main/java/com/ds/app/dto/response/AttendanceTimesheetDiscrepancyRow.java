@@ -17,5 +17,5 @@ public class AttendanceTimesheetDiscrepancyRow {
     private AttendanceStatus attendanceStatus;
     private Double attendanceHours;
     private Double timesheetHours;
-    private String discrepancy; // OK, MISMATCH, WARNING
+    private String discrepancy; 
 }

@@ -3,6 +3,7 @@ package com.ds.app.controller;
 import com.ds.app.dto.response.AttendanceResponse;
 import com.ds.app.dto.response.MonthlyAttendanceReport;
 import com.ds.app.dto.response.TeamAttendanceReportRow;
+import com.ds.app.enums.AttendanceStatus;
 import com.ds.app.service.IAttendanceService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -97,11 +98,12 @@ public class AttendanceController {
             @PathVariable Long employeeId,
             @RequestParam(required = false) Integer month,
             @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) AttendanceStatus status,
             @PageableDefault(size = 10, page = 0, sort = "date", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Page<AttendanceResponse> pageResponse =
-                attendanceService.getEmployeeAttendance(employeeId, month, year, pageable);
+                attendanceService.getEmployeeAttendance(employeeId, month, year, status, pageable);
         return ResponseEntity.ok(pageResponse);
     }
 

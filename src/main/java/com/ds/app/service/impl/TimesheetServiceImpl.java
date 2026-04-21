@@ -3,6 +3,8 @@ package com.ds.app.service.impl;
 import com.ds.app.dto.request.ApprovalRequest;
 import com.ds.app.dto.response.AttendanceTimesheetDiscrepancyReport;
 import com.ds.app.dto.response.AttendanceTimesheetDiscrepancyRow;
+import com.ds.app.dto.response.EmployeeProjectHoursRow;
+import com.ds.app.dto.response.ProjectHoursReportResponse;
 import com.ds.app.dto.response.TimesheetResponse;
 import com.ds.app.entity.Attendance;
 import com.ds.app.entity.Employee;
@@ -17,6 +19,7 @@ import com.ds.app.exception.ResourceNotFoundException;
 import com.ds.app.mapper.TimesheetMapper;
 import com.ds.app.repository.IAttendanceRepository;
 import com.ds.app.repository.IEmployeeRepository;
+import com.ds.app.repository.ITimesheetEntryRepository;
 import com.ds.app.repository.ITimesheetRepository;
 import com.ds.app.service.IEmailService;
 import com.ds.app.service.ITimesheetService;
@@ -45,6 +48,7 @@ public class TimesheetServiceImpl implements ITimesheetService {
     private final TimesheetMapper timesheetMapper;
     private final SecurityUtils securityUtils;
     private final IEmailService emailService;
+    private final ITimesheetEntryRepository timesheetEntryRepository;
 
     @Override
     public TimesheetResponse getMyMonthlyTimesheet(Integer month, Integer year) {
@@ -198,10 +202,26 @@ public class TimesheetServiceImpl implements ITimesheetService {
                 .rows(rows)
                 .build();
     }
-
+    
+    @Override
+    public ProjectHoursReportResponse getProjectReportByMonthAndYear(Integer month, Integer year, Long projectId) {
+    	Employee loggedInManager = securityUtils.getLoggedInEmployee();
+    	
+    	List<EmployeeProjectHoursRow> employeeWiseRows = timesheetEntryRepository.findEmployeeWiseProjectHoursForManager(month, year, projectId, loggedInManager.getUserId());
+    	double totalProjectHours = employeeWiseRows.stream()
+    			.mapToDouble(row -> row.getHoursWorked())
+    			.sum();
+    	
+    	return ProjectHoursReportResponse.builder()
+    			.projectId(projectId)
+    			.totalProjectHours(totalProjectHours)
+    			.employeeWiseRows(employeeWiseRows)
+    			.build();
+    }
+    
     private String evaluate(AttendanceStatus status, double attendanceHours, double timesheetHours) {
         if (status == AttendanceStatus.ABSENT && timesheetHours > 0) return "MISMATCH";
-        if (Math.abs(attendanceHours - timesheetHours) > 2.0) return "WARNING";
+        if (Math.abs(attendanceHours - timesheetHours) > 0.5) return "WARNING";
         return "OK";
     }
 

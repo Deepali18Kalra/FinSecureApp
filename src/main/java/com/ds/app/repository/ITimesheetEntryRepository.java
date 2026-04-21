@@ -1,7 +1,10 @@
 package com.ds.app.repository;
 
+import com.ds.app.dto.response.EmployeeProjectHoursRow;
 import com.ds.app.entity.TimesheetEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -20,4 +23,26 @@ public interface ITimesheetEntryRepository extends JpaRepository<TimesheetEntry,
     );
 
     List<TimesheetEntry> findByTimesheetTimesheetIdOrderByDateAsc(Long timesheetId);
+    
+    @Query("""
+    select new com.ds.app.dto.response.EmployeeProjectHoursRow(
+        e.userId,
+        concat(e.firstName, ' ', e.lastName),
+        coalesce(sum(te.totalMinutesWorked), 0) / 60.0
+    )
+    from TimesheetEntry te
+    join te.timesheet t
+    join t.employee e
+    where e.manager.userId = :managerId
+      and te.projectId = :projectId
+      and month(te.date) = :month
+      and year(te.date) = :year
+    group by e.userId, e.firstName, e.lastName
+""")
+List<EmployeeProjectHoursRow> findEmployeeWiseProjectHoursForManager(
+        @Param("month") Integer month,
+        @Param("year") Integer year,
+        @Param("projectId") Long projectId,
+        @Param("managerId") Long managerId
+);
 }

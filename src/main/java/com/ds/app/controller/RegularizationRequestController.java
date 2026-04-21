@@ -48,8 +48,8 @@ public class RegularizationRequestController {
     }
 
     @PreAuthorize("hasAuthority('MANAGER')")
-    @PatchMapping("/{requestId}/decision")
-    public ResponseEntity<RegularizationResponse> reviewRegularization(
+    @PatchMapping("/{requestId}/process")
+    public ResponseEntity<RegularizationResponse> processRegularization(
             @PathVariable Long requestId,
             @Valid @RequestBody ApprovalRequest request
     ) {

@@ -2,6 +2,7 @@ package com.ds.app.controller;
 
 import com.ds.app.dto.request.ApprovalRequest;
 import com.ds.app.dto.response.AttendanceTimesheetDiscrepancyReport;
+import com.ds.app.dto.response.ProjectHoursReportResponse;
 import com.ds.app.dto.response.TimesheetResponse;
 import com.ds.app.service.ITimesheetService;
 import jakarta.validation.Valid;
@@ -80,4 +81,16 @@ public class TimesheetController {
     ) {
         return ResponseEntity.ok(timesheetService.getAttendanceTimesheetDiscrepancyReport(employeeId, month, year));
     }
+    
+    @PreAuthorize("hasAuthority('MANAGER')")
+    @GetMapping("/project-report")
+    public ResponseEntity<ProjectHoursReportResponse> getProjectWiseReport(
+    		@RequestParam Integer month,
+    		@RequestParam Integer year,
+    		@RequestParam Long projectId
+    		) {
+    	ProjectHoursReportResponse response = timesheetService.getProjectReportByMonthAndYear(month, year, projectId);
+    	return ResponseEntity.ok(response);
+    }
 }
+

@@ -155,7 +155,7 @@ public class AttendanceServiceImpl implements IAttendanceService {
     // MANAGER related methods
 
     @Override
-    public Page<AttendanceResponse> getEmployeeAttendance(Long employeeId, Integer month, Integer year, Pageable pageable) {
+    public Page<AttendanceResponse> getEmployeeAttendance(Long employeeId, Integer month, Integer year, AttendanceStatus status, Pageable pageable) {
         Employee emp = employeeRepo.findById(employeeId)
                 .orElseThrow(() -> {
                     log.warn("Employee not found while fetching attendance. employeeId={}", employeeId);
@@ -174,7 +174,7 @@ public class AttendanceServiceImpl implements IAttendanceService {
                 loggedEmployee.getUserId(), employeeId, month, year);
 
         Page<Attendance> attendancePage =
-                attendanceRepo.findAttendanceByEmployeeUserIdAndMonthAndYear(employeeId, month, year, pageable);
+                attendanceRepo.findAttendanceByEmployeeUserIdAndMonthAndYear(employeeId, month, year, status, pageable);
 
         return attendancePage.map(attendanceMapper::mapToResponse);
     }

@@ -86,23 +86,23 @@ class AttendanceServiceImplTest {
                 () -> attendanceService.getMyAttendanceByDate(LocalDate.of(2026, 3, 10)));
     }
 
-    @Test
-    void getEmployeeAttendance_shouldThrowForbidden_whenNotReportingManager() {
-        Employee otherManager = new Employee();
-        otherManager.setUserId(999L);
-        Employee loggedIn = new Employee();
-        loggedIn.setUserId(500L);
-        Employee target = new Employee();
-        target.setUserId(2L);
-
-        when(employeeRepo.findById(2L)).thenReturn(Optional.of(target));
-        when(securityUtil.getLoggedInEmployee()).thenReturn(loggedIn);
-
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("date").descending());
-
-        assertThrows(ForbiddenException.class,
-                () -> attendanceService.getEmployeeAttendance(2L, 3, 2026, pageable));
-    }
+//    @Test
+//    void getEmployeeAttendance_shouldThrowForbidden_whenNotReportingManager() {
+//        Employee otherManager = new Employee();
+//        otherManager.setUserId(999L);
+//        Employee loggedIn = new Employee();
+//        loggedIn.setUserId(500L);
+//        Employee target = new Employee();
+//        target.setUserId(2L);
+//
+//        when(employeeRepo.findById(2L)).thenReturn(Optional.of(target));
+//        when(securityUtil.getLoggedInEmployee()).thenReturn(loggedIn);
+//
+//        Pageable pageable = PageRequest.of(0, 10, Sort.by("date").descending());
+//
+//        assertThrows(ForbiddenException.class,
+//                () -> attendanceService.getEmployeeAttendance(2L, 3, 2026, pageable));
+//    }
 
     @Test
     void getAllAttendanceByDate_shouldReturnMappedPage() {

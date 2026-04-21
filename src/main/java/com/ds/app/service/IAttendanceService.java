@@ -5,6 +5,8 @@ import com.ds.app.dto.response.MonthlyAttendanceReport;
 import com.ds.app.dto.response.TeamAttendanceReportRow;
 
 import com.ds.app.entity.Employee;
+import com.ds.app.enums.AttendanceStatus;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +30,7 @@ public interface IAttendanceService {
 	
 	// MANAGER related methods
 
-	Page<AttendanceResponse> getEmployeeAttendance(Long employeeId, Integer month, Integer year, Pageable pageable);
+	Page<AttendanceResponse> getEmployeeAttendance(Long employeeId, Integer month, Integer year, AttendanceStatus status, Pageable pageable);
 
 	Page<AttendanceResponse> getAllAttendanceByDate(LocalDate date, Pageable pageable);
 

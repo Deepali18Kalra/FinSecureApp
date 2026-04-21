@@ -20,6 +20,8 @@ import com.ds.app.service.IEmailService;
 import com.ds.app.service.IRegularizationRequestService;
 import com.ds.app.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,17 +87,17 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
     }
 
     @Override
-    public List<RegularizationResponse> getMyRegularizationRequests(RegularizationRequestStatus status) {
+    public Page<RegularizationResponse> getMyRegularizationRequests(
+            RegularizationRequestStatus status,
+            Integer month,
+            Integer year,
+            Pageable pageable
+    ) {
         Employee me = securityUtils.getLoggedInEmployee();
 
-        List<RegularizationRequest> list;
-        if (status == null) {
-            list = regularizationRepository.findByEmployeeUserIdOrderByDateDesc(me.getUserId());
-        } else {
-            list = regularizationRepository.findByEmployeeUserIdAndStatusOrderByDateDesc(me.getUserId(), status);
-        }
-
-        return list.stream().map(regularizationMapper::mapToResponse).toList();
+        return regularizationRepository
+                .searchMyRegularizations(me.getUserId(), status, month, year, pageable)
+                .map(regularizationMapper::mapToResponse);
     }
 
     @Override
@@ -103,7 +105,10 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
         Employee loggedInManager = securityUtils.getLoggedInEmployee();
 
         return regularizationRepository
-                .findByEmployee_Manager_UserIdAndStatusOrderByDateDesc(loggedInManager.getUserId(), RegularizationRequestStatus.PENDING)
+                .findByEmployee_Manager_UserIdAndStatusOrderByDateDesc(
+                        loggedInManager.getUserId(),
+                        RegularizationRequestStatus.PENDING
+                )
                 .stream()
                 .map(regularizationMapper::mapToResponse)
                 .toList();
@@ -117,7 +122,8 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
         RegularizationRequest regularizationReq = regularizationRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Regularization request not found with id: " + requestId));
 
-        if (regularizationReq.getEmployee().getManager() == null || !regularizationReq.getEmployee().getManager().getUserId().equals(loggedInManager.getUserId())) {
+        if (regularizationReq.getEmployee().getManager() == null
+                || !regularizationReq.getEmployee().getManager().getUserId().equals(loggedInManager.getUserId())) {
             throw new ForbiddenException("You are not authorised to process this regularization request");
         }
 
@@ -128,7 +134,10 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
         if (request.getStatus().equals(ApprovalStatus.APPROVED)) {
             regularizationReq.setStatus(RegularizationRequestStatus.APPROVED);
 
-            Attendance attendance = attendanceRepo.findByEmployeeUserIdAndDate(regularizationReq.getEmployee().getUserId(), regularizationReq.getDate())
+            Attendance attendance = attendanceRepo.findByEmployeeUserIdAndDate(
+                            regularizationReq.getEmployee().getUserId(),
+                            regularizationReq.getDate()
+                    )
                     .orElseGet(() -> {
                         Attendance newAttendance = Attendance.builder()
                                 .employee(regularizationReq.getEmployee())
@@ -139,7 +148,7 @@ public class RegularizationRequestServiceImpl implements IRegularizationRequestS
 
             if (regularizationReq.getPunchInTime() != null) {
                 attendance.setPunchInTime(regularizationReq.getPunchInTime());
-                LocalTime threshold = LocalTime.of(12,0);
+                LocalTime threshold = LocalTime.of(12, 0);
                 boolean isLateArrival = regularizationReq.getPunchInTime().isAfter(threshold);
                 attendance.setIsLate(isLateArrival);
             }

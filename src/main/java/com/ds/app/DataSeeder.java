@@ -43,7 +43,7 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         log.info("Starting demo data generation (including April Discrepancy Scenarios)...");
-        String defaultPass = passwordEncoder.encode("password123");
+        String defaultPass = passwordEncoder.encode("123");
 
         seedHolidays();
 

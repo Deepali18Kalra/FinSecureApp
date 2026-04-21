@@ -1,5 +1,6 @@
 package com.ds.app.dto.response;
 
+import com.ds.app.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class JWTResponseDTO {
 
-	private String token;
-	private String username;
-	private boolean isValid;
+    private String token;
+    private String username;
+    private boolean isValid; // may serialize as "valid" with Lombok getter naming
+    private UserRole role;
 }

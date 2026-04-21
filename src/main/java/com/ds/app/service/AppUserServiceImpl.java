@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class AppUserServiceImpl implements AppUserService{
 
@@ -21,4 +23,9 @@ public class AppUserServiceImpl implements AppUserService{
 		AppUser savedUser = appUserRepository.save(user);
 		return savedUser;
 	}
+
+    @Override
+    public Optional<AppUser> findByUsername(String username) {
+        return appUserRepository.findByUsername(username);
+    }
 }
